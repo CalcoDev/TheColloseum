@@ -3,24 +3,34 @@
 #include <stdlib.h>
 
 #include "base/base_include.h"
+#include "file_io/file_io.h"
 
 int main()
 {
-  String8 str_stack = Str8Lit("Stack string");
-
   Arena global_arena;
-  Arena string_arena;
-
   ArenaInit(&global_arena, Megabytes(1));
-  String8 str_arena_global = Str8LitArena(&global_arena, "Global arena string");
 
-  ArenaInitNested(&global_arena, &string_arena, Kilobytes(1));
-  String8 str_arena_nest = Str8LitArena(&string_arena, "Nested arena string");
+  char* path =
+      _fullpath(NULL, "..\\assets\\shaders\\default_vert.vs", _MAX_PATH);
 
-  printf("Nested arena scope.");
-  printf("Global arena scope.");
+  String8 contents = IO_ReadFileU8(&global_arena, path);
+  printf("Shader:\n\n%s\n\n", contents.data);
+
+  Str8LitArena(
+      &global_arena, "This is going to overwrite the previous things is it not?"
+  );
+
+  // String8 str = Str8LitArena(&global_arena, "Random string");
+  // printf("%s\n", str);
+
+  // TempArena temp_arena = ArenaBeginTemp(&global_arena);
+  // String8 str2 = Str8LitArena(&global_arena, "Temporary string?");
+  // printf("%s\n", str2);
+
+  // ArenaEndTemp(&temp_arena);
+  // String8 str3 = Str8LitArena(&global_arena, "Overwrite temp string.");
+  // printf("%s\n", str3);
 
   ArenaFree(&global_arena);
-  printf("Stack scope.");
   return 0;
 }
