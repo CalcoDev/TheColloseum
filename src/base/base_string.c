@@ -10,12 +10,18 @@ String8 Str8Init(U8* data, U64 size)
   return str;
 }
 
-String8 Str8InitArena(Arena* arena, U8* data, U64 size)
+String8 Str8InitArenaSize(Arena* arena, U64 size)
 {
   U8* ptr = (U8*)ArenaAlloc(arena, size + 1);
-  memcpy(ptr, data, size);
   ptr[size] = '\0';
   return Str8Init(ptr, size);
+}
+
+String8 Str8InitArena(Arena* arena, U8* data, U64 size)
+{
+  String8 str = Str8InitArenaSize(arena, size);
+  memcpy(str.data, data, size);
+  return str;
 }
 
 U8* Str8CString(String8 string)

@@ -15,6 +15,7 @@ typedef struct Arena
 void* ArenaInit(Arena* arena, U64 size);
 void* ArenaInitNested(Arena* parent, Arena* child, U64 size);
 
+// TODO(calco): align to pow of 2 byte.
 void* ArenaAlloc(Arena* arena, U64 size);
 void* ArenaAllocZero(Arena* arena, U64 size);
 

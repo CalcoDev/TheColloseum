@@ -15,6 +15,7 @@ typedef struct String8
 
 // Init Functions
 String8 Str8Init(U8* data, U64 size);
+String8 Str8InitArenaSize(Arena* arena, U64 size);
 String8 Str8InitArena(Arena* arena, U8* data, U64 size);
 
 #define Str8Lit(s_lit) ((String8){(U8*)(s_lit), sizeof(s_lit) - 1})
