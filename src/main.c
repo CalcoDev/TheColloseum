@@ -141,7 +141,8 @@ int main()
   // glUseProgram(program_handle);
 
   // Vertices and actual data
-  float vertices[] = {-0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.0f};
+  F32 vertices[] = {-0.5f, -0.5f, 0.5f, -0.5f, 0.5f,  0.0f,
+                    0.5f,  -0.5f, 0.5f, 0.5f,  -0.5f, 0.5f};
 
   // Set vertex array object and vertex buffer object
   U32 vertex_array_handle;
@@ -181,7 +182,7 @@ int main()
     // triangles
     glUseProgram(program_handle);
     glBindVertexArray(vertex_array_handle);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(F32));
 
     // events and buffers
     glfwSwapBuffers(window);
