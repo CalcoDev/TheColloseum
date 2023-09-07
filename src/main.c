@@ -142,10 +142,14 @@ int main()
 
   // Vertices and actual data
   F32 vertices[] = {
-      0.5f,  0.5f,  // top right
-      0.5f,  -0.5f, // bottom right
-      -0.5f, -0.5f, // bottom left
-      -0.5f, 0.5f,  // top left
+      0.5f,  0.5f,        // top right
+      1.0f,  0.0f,  0.0f, // colour
+      0.5f,  -0.5f,       // bottom right
+      0.0f,  1.0f,  0.0f, // colour
+      -0.5f, -0.5f,       // bottom left
+      0.0f,  0.0f,  1.0f, // colour
+      -0.5f, 0.5f,        // top left
+      0.3f,  0.3f,  0.3f  // colour
   };
   U32 indices[] = {
       0, 1, 3, // first triangle
@@ -176,8 +180,15 @@ int main()
   );
 
   // 4. Specify the format of the vertices received by the fragment shaders.
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(F32), (void*)0);
+
+  // NOTES(calco): Stride is between each attribute pointer.
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(F32), (void*)0);
   glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(
+      1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(F32), (void*)(2 * sizeof(F32))
+  );
+  glEnableVertexAttribArray(1);
 
   // render loop
   while (!glfwWindowShouldClose(window))
@@ -192,12 +203,12 @@ int main()
     // triangles
     glUseProgram(program_handle);
 
-    float time_value = glfwGetTime();
-    float r = (1 + sinf(time_value)) * 0.5f;
-    float g = (1 + sinf(time_value + r)) * 0.5f;
-    float b = (1 + sinf(time_value + r + g)) * 0.5f;
-    S32 uniform_location = glGetUniformLocation(program_handle, "cpu_colour");
-    glUniform4f(uniform_location, r, g, b, 1.0f);
+    // float time_value = glfwGetTime();
+    // float r = (1 + sinf(time_value)) * 0.5f;
+    // float g = (1 + sinf(time_value + r)) * 0.5f;
+    // float b = (1 + sinf(time_value + r + g)) * 0.5f;
+    // S32 uniform_location = glGetUniformLocation(program_handle,
+    // "cpu_colour"); glUniform4f(uniform_location, r, g, b, 1.0f);
 
     glBindVertexArray(vertex_array_handle);
     glDrawElements(
