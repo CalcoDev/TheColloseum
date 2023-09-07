@@ -138,11 +138,17 @@ int main()
     printf("%s\n", error_buffer);
   }
 
-  // glUseProgram(program_handle);
-
   // Vertices and actual data
-  F32 vertices[] = {-0.5f, -0.5f, 0.5f, -0.5f, 0.5f,  0.0f,
-                    0.5f,  -0.5f, 0.5f, 0.5f,  -0.5f, 0.5f};
+  F32 vertices[] = {
+      0.5f,  0.5f,  // top right
+      0.5f,  -0.5f, // bottom right
+      -0.5f, -0.5f, // bottom left
+      -0.5f, 0.5f,  // top left
+  };
+  U32 indices[] = {
+      0, 1, 3, // first triangle
+      1, 2, 3  // second triangle
+  };
 
   // Set vertex array object and vertex buffer object
   U32 vertex_array_handle;
@@ -151,23 +157,25 @@ int main()
   U32 vertex_buffer_handle;
   glGenBuffers(1, &vertex_buffer_handle);
 
+  U32 element_buffer_handle;
+  glGenBuffers(1, &element_buffer_handle);
+
   // 1. bind vao
   glBindVertexArray(vertex_array_handle);
 
-  // 2. Copy data to vertex_buffer_handle
+  // 2. Copy vertex data to vertex buffer
   glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_handle);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  // 3. Tell OpenGL what data we're sending. Should be called every time we want
-  // to draw something. This is why we want to use a Vertex Array Object
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(F32), (void*)0);
-  glEnableVertexAttribArray(0);
+  // 3. Copy index data to element buffer
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_handle);
+  glBufferData(
+      GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW
+  );
 
-  // NOTES: CALCO
-  // 4. Draw:
-  // glUseProgram(shader)
-  // glBindVertexArray(vao)
-  // drwa()
+  // 4. Specify the format of the vertices received by the fragment shaders.
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(F32), (void*)0);
+  glEnableVertexAttribArray(0);
 
   // render loop
   while (!glfwWindowShouldClose(window))
@@ -182,7 +190,10 @@ int main()
     // triangles
     glUseProgram(program_handle);
     glBindVertexArray(vertex_array_handle);
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(F32));
+    glDrawElements(
+        GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
+    );
+    glBindVertexArray(0);
 
     // events and buffers
     glfwSwapBuffers(window);
