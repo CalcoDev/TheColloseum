@@ -6,13 +6,21 @@
 
 int main()
 {
-  Arena arena;
-  ArenaInit(&arena, Megabytes(1));
+  String8 str_stack = Str8Lit("Stack string");
 
-  StringU8 sample = Str8Lit("Help please");
-  StringU8 arena_string = Str8InitArena(&arena, Str8Expand(sample));
-  StringU8 arena_str = Str8LitArena(&arena, "Welcome to the arena!");
+  Arena global_arena;
+  Arena string_arena;
 
-  ArenaFree(&arena);
+  ArenaInit(&global_arena, Megabytes(1));
+  String8 str_arena_global = Str8LitArena(&global_arena, "Global arena string");
+
+  ArenaInitNested(&global_arena, &string_arena, Kilobytes(1));
+  String8 str_arena_nest = Str8LitArena(&string_arena, "Nested arena string");
+
+  printf("Nested arena scope.");
+  printf("Global arena scope.");
+
+  ArenaFree(&global_arena);
+  printf("Stack scope.");
   return 0;
 }

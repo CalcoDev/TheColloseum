@@ -3,11 +3,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+void* init_arena_mem(Arena* arena, void* mem, U64 size)
+{
+  arena->start = mem;
+  arena->current = mem;
+  arena->size = size;
+
+  return mem;
+}
+
 void* ArenaInit(Arena* arena, U64 size)
 {
-  arena->start = (U8*)malloc(size);
-  arena->current = arena->start;
-  arena->size = size;
+  return init_arena_mem(arena, malloc(size), size);
+}
+
+void* ArenaInitNested(Arena* parent, Arena* child, U64 size)
+{
+  return init_arena_mem(child, ArenaAlloc(parent, size), size);
 }
 
 void* ArenaAlloc(Arena* arena, U64 size)
