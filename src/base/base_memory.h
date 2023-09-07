@@ -20,4 +20,14 @@ void* ArenaAllocZero(Arena* arena, U64 size);
 
 void ArenaFree(Arena* arena);
 
+typedef struct TempArena
+{
+  U8* prev_offset;
+  U8* curr_offset;
+  Arena* arena;
+} TempArena;
+
+TempArena ArenaBeginTemp(Arena* arena);
+void ArenaEndTemp(TempArena* temp_arena);
+
 #endif

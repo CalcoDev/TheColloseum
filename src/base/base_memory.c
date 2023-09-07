@@ -55,3 +55,18 @@ void ArenaFree(Arena* arena)
   arena->current = NULL;
   arena->size = 0;
 }
+
+TempArena ArenaBeginTemp(Arena* arena)
+{
+  TempArena temp;
+  temp.curr_offset = arena->current;
+  temp.prev_offset = arena->current;
+  temp.arena = arena;
+
+  return temp;
+}
+
+void ArenaEndTemp(TempArena* temp_arena)
+{
+  temp_arena->arena->current = temp_arena->prev_offset;
+}
