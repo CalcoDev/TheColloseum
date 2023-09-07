@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <math.h>
+
 // windows only something
 #include <windows.h>
 
@@ -189,6 +191,14 @@ int main()
 
     // triangles
     glUseProgram(program_handle);
+
+    float time_value = glfwGetTime();
+    float r = (1 + sinf(time_value)) * 0.5f;
+    float g = (1 + sinf(time_value + r)) * 0.5f;
+    float b = (1 + sinf(time_value + r + g)) * 0.5f;
+    S32 uniform_location = glGetUniformLocation(program_handle, "cpu_colour");
+    glUniform4f(uniform_location, r, g, b, 1.0f);
+
     glBindVertexArray(vertex_array_handle);
     glDrawElements(
         GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
