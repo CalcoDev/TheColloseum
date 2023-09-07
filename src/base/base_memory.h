@@ -14,6 +14,7 @@ typedef struct Arena
 
 void* ArenaInit(Arena* arena, U64 size);
 void* ArenaAlloc(Arena* arena, U64 size);
+void* ArenaAllocZero(Arena* arena, U64 size);
 void ArenaFree(Arena* arena);
 
 #endif

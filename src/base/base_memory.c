@@ -1,15 +1,11 @@
 #include "base_memory.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 void* ArenaInit(Arena* arena, U64 size)
 {
-  U8* l = (U8*)malloc(size);
-
-  for (int i = 0; i < 128; ++i)
-    *(l + i) = i;
-
-  arena->start = l;
+  arena->start = (U8*)malloc(size);
   arena->current = arena->start;
   arena->size = size;
 }
@@ -29,6 +25,14 @@ void* ArenaAlloc(Arena* arena, U64 size)
     // todo(calco): Assert or something.
     return NULL;
   }
+}
+
+void* ArenaAllocZero(Arena* arena, U64 size)
+{
+  void* res = ArenaAlloc(arena, size);
+  memset(res, 0, size);
+
+  return res;
 }
 
 void ArenaFree(Arena* arena)
