@@ -25,6 +25,9 @@ String8 Str8InitArena(Arena* arena, U8* data, U64 size);
 // Conversions
 U8* Str8CString(String8 string);
 
+// TODO(calco): Make String16 an actual thing, instead of hacky buffer.
+String8 Str16ToStr8(Arena* arena, U16* buffer, U64 size);
+
 // Helper Functions
 String8 Str8Prefix(String8 string, U64 size);
 String8 Str8Postfix(String8 string, U64 size);

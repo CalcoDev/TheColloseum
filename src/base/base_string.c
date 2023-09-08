@@ -30,6 +30,40 @@ U8* Str8CString(String8 string)
   return string.data;
 }
 
+/**
+ * @brief Converts a string with 16-bit wide character to 8-bit wide.
+ *
+ * @warning Scuffed because I am not actually converting UTF16 to UTF8 or ASCII
+ * But just chopping off 8 bits from the end.
+ *
+ * @param arena A memory arena used for allocating the new buffer.
+ * @param buffer The 16-bit wide character buffer.
+ * @param size The number of characters in the 16-bit wide character buffer.
+ * @return String8
+ */
+String8 Str16ToStr8(Arena* arena, U16* buffer, U64 size)
+{
+  String8 str = Str8InitArenaSize(arena, size);
+
+  U16* ptr_16 = buffer;
+  U8* ptr_8 = str.data;
+
+  U16* limit = (buffer + size);
+  while (ptr_16 < limit)
+  {
+    U16 val = (*ptr_16);
+    U8 low = val & 0xFF;
+    U8 high = (val >> 8) & 0xFF;
+
+    *(ptr_8) = low;
+
+    ptr_8 += 1;
+    ptr_16 += 1;
+  }
+
+  return str;
+}
+
 String8 Str8Prefix(String8 string, U64 size)
 {
   string.size += size;
