@@ -3,26 +3,43 @@ cmake_minimum_required(VERSION 3.20)
 project(colloseum_of_shadows LANGUAGES C)
 
 # configure project library
-file(
-    GLOB_RECURSE
-    sources
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-)
+# file(
+#     GLOB_RECURSE
+#     sources
+#     CONFIGURE_DEPENDS
+#     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+# )
 
-add_executable("${PROJECT_NAME}")
+set(sources 
+    "base/base_memory.c" 
+    "base/base_string.c" 
+    "os/os.c"
+)
+set(source_files_list "")
+foreach(source ${sources})
+    list(APPEND source_files_list "${CMAKE_CURRENT_SOURCE_DIR}/src/${source}")
+endforeach()
+string(JOIN " " source_files_string "${source_files_list}")
+
+message("sources: ${source}")
+message("sources_file_list: ${source_files_list}")
+message("sources_file_list: ${source_files_string}")
+
+add_executable("${PROJECT_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/src/main.c")
 
 target_include_directories(
     "${PROJECT_NAME}"
     PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
-target_sources("${PROJECT_NAME}" PUBLIC "${sources}")
+target_sources("${PROJECT_NAME}" PUBLIC "${source_files_string}")
 
 # configure libraries
 # glad
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/glad")
 target_link_libraries("${PROJECT_NAME}" glad)
+
+set_target_properties(colloseum_of_shadows PROPERTIES LINKER_LANGUAGE C)
 
 # GLFW
 set(GLFW_BUILD_DOCS OFF)
