@@ -11,3 +11,5 @@ AlignConsecutiveBitFields: Consecutive
 
 AlignAfterOpenBracket: BlockIndent
 BreakBeforeBraces: Allman
+
+IndentPPDirectives: AfterHash
