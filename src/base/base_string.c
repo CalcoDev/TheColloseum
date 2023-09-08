@@ -64,6 +64,7 @@ String8 Str16ToStr8(Arena* arena, U16* buffer, U64 size)
   return str;
 }
 
+// Helper Functions
 String8 Str8Prefix(String8 string, U64 size)
 {
   string.size += size;
@@ -75,5 +76,20 @@ String8 Str8Prefix(String8 string, U64 size)
 String8 Str8Postfix(String8 string, U64 size)
 {
   string.size += size;
+  return string;
+}
+
+String8 Str8ReplaceChar(String8 string, const U8 prev, const U8 current)
+{
+  U8* ptr = string.data;
+  U8* limit = string.data + string.size;
+  while (ptr < limit)
+  {
+    if (*(ptr) == prev)
+      *(ptr) = current;
+
+    ptr += 1;
+  }
+
   return string;
 }

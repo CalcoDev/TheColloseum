@@ -11,11 +11,15 @@ int main()
   ArenaInit(&global_arena, Megabytes(1));
 
   String8 cwd = OS_PathCurrentDir(&global_arena);
+  String8 relative_path = OS_PathRelative(&global_arena, cwd, Str8Lit("../"));
+  String8 exe_path = OS_PathExecutableDir(&global_arena);
 
   printf("CWD: %s\n\n", (char*)cwd.data);
+  printf("Relative path: %s\n\n", (char*)relative_path.data);
+  printf("Exe path: %s\n\n", (char*)exe_path.data);
 
   // char* path =
-  //     _fullpath(NULL, "..\\assets\\shaders\\default_vert.vs", _MAX_PATH);
+  // _fullpath(NULL, "..\\assets\\shaders\\default_vert.vs", _MAX_PATH);
 
   // char* a = getaShaderContent(path);
   // printf("Shader A:\n\n%s\n\n", a);

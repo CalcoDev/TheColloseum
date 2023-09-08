@@ -204,7 +204,7 @@ int amain()
     glUseProgram(program_handle);
 
     // float time_value = glfwGetTime();
-    // float r = (1 + sinf(time_value)) * 0.5f;
+    // float r = (1 + sinf(time_value + 1)) * 0.5f;
     // float g = (1 + sinf(time_value + r)) * 0.5f;
     // float b = (1 + sinf(time_value + r + g)) * 0.5f;
     // S32 uniform_location = glGetUniformLocation(program_handle,

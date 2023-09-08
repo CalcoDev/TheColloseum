@@ -21,9 +21,9 @@ foreach(source ${sources})
 endforeach()
 string(JOIN " " source_files_string "${source_files_list}")
 
-message("sources: ${source}")
-message("sources_file_list: ${source_files_list}")
-message("sources_file_list: ${source_files_string}")
+# message("sources: ${source}")
+# message("sources_file_list: ${source_files_list}")
+# message("sources_file_list: ${source_files_string}")
 
 add_executable("${PROJECT_NAME}" "${CMAKE_CURRENT_SOURCE_DIR}/src/main.c")
 
@@ -33,6 +33,24 @@ target_include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 target_sources("${PROJECT_NAME}" PUBLIC "${source_files_string}")
+
+# OS specific things
+if(WIN32)
+    message("Using win32.")
+    find_library(SHLWAPI Shlwapi.lib)
+    if(SHLWAPI)
+        target_link_libraries("${PROJECT_NAME}" "${SHLWAPI}")
+        message("Linked SHLWAPI")
+    else()
+        message("Could not gind SHLWAPI. Trying manual path.")
+
+        # TODO(calco): THIS IS DUMB. VERY VERY DUMB AND NEED TO FIX
+        set(SHLWAPI "C:/Program\ Files\ (x86)/Windows\ Kits/10/Lib/10.0.19041.0/um/x64/ShLwApi.Lib")
+        target_link_libraries("${PROJECT_NAME}" "${SHLWAPI}")
+    endif()
+else()
+    set(SHLWAPI)
+endif()
 
 # configure libraries
 # glad

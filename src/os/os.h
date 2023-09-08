@@ -23,8 +23,9 @@ B32 OS_FileWrite(const char* filepath, const char* data);
 
 // NOTE(calco): -- Paths
 String8 OS_PathCurrentDir(Arena* arena);
+String8 OS_PathExecutableDir(Arena* arena);
 String8 OS_PathUserData(Arena* arena);
 String8 OS_PathTempData(Arena* arena);
-String8 OS_PathAbolsute(const char* relative);
+String8 OS_PathRelative(Arena* arena, String8 base, String8 rel);
 
 #endif

@@ -1,6 +1,8 @@
 #include "os.h"
 
 #include <Windows.h>
+//
+#include <Shlwapi.h>
 
 // NOTE(calco): -- Basic Memory Allocator
 // NOTE(calco): -- Windows implementation
@@ -38,19 +40,55 @@ String8 OS_FileRead(Arena* arena, const char* filepath) {}
 B32 OS_FileWrite(const char* filepath, const char* data) {}
 
 // NOTE(calco): -- Paths
+
+// TODO(calco): Consider making this a string function.
 String8 OS_PathCurrentDir(Arena* arena)
 {
   U16 buffer[2048];
 
   // TODO(calco): This is technically a String16 not String8 but for now it work
-  U64 cwd_size = (U64)GetCurrentDirectoryW(2048, buffer);
-  String8 str = Str16ToStr8(arena, buffer, cwd_size);
+  // TODO(calco): Inconsistent, as all other impls of this use A version.
+  // TODO(calco): Look into fixing this.
+  U64 size = (U64)GetCurrentDirectoryW(2048, buffer);
+  String8 str = Str16ToStr8(arena, buffer, size);
 
-  // M_BaseMemory win_mem = OS_BaseMemory();
-  // win_mem.copy(buffer, str.data, cwd_size);
+  return Str8ReplaceChar(str, '\\', '/');
+}
+
+String8 OS_PathExecutableDir(Arena* arena)
+{
+  U16 buffer[2048];
+
+  GetModuleFileNameA(NULL, buffer, 2048);
+  U8* dir_ptr = strrchr(buffer, '\\');
+  *(dir_ptr) = '\0';
+  U64 size = strlen(buffer);
+  String8 str = Str8InitArena(arena, buffer, size);
+
+  Str8ReplaceChar(str, '\\', '/');
 
   return str;
 }
+
 String8 OS_PathUserData(Arena* arena) {}
 String8 OS_PathTempData(Arena* arena) {}
-String8 OS_PathAbolsute(const char* relative) {}
+String8 OS_PathRelative(Arena* arena, String8 base, String8 rel)
+{
+  U16 buffer[2048];
+
+  // Windows-ify paths
+  Str8ReplaceChar(base, '/', '\\');
+  Str8ReplaceChar(rel, '/', '\\');
+
+  // TODO(calco): String8 to String16
+  PathCombineA(buffer, base.data, rel.data); // pathcombinew
+  U64 combined_size = strlen(buffer);        // wslen
+  // Str16ToStr8(arena, buffer, combined_size)
+  String8 str = Str8InitArena(arena, buffer, combined_size);
+
+  // Unwindows-ify paths
+  Str8ReplaceChar(base, '\\', '/');
+  Str8ReplaceChar(rel, '\\', '/');
+
+  return Str8ReplaceChar(str, '\\', '/');
+}

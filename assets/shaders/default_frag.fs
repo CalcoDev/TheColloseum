@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 in vec4 vertex_colour;
 
-// uniform vec4 cpu_colour;
+uniform vec4 cpu_colour;
 
 void main()
 {
