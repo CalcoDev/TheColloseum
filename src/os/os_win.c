@@ -1,8 +1,8 @@
 #include "os.h"
 
-#include <Windows.h>
-//
 #include <Shlwapi.h>
+#include <UserEnv.h>
+#include <Windows.h>
 
 // NOTE(calco): -- Basic Memory Allocator
 // NOTE(calco): -- Windows implementation
@@ -30,14 +30,96 @@ M_BaseMemory OS_BaseMemory()
 }
 
 // NOTE(calco): -- File I/O
-B32 OS_FileCreate(const char* filepath) {}
-B32 OS_FileDelete(const char* filepath) {}
+B32 OS_FileCreate(const char* filepath)
+{
+  HANDLE file = CreateFileA(
+      filepath,              //
+      GENERIC_WRITE,         //
+      0,                     //
+      NULL,                  //
+      CREATE_NEW,            //
+      FILE_ATTRIBUTE_NORMAL, //
+      NULL                   //
+  );
 
-B32 OS_FileExists(const char* filepath) {}
-B32 OS_FileRename(const char* filepath) {}
+  return (B32)(file == INVALID_HANDLE_VALUE);
+}
+B32 OS_FileDelete(const char* filepath) { return (B32)DeleteFile(filepath); }
 
-String8 OS_FileRead(Arena* arena, const char* filepath) {}
-B32 OS_FileWrite(const char* filepath, const char* data) {}
+U32 OS_FileExists(const char* filepath)
+{
+  U32 file_attrib = GetFileAttributesA(filepath);
+
+  //  TODO(calco): Maybe this doesnt cover quite all cases.
+  if (file_attrib == INVALID_FILE_ATTRIBUTES &&
+      GetLastError() == ERROR_FILE_NOT_FOUND)
+  {
+    return 0;
+  }
+
+  if (file_attrib && FILE_ATTRIBUTE_DIRECTORY)
+    return 2;
+
+  return 1;
+}
+
+B32 OS_FileRename(const char* filepath, const char* name) {}
+
+// TODO(calco): NO ERROR HANDLING
+/**
+ * @brief Reads the contents of a file.
+ * @param arena The arena used for allocating the return buffer.
+ * @param filepath The path to the file to be read.
+ * @return The contents of the file, in an 8-bit string.
+ */
+String8 OS_FileRead(Arena* arena, const char* filepath)
+{
+  // Open file
+  HANDLE file = CreateFileA(
+      filepath,     // path to file
+      GENERIC_READ, // access rights
+      0,    // share stuff with os. 0 means nothing can read write and delete
+      NULL, // some security things and stuff aaa
+      OPEN_EXISTING,         // behaviour for stuff
+      FILE_ATTRIBUTE_NORMAL, // Default file stuff
+      NULL
+  );
+
+  // Get file size in bytes
+  U64 size = (U64)GetFileSize(file, NULL);
+  String8 str = Str8InitArenaSize(arena, size);
+
+  U32 bytes_read = 0;
+  B32 success = ReadFile(file, str.data, size, &bytes_read, NULL);
+
+  CloseHandle(file);
+
+  if (success)
+    return str;
+  else
+    return Str8Lit("");
+}
+
+B32 OS_FileWrite(const char* filepath, String8 string)
+{
+  // Open file
+  HANDLE file = CreateFileA(
+      filepath,      // path to file
+      GENERIC_WRITE, // access rights
+      0,    // share stuff with os. 0 means nothing can read write and delete
+      NULL, // some security things and stuff aaa
+      OPEN_ALWAYS,           // behaviour for stuff
+      FILE_ATTRIBUTE_NORMAL, // Default file stuff
+      NULL
+  );
+
+  U32 bytes_written = 0;
+  B32 success = WriteFile(file, string.data, string.size, &bytes_written, NULL);
+
+  CloseHandle(file);
+
+  return success;
+}
 
 // NOTE(calco): -- Paths
 
@@ -70,8 +152,35 @@ String8 OS_PathExecutableDir(Arena* arena)
   return str;
 }
 
-String8 OS_PathUserData(Arena* arena) {}
-String8 OS_PathTempData(Arena* arena) {}
+String8 OS_PathUserData(Arena* arena)
+{
+  U8 buffer[2048];
+  // HANDLE token = GetCurrentProcessToken();
+
+  HANDLE token;
+  B32 s_token = OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token);
+
+  U32 l_userdata = 2048;
+  B32 s_userdata = GetUserProfileDirectoryA(token, buffer, &l_userdata);
+  // TODO(calco): Error handling
+  U64 size = strlen(buffer);
+  String8 str = Str8InitArena(arena, buffer, size);
+
+  // Dewindowsify paths
+  return Str8ReplaceChar(str, '\\', '/');
+}
+
+String8 OS_PathTempData(Arena* arena)
+{
+  U8 buffer[2048];
+  B32 success = GetTempPathA(2048, buffer);
+  // TODO(calco): Error handling
+  U64 size = strlen(buffer);
+  String8 str = Str8InitArena(arena, buffer, size);
+
+  return Str8ReplaceChar(str, '\\', '/');
+}
+
 String8 OS_PathRelative(Arena* arena, String8 base, String8 rel)
 {
   U16 buffer[2048];

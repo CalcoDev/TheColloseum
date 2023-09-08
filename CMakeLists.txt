@@ -37,16 +37,22 @@ target_sources("${PROJECT_NAME}" PUBLIC "${source_files_string}")
 # OS specific things
 if(WIN32)
     message("Using win32.")
-    find_library(SHLWAPI Shlwapi.lib)
-    if(SHLWAPI)
-        target_link_libraries("${PROJECT_NAME}" "${SHLWAPI}")
-        message("Linked SHLWAPI")
-    else()
-        message("Could not gind SHLWAPI. Trying manual path.")
 
-        # TODO(calco): THIS IS DUMB. VERY VERY DUMB AND NEED TO FIX
-        set(SHLWAPI "C:/Program\ Files\ (x86)/Windows\ Kits/10/Lib/10.0.19041.0/um/x64/ShLwApi.Lib")
-        target_link_libraries("${PROJECT_NAME}" "${SHLWAPI}")
+    # TODO(calco): THIS IS DUMB. VERY VERY DUMB AND NEED TO FIX
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};C:/Program\ Files\ (x86)/Windows\ Kits/10/Lib/10.0.19041.0/um/x64/")
+
+    find_library(shlwapi ShLwApi.lib)
+    if(shlwapi)
+        target_link_libraries("${PROJECT_NAME}" "${shlwapi}")
+    else()
+        message("Could not gind shlwapi.")
+    endif()
+
+    find_library(userenv UserEnv.lib)
+    if(userenv)
+        target_link_libraries("${PROJECT_NAME}" "${userenv}")
+    else()
+        message("Could not gind userenv.")
     endif()
 else()
     set(SHLWAPI)

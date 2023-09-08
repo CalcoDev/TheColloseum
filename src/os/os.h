@@ -15,11 +15,17 @@ M_BaseMemory OS_BaseMemory();
 B32 OS_FileCreate(const char* filepath);
 B32 OS_FileDelete(const char* filepath);
 
-B32 OS_FileExists(const char* filepath);
+/**
+ * @brief Checks whether a file or directory exists.
+ * @param filepath The path to check.
+ * @return 0, if the file doesn't exist, 1 if it is a file, 2 if it is a
+ * directory.
+ */
+S32 OS_FileExists(const char* filepath);
 B32 OS_FileRename(const char* filepath, const char* name);
 
 String8 OS_FileRead(Arena* arena, const char* filepath);
-B32 OS_FileWrite(const char* filepath, const char* data);
+B32 OS_FileWrite(const char* filepath, String8 string);
 
 // NOTE(calco): -- Paths
 String8 OS_PathCurrentDir(Arena* arena);
