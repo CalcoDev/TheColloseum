@@ -3,10 +3,29 @@
 
 #include "base_types.h"
 
-/// @brief Static linear allocator.
+// NOTE(calco): -- Basic Memory Allocator
+typedef void* M_ReserveFunc(void* ctx, U64 size);
+typedef void M_CommitFunc(void* ctx, void* ptr, U64 size);
+typedef void M_DecommitFunc(void* ctx, void* ptr, U64 size);
+typedef void M_ReleaseFunc(void* ctx, void* ptr, U64 size);
+
+typedef void M_CopyFunc(void* src, void* dest, U64 size);
+
+typedef struct M_BaseMemory
+{
+  M_ReserveFunc* reserve;
+  M_CommitFunc* commit;
+  M_DecommitFunc* decommit;
+  M_ReleaseFunc* release;
+  M_CopyFunc* copy;
+  void* ctx;
+} M_BaseMemory;
+
+M_BaseMemory M_MallocBaseMemory(void);
+
+// NOTE(calco): -- Arena / Linear Allocator
 typedef struct Arena
 {
-  // Use U8 for byte level granularity.
   U8* start;
   U8* current;
   U64 size;
@@ -15,6 +34,7 @@ typedef struct Arena
 void* ArenaInit(Arena* arena, U64 size);
 void* ArenaInitNested(Arena* parent, Arena* child, U64 size);
 
+// TODO(calco): ArenaDealloc
 // TODO(calco): align to pow of 2 byte.
 void* ArenaAlloc(Arena* arena, U64 size);
 void* ArenaAllocZero(Arena* arena, U64 size);

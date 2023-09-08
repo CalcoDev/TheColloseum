@@ -3,6 +3,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOTE(calco): -- Basic Memory Allocator
+// NOTE(calco): -- Malloc & Free implementation
+void* m_malloc_reserve(void* ctx, U64 size) { return (malloc(size)); }
+void m_malloc_commit(void* ctx, void* ptr, U64 size) {}
+void m_malloc_decommit(void* ctx, void* ptr, U64 size) {}
+void m_malloc_release(void* ctx, void* ptr, U64 size) { free(ptr); }
+void m_malloc_copy(void* src, void* dest, U64 size) { memcpy(dest, src, size); }
+
+M_BaseMemory M_MallocBaseMemory(void)
+{
+  static M_BaseMemory memory;
+  if (memory.reserve == 0)
+  {
+    memory.reserve = m_malloc_reserve;
+    memory.commit = m_malloc_commit;
+    memory.decommit = m_malloc_decommit;
+    memory.release = m_malloc_release;
+    memory.copy = m_malloc_copy;
+  }
+
+  return memory;
+}
+
+// NOTE(calco): -- Linear Allocator
 void* init_arena_mem(Arena* arena, void* mem, U64 size)
 {
   arena->start = mem;
