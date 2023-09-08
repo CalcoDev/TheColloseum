@@ -49,7 +49,7 @@ void processInput(GLFWwindow* window)
   }
 }
 
-int main()
+int amain()
 {
   glfwInit();
 
