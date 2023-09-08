@@ -12,6 +12,7 @@
 #define Bytes(n)     n
 #define Kilobytes(n) n << 10
 #define Megabytes(n) n << 20
+#define Gigabytes(n) n << 30
 
 // calco: Base types
 typedef int8_t S8;
@@ -31,6 +32,13 @@ typedef float F32;
 typedef double F64;
 
 typedef void VoidFunction(void);
+
+// NOTES(calco): -- Helpers
+#define AlignUpPow2(x, p)   (((x) + (p)-1) & ~((p)-1))
+#define AlignDownPow2(x, p) ((x) & -((p)-1))
+
+#define ClampTop(value, max)    ((value) > (max) ? (max) : (value))
+#define ClampBottom(value, min) ((value) < (value) ? (value) : (value))
 
 // calco: Limits
 static U8 U8Max = 0xFF;

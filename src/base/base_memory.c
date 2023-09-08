@@ -20,77 +20,109 @@ M_BaseMemory M_MallocBaseMemory(void)
     memory.commit = m_malloc_commit;
     memory.decommit = m_malloc_decommit;
     memory.release = m_malloc_release;
-    memory.copy = m_malloc_copy;
   }
 
   return memory;
 }
 
 // NOTE(calco): -- Linear Allocator
-void* init_arena_mem(Arena* arena, void* mem, U64 size)
+void ArenaInit(Arena* arena, M_BaseMemory* memory, U64 size)
 {
-  arena->start = mem;
-  arena->current = mem;
   arena->size = size;
+  arena->memory = memory;
 
-  return mem;
+  void* mem = memory->reserve(memory->ctx, size);
+  arena->start = mem;
+  arena->push_offset = 0;
+  arena->commit_offset = 0;
 }
 
-void* ArenaInit(Arena* arena, U64 size)
+void* ArenaPush(Arena* arena, U64 size)
 {
-  return init_arena_mem(arena, malloc(size), size);
-}
-
-void* ArenaInitNested(Arena* parent, Arena* child, U64 size)
-{
-  return init_arena_mem(child, ArenaAlloc(parent, size), size);
-}
-
-void* ArenaAlloc(Arena* arena, U64 size)
-{
-  B8 overflow = (arena->current + size) > (arena->start + arena->size);
-  if (!overflow)
+  void* res = 0;
+  if ((arena->push_offset + size) <= arena->size)
   {
-    U8* mem = arena->current;
-    arena->current = arena->current + size;
+    // No overflow, can allocate
+    res = arena->start + arena->push_offset;
+    arena->push_offset += size;
 
-    return mem;
-  }
-  else
-  {
-    // todo(calco): Assert or something.
-    return NULL;
-  }
-}
+    if (arena->push_offset > arena->commit_offset)
+    {
+      // Would overflow the committed area. Commit and align to something cuz
+      // yes?
+      U64 next_commit_pos = ClampTop(
+          AlignUpPow2(arena->push_offset, Megabytes(64) - 1), arena->size
+      );
 
-void* ArenaAllocZero(Arena* arena, U64 size)
-{
-  void* res = ArenaAlloc(arena, size);
-  memset(res, 0, size);
+      arena->memory->commit(
+          arena->memory->ctx, arena->start + arena->commit_offset,
+          next_commit_pos - arena->commit_offset
+      );
+
+      arena->commit_offset = next_commit_pos;
+    }
+  }
 
   return res;
 }
 
-void ArenaFree(Arena* arena)
+void ArenaPopTo(Arena* arena, U64 pos)
 {
-  free(arena->start);
+  if (pos < arena->push_offset)
+  {
+    arena->push_offset = pos;
 
-  arena->start = NULL;
-  arena->current = NULL;
+    // Decommit stuff. Could probably be refactored into own code.
+    U64 next_commit_pos = ClampTop(
+        AlignDownPow2(arena->push_offset, Megabytes(64) - 1), arena->size
+    );
+
+    if (next_commit_pos > 0 && next_commit_pos < arena->commit_offset)
+    {
+      arena->memory->decommit(
+          arena->memory->ctx, arena->start + next_commit_pos,
+          arena->commit_offset - next_commit_pos
+      );
+
+      arena->commit_offset = next_commit_pos;
+    }
+  }
+}
+
+// NOTE(calco): Deprecated for now
+// void* ArenaAllocZero(Arena* arena, U64 size)
+// {
+//   void* res = ArenaPush(arena, size);
+//   memset(res, 0, size);
+
+//   return res;
+// }
+
+void ArenaRelease(Arena* arena)
+{
+  arena->memory->release(arena->memory->ctx, arena->start, arena->size);
+
   arena->size = 0;
+  arena->memory = 0;
+  arena->push_offset = 0;
+  arena->commit_offset = 0;
 }
 
 TempArena ArenaBeginTemp(Arena* arena)
 {
   TempArena temp;
-  temp.curr_offset = arena->current;
-  temp.prev_offset = arena->current;
   temp.arena = arena;
+
+  temp.prev_push_offset = arena->push_offset;
+  temp.prev_commit_offset = arena->commit_offset;
+
+  temp.curr_push_offset = arena->push_offset;
+  temp.curr_commit_offset = arena->commit_offset;
 
   return temp;
 }
 
 void ArenaEndTemp(TempArena* temp_arena)
 {
-  temp_arena->arena->current = temp_arena->prev_offset;
+  ArenaPopTo(temp_arena->arena, temp_arena->prev_push_offset);
 }

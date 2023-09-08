@@ -7,19 +7,48 @@
 
 int main()
 {
-  Arena global_arena;
-  ArenaInit(&global_arena, Megabytes(1));
+  // Arena global_arena;
+  // ArenaInit(&global_arena, Megabytes(1));
+
+  // M_BaseMemory memory = M_MallocBaseMemory();
+  M_BaseMemory memory = OS_BaseMemory();
+
+  Arena arena;
+  ArenaInit(&arena, &memory, Megabytes(1));
+
+  U8* ptr = ArenaPush(&arena, 128);
+  for (U8 i = 0; i < 128; ++i)
+    *(ptr + i) = i;
+
+  ArenaPopTo(&arena, 64);
+
+  TempArena temp = ArenaBeginTemp(&arena);
+
+  ptr = ArenaPush(&arena, 64);
+  for (U8 i = 0; i < 64; ++i)
+    *(ptr + i) = 64 - i;
+
+  ArenaEndTemp(&temp);
+
+  String8 str =
+      Str8LitArena(&arena, "First string allocated using Windows memory!");
+
+  printf("String: %s\n\n", (char*)str.data);
+
+  ArenaRelease(&arena);
 
   // String8 cwd = OS_PathCurrentDir(&global_arena);
   // String8 relative_path = OS_PathRelative(&global_arena, cwd,
-  // Str8Lit("../")); String8 exe_path = OS_PathExecutableDir(&global_arena);
+  // Str8Lit("../")); String8 exe_path =
+  // OS_PathExecutableDir(&global_arena);
 
   // printf("CWD: %s\n\n", (char*)cwd.data);
   // printf("Relative path: %s\n\n", (char*)relative_path.data);
   // printf("Exe path: %s\n\n", (char*)exe_path.data);
 
   // String8 shader_path = OS_PathRelative(
-  //     &global_arena, exe_path, Str8Lit("./assets/shaders/default_vert.vs")
+  //     &global_arena, exe_path,
+  //     Str8Lit("./assets/shaders/default_vert.vs")
   // );
   // String8 shader_content =
   //     OS_FileRead(&global_arena, (const char*)shader_path.data);
@@ -28,7 +57,8 @@ int main()
   // printf("Shader content: %s\n\n", (char*)shader_content.data);
 
   // String8 random_path =
-  //     OS_PathRelative(&global_arena, exe_path, Str8Lit("./new-pow.lore"));
+  //     OS_PathRelative(&global_arena, exe_path,
+  //     Str8Lit("./new-pow.lore"));
 
   // OS_FileCreate((const char*)random_path.data);
   // U32 a = OS_FileDelete(random_path.data);
@@ -43,11 +73,11 @@ int main()
   // printf("c: %u\n", c);
   // printf("d: %u\n", d);
 
-  String8 user_data = OS_PathUserData(&global_arena);
-  String8 temp = OS_PathTempData(&global_arena);
+  // String8 user_data = OS_PathUserData(&global_arena);
+  // String8 temp = OS_PathTempData(&global_arena);
 
-  printf("user data: %s\n", (char*)user_data.data);
-  printf("temp: %s\n", (char*)temp.data);
+  // printf("user data: %s\n", (char*)user_data.data);
+  // printf("temp: %s\n", (char*)temp.data);
 
   // B32 wrote = OS_FileWrite(
   //     (const char*)random_path.data, Str8Lit("new lore. lore got revamped.")
@@ -83,6 +113,5 @@ int main()
   // String8 str3 = Str8LitArena(&global_arena, "Overwrite temp string.");
   // printf("%s\n", str3);
 
-  // ArenaFree(&global_arena);
   return 0;
 }

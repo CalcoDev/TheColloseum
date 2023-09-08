@@ -4,7 +4,13 @@
 #include "base_memory.h"
 #include "base_types.h"
 
-/// @brief Represents a string. NOT NULL TERMINATED
+/**
+ * @brief Basic 8-bit character string.
+ * @warning If allocated inside an area,
+ * automatically appends a '\0' to the end, to ensure compatibility with
+ * cstrings.
+ * @warning Does not include '\0' in the size.
+ */
 typedef struct String8
 {
   U8* data;

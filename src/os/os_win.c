@@ -8,11 +8,35 @@
 // NOTE(calco): -- Windows implementation
 
 // TODO(calco): Implement windows implementation.
-void* m_os_win_reserve(void* ctx, U64 size) { return (malloc(size)); }
-void m_os_win_commit(void* ctx, void* ptr, U64 size) {}
-void m_os_win_decommit(void* ctx, void* ptr, U64 size) {}
-void m_os_win_release(void* ctx, void* ptr, U64 size) { free(ptr); }
-void m_os_win_copy(void* src, void* dest, U64 size) { memcpy(dest, src, size); }
+void* m_os_win_reserve(void* ctx, U64 size)
+{
+  return VirtualAlloc(
+      NULL,         // Tells win to allocate it wherever
+      size,         //
+      MEM_RESERVE,  // Just reserve the memory
+      PAGE_NOACCESS // Read or write => access violation error
+  );
+}
+
+void m_os_win_commit(void* ctx, void* ptr, U64 size)
+{
+  return VirtualAlloc(
+      ptr,           // Tells win to allocate it in the reserved memory
+      size,          //
+      MEM_COMMIT,    // Just commit
+      PAGE_READWRITE // Read or write
+  );
+}
+
+void m_os_win_decommit(void* ctx, void* ptr, U64 size)
+{
+  VirtualFree(ptr, size, MEM_DECOMMIT);
+}
+
+void m_os_win_release(void* ctx, void* ptr, U64 size)
+{
+  VirtualFree(ptr, 0, MEM_RELEASE);
+}
 
 M_BaseMemory OS_BaseMemory()
 {
@@ -23,7 +47,6 @@ M_BaseMemory OS_BaseMemory()
     memory.commit = m_os_win_commit;
     memory.decommit = m_os_win_decommit;
     memory.release = m_os_win_release;
-    memory.copy = m_os_win_copy;
   }
 
   return memory;

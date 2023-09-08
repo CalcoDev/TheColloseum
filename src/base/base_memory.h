@@ -9,15 +9,12 @@ typedef void M_CommitFunc(void* ctx, void* ptr, U64 size);
 typedef void M_DecommitFunc(void* ctx, void* ptr, U64 size);
 typedef void M_ReleaseFunc(void* ctx, void* ptr, U64 size);
 
-typedef void M_CopyFunc(void* src, void* dest, U64 size);
-
 typedef struct M_BaseMemory
 {
   M_ReserveFunc* reserve;
   M_CommitFunc* commit;
   M_DecommitFunc* decommit;
   M_ReleaseFunc* release;
-  M_CopyFunc* copy;
   void* ctx;
 } M_BaseMemory;
 
@@ -26,26 +23,35 @@ M_BaseMemory M_MallocBaseMemory(void);
 // NOTE(calco): -- Arena / Linear Allocator
 typedef struct Arena
 {
+  M_BaseMemory* memory;
   U8* start;
-  U8* current;
+  U64 push_offset;
+  U64 commit_offset;
   U64 size;
 } Arena;
 
-void* ArenaInit(Arena* arena, U64 size);
-void* ArenaInitNested(Arena* parent, Arena* child, U64 size);
+void ArenaInit(Arena* arena, M_BaseMemory* memory, U64 size);
 
 // TODO(calco): ArenaDealloc
 // TODO(calco): align to pow of 2 byte.
-void* ArenaAlloc(Arena* arena, U64 size);
-void* ArenaAllocZero(Arena* arena, U64 size);
+void* ArenaPush(Arena* arena, U64 size);
+void ArenaPopTo(Arena* arena, U64 pos);
 
-void ArenaFree(Arena* arena);
+// NOTE(calco): Deprecated for now
+// void* ArenaAllocZero(Arena* arena, U64 size);
 
+void ArenaRelease(Arena* arena);
+
+/**
+ * @brief Utility class for easily going back to a previous state of an Arena.
+ */
 typedef struct TempArena
 {
-  U8* prev_offset;
-  U8* curr_offset;
   Arena* arena;
+  U64 prev_push_offset;
+  U64 prev_commit_offset;
+  U64 curr_push_offset;
+  U64 curr_commit_offset;
 } TempArena;
 
 TempArena ArenaBeginTemp(Arena* arena);
