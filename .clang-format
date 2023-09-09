@@ -13,3 +13,4 @@ AlignAfterOpenBracket: BlockIndent
 BreakBeforeBraces: Allman
 
 IndentPPDirectives: AfterHash
+IndentCaseLabels: true

@@ -4,9 +4,11 @@
 #include <stdint.h>
 
 // calco: Helper macros
-// #define global   static
-// #define local    static
-// #define function static
+#define Statement(s)                                                           \
+  do                                                                           \
+  {                                                                            \
+    s                                                                          \
+  } while (0)
 
 // calco: Conversion
 #define Bytes(n)     n

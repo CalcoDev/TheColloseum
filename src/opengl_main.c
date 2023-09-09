@@ -41,7 +41,7 @@ void glfwErrorCallback(int code, const char* msg)
   printf("GLFW error: %d - %s\\n", code, msg);
 }
 
-void processInput(GLFWwindow* window)
+void ProcessWindowInput(GLFWwindow* window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
   {
@@ -194,7 +194,7 @@ int amain()
   while (!glfwWindowShouldClose(window))
   {
     // input
-    processInput(window);
+    ProcessWindowInput(window);
 
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

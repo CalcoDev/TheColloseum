@@ -6,5 +6,7 @@
 #include "base_memory.h"
 //
 #include "base_string.h"
+//
+#include "base_log.h"
 
 #endif

@@ -14,6 +14,7 @@ set(sources
     "base/base_memory.c" 
     "base/base_string.c" 
     "os/os.c"
+    "render/render.c"
 )
 set(source_files_list "")
 foreach(source ${sources})
@@ -57,6 +58,8 @@ if(WIN32)
 else()
     set(SHLWAPI)
 endif()
+
+# TODO(calco): Figure out debug and release builds.
 
 # configure libraries
 # glad
