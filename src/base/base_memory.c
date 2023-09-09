@@ -77,7 +77,7 @@ void ArenaPopTo(Arena* arena, U64 pos)
         AlignDownPow2(arena->push_offset, Megabytes(64) - 1), arena->size
     );
 
-    if (next_commit_pos > 0 && next_commit_pos < arena->commit_offset)
+    if (next_commit_pos > 1 && next_commit_pos < arena->commit_offset)
     {
       arena->memory->decommit(
           arena->memory->ctx, arena->start + next_commit_pos,
@@ -115,9 +115,6 @@ TempArena ArenaBeginTemp(Arena* arena)
 
   temp.prev_push_offset = arena->push_offset;
   temp.prev_commit_offset = arena->commit_offset;
-
-  temp.curr_push_offset = arena->push_offset;
-  temp.curr_commit_offset = arena->commit_offset;
 
   return temp;
 }

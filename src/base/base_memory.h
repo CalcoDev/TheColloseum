@@ -50,8 +50,6 @@ typedef struct TempArena
   Arena* arena;
   U64 prev_push_offset;
   U64 prev_commit_offset;
-  U64 curr_push_offset;
-  U64 curr_commit_offset;
 } TempArena;
 
 TempArena ArenaBeginTemp(Arena* arena);
