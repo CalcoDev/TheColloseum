@@ -2,7 +2,7 @@
 #define BASE_CONTEXT_H
 
 // NOTE(calco): Build mode
-// TODO(calco): Actualyl get this info from cmake.
+// TODO(calco): Actually get this info from cmake.
 #define BASE_BUILD_DEBUG 1
 // #ifdef CMAKE_DEBUG
 // #  define BASE_BUILD_DEBUG   1
@@ -11,6 +11,10 @@
 // #  define BASE_BUILD_DEBUG   0
 // #  define BASE_BUILD_RELEASE 1
 // #endif
+
+// NOTE(calco): -- Grpahics Backend
+// TODO(calco): Actually get this info from cmake.
+#define BASE_GRAPHICS_BACKEND_GL33 1
 
 // NOTE(calco): Data
 // NOTE(calco): -- Compilers --

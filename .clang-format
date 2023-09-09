@@ -8,6 +8,7 @@ ColumnLimit: 80
 
 AlignConsecutiveMacros: Consecutive
 AlignConsecutiveBitFields: Consecutive
+AlignConsecutiveAssignments: Consecutive
 
 AlignAfterOpenBracket: BlockIndent
 BreakBeforeBraces: Allman
