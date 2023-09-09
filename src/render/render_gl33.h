@@ -16,4 +16,11 @@ typedef struct R_Shader
   U32 handle;
 } R_Shader;
 
+// NOTE(calco): Generic name shader pack, refers to a program in opengl.
+typedef struct R_ShaderPack
+{
+  // TODO(calco): Vertex Array Object
+  U32 handle;
+} R_ShaderPack;
+
 #endif

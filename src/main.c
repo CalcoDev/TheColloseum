@@ -19,7 +19,6 @@ void ProcessWindowInput(GLFWwindow* window)
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 }
-
 int main()
 {
   // NOTES(calco): Init Memory
@@ -91,11 +90,33 @@ int main()
   R_BufferInit(&vertex_buffer, BufferFlag_Type_Vertex);
   R_BufferData(&vertex_buffer, vertices, sizeof(vertices) / sizeof(F32));
 
+  // Create an index buffer
   R_Buffer index_buffer = {0};
   R_BufferInit(&index_buffer, BufferFlag_Type_Index);
   R_BufferData(&index_buffer, indices, sizeof(indices) / sizeof(U32));
 
-  // Create an index buffer
+  // Do some shaders real quick.
+  String8 exe_path = OS_PathExecutableDir(&arena);
+
+  String8 vs_path = OS_PathRelative(
+      &arena, exe_path, Str8Lit("./assets/shaders/default_vert.vs")
+  );
+  String8 vs_data = OS_FileRead(&arena, vs_path);
+  R_Shader vs;
+  R_ShaderInit(&vs, ShaderType_Vertex);
+  R_ShaderData(&vs, vs_data);
+
+  String8 fs_path = OS_PathRelative(
+      &arena, exe_path, Str8Lit("./assets/shaders/default_frag.fs")
+  );
+  String8 fs_data = OS_FileRead(&arena, fs_path);
+  R_Shader fs;
+  R_ShaderInit(&fs, ShaderType_Fragment);
+  R_ShaderData(&fs, fs_data);
+
+  R_Shader* shaders[2] = {&vs, &fs};
+  R_ShaderPack program;
+  R_ShaderPackInit(&program, shaders, 2);
 
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
@@ -108,6 +129,10 @@ int main()
   // Clean up after OpenGL
   R_BufferFreeGPU(&vertex_buffer);
   R_BufferFreeGPU(&index_buffer);
+
+  R_ShaderFreeGPU(&vs);
+  R_ShaderFreeGPU(&fs);
+  R_ShaderPackFree(&program);
 
   Log("Destroying window.", "");
   glfwDestroyWindow(window);
