@@ -32,5 +32,6 @@ typedef enum R_ShaderType
 // NOTE(calco): -- Functions --
 void R_BufferInit(R_Buffer* buffer, R_BufferFlags flags);
 void R_BufferData(R_Buffer* buffer, void* data, U64 size);
+void R_BufferFreeGPU(R_Buffer* buffer);
 
 #endif

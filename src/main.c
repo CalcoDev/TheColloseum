@@ -91,6 +91,10 @@ int main()
   R_BufferInit(&vertex_buffer, BufferFlag_Type_Vertex);
   R_BufferData(&vertex_buffer, vertices, sizeof(vertices) / sizeof(F32));
 
+  R_Buffer index_buffer = {0};
+  R_BufferInit(&index_buffer, BufferFlag_Type_Index);
+  R_BufferData(&index_buffer, indices, sizeof(indices) / sizeof(U32));
+
   // Create an index buffer
 
   Log("Starting game loop.", "");
@@ -100,6 +104,10 @@ int main()
     // Render
     // Update
   }
+
+  // Clean up after OpenGL
+  R_BufferFreeGPU(&vertex_buffer);
+  R_BufferFreeGPU(&index_buffer);
 
   Log("Destroying window.", "");
   glfwDestroyWindow(window);
