@@ -1,2 +1,6 @@
-Error handling update
-Move all documentation into the header files, not the implementation.
+- Error handling update
+
+- Move all documentation into the header files, not the implementation.
+
+- Refactor windows specific functions to use windows specific types and namings
+inside, and only convert back at the end of function.

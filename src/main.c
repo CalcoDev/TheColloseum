@@ -10,32 +10,51 @@ int main()
   // Arena global_arena;
   // ArenaInit(&global_arena, Megabytes(1));
 
+  // String8 a = Str8Lit("Samepl sample sample");
+  // String8 b = Str8Lit("BBBBBBBB");
+
+  // printf("a");
+
   // M_BaseMemory memory = M_MallocBaseMemory();
   M_BaseMemory memory = OS_BaseMemory();
 
   Arena arena;
   ArenaInit(&arena, &memory, Megabytes(1));
 
-  U8* ptr = ArenaPush(&arena, 128);
-  for (U8 i = 0; i < 128; ++i)
-    *(ptr + i) = i;
+  String8 exe_path = OS_PathExecutableDir(&arena);
+  String8 new_dir =
+      OS_PathRelative(&arena, exe_path, Str8Lit("./ooga-booga-dir/sample.txt"));
 
-  ArenaPopTo(&arena, 64);
+  // B32 created_dir = OS_DirCreate(new_dir);
+  // printf("Created Dir: %i\n", created_dir);
 
-  TempArena temp = ArenaBeginTemp(&arena);
+  OS_FileRename(&arena, new_dir, Str8Lit("aaaaaaa"));
 
-  ptr = ArenaPush(&arena, 64);
-  for (U8 i = 0; i < 64; ++i)
-    *(ptr + i) = 64 - i;
+  // B32 renamed_dir = OS_DirRename(&arena, new_dir, Str8Lit("ooga-booga-dir"));
+  // printf("Renamed Dir: %i\n", renamed_dir);
 
-  ArenaEndTemp(&temp);
-
-  String8 str =
-      Str8LitArena(&arena, "First string allocated using Windows memory!");
-
-  printf("String: %s\n\n", (char*)str.data);
+  // String8 test = Str8LitArena(&arena, "Oooga booga lmao.");
 
   ArenaRelease(&arena);
+
+  // U8* ptr = ArenaPush(&arena, 128);
+  // for (U8 i = 0; i < 128; ++i)
+  //   *(ptr + i) = i;
+
+  // ArenaPopTo(&arena, 64);
+
+  // TempArena temp = ArenaBeginTemp(&arena);
+
+  // ptr = ArenaPush(&arena, 64);
+  // for (U8 i = 0; i < 64; ++i)
+  //   *(ptr + i) = 64 - i;
+
+  // ArenaEndTemp(&temp);
+
+  // String8 str =
+  //     Str8LitArena(&arena, "First string allocated using Windows memory!");
+
+  // printf("String: %s\n\n", (char*)str.data);
 
   // String8 cwd = OS_PathCurrentDir(&global_arena);
   // String8 relative_path = OS_PathRelative(&global_arena, cwd,

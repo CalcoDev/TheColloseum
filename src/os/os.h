@@ -11,9 +11,15 @@ M_BaseMemory OS_BaseMemory();
 
 // NOTE(calco): -- File I/O
 
+B32 OS_DirCreate(String8 filepath);
+B32 OS_DirDelete(String8 filepath);
+
+// TODO(calco): Remove arena from this.
+B32 OS_DirRename(Arena* arena, String8 filepath, String8 name);
+
 // ?? TODO(calco): Use basic char* or string
-B32 OS_FileCreate(const char* filepath);
-B32 OS_FileDelete(const char* filepath);
+B32 OS_FileCreate(String8 filepath);
+B32 OS_FileDelete(String8 filepath);
 
 /**
  * @brief Checks whether a file or directory exists.
@@ -21,11 +27,13 @@ B32 OS_FileDelete(const char* filepath);
  * @return 0, if the file doesn't exist, 1 if it is a file, 2 if it is a
  * directory.
  */
-S32 OS_FileExists(const char* filepath);
-B32 OS_FileRename(const char* filepath, const char* name);
+S32 OS_FileExists(String8 filepath);
 
-String8 OS_FileRead(Arena* arena, const char* filepath);
-B32 OS_FileWrite(const char* filepath, String8 string);
+// TODO(calco): Remove arena from this.
+B32 OS_FileRename(Arena* arena, String8 filepath, String8 name);
+
+String8 OS_FileRead(Arena* arena, String8 filepath);
+B32 OS_FileWrite(String8 filepath, String8 string);
 
 // NOTE(calco): -- Paths
 String8 OS_PathCurrentDir(Arena* arena);

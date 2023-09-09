@@ -53,10 +53,34 @@ M_BaseMemory OS_BaseMemory()
 }
 
 // NOTE(calco): -- File I/O
-B32 OS_FileCreate(const char* filepath)
+B32 OS_DirCreate(String8 filepath)
+{
+  return CreateDirectoryA(filepath.data, NULL);
+}
+
+B32 OS_DirDelete(String8 filepath) { return RemoveDirectoryA(filepath.data); }
+
+B32 OS_DirRename(Arena* arena, String8 filepath, String8 name)
+{
+  TempArena tmp = ArenaBeginTemp(arena);
+
+  String8 backpath = Str8LitArena(arena, "../");
+  String8 s = Str8InitArenaSize(arena, name.size + backpath.size);
+  memcpy(s.data, backpath.data, backpath.size);
+  memcpy((s.data + backpath.size), name.data, name.size);
+
+  String8 new_filepath = OS_PathRelative(arena, filepath, s);
+  B32 success = MoveFileA(filepath.data, new_filepath.data);
+
+  ArenaEndTemp(&tmp);
+
+  return success;
+}
+
+B32 OS_FileCreate(String8 filepath)
 {
   HANDLE file = CreateFileA(
-      filepath,              //
+      filepath.data,         //
       GENERIC_WRITE,         //
       0,                     //
       NULL,                  //
@@ -67,11 +91,11 @@ B32 OS_FileCreate(const char* filepath)
 
   return (B32)(file == INVALID_HANDLE_VALUE);
 }
-B32 OS_FileDelete(const char* filepath) { return (B32)DeleteFile(filepath); }
+B32 OS_FileDelete(String8 filepath) { return DeleteFileA(filepath.data); }
 
-U32 OS_FileExists(const char* filepath)
+U32 OS_FileExists(String8 filepath)
 {
-  U32 file_attrib = GetFileAttributesA(filepath);
+  U32 file_attrib = GetFileAttributesA(filepath.data);
 
   //  TODO(calco): Maybe this doesnt cover quite all cases.
   if (file_attrib == INVALID_FILE_ATTRIBUTES &&
@@ -86,7 +110,22 @@ U32 OS_FileExists(const char* filepath)
   return 1;
 }
 
-B32 OS_FileRename(const char* filepath, const char* name) {}
+B32 OS_FileRename(Arena* arena, String8 filepath, String8 name)
+{
+  TempArena tmp = ArenaBeginTemp(arena);
+
+  String8 backpath = Str8LitArena(arena, "../");
+  String8 s = Str8InitArenaSize(arena, name.size + backpath.size);
+  memcpy(s.data, backpath.data, backpath.size);
+  memcpy((s.data + backpath.size), name.data, name.size);
+
+  String8 new_filepath = OS_PathRelative(arena, filepath, s);
+  B32 success = MoveFileA(filepath.data, new_filepath.data);
+
+  ArenaEndTemp(&tmp);
+
+  return success;
+}
 
 // TODO(calco): NO ERROR HANDLING
 /**
@@ -95,12 +134,12 @@ B32 OS_FileRename(const char* filepath, const char* name) {}
  * @param filepath The path to the file to be read.
  * @return The contents of the file, in an 8-bit string.
  */
-String8 OS_FileRead(Arena* arena, const char* filepath)
+String8 OS_FileRead(Arena* arena, String8 filepath)
 {
   // Open file
   HANDLE file = CreateFileA(
-      filepath,     // path to file
-      GENERIC_READ, // access rights
+      filepath.data, // path to file
+      GENERIC_READ,  // access rights
       0,    // share stuff with os. 0 means nothing can read write and delete
       NULL, // some security things and stuff aaa
       OPEN_EXISTING,         // behaviour for stuff
@@ -123,11 +162,11 @@ String8 OS_FileRead(Arena* arena, const char* filepath)
     return Str8Lit("");
 }
 
-B32 OS_FileWrite(const char* filepath, String8 string)
+B32 OS_FileWrite(String8 filepath, String8 string)
 {
   // Open file
   HANDLE file = CreateFileA(
-      filepath,      // path to file
+      filepath.data, // path to file
       GENERIC_WRITE, // access rights
       0,    // share stuff with os. 0 means nothing can read write and delete
       NULL, // some security things and stuff aaa
