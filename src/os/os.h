@@ -6,11 +6,13 @@
 
 #include "base/base_string.h"
 
-// NOTE(calco): -- Memory
+// NOTE(calco): -- Initialization --
+void OS_Init();
+
+// NOTE(calco): -- Memory --
 M_BaseMemory OS_BaseMemory();
 
-// NOTE(calco): -- File I/O
-
+// NOTE(calco): -- File I/O --
 B32 OS_DirCreate(String8 filepath);
 B32 OS_DirDelete(String8 filepath);
 
@@ -35,11 +37,24 @@ B32 OS_FileRename(Arena* arena, String8 filepath, String8 name);
 String8 OS_FileRead(Arena* arena, String8 filepath);
 B32 OS_FileWrite(String8 filepath, String8 string);
 
-// NOTE(calco): -- Paths
+// NOTE(calco): -- Paths --
 String8 OS_PathCurrentDir(Arena* arena);
 String8 OS_PathExecutableDir(Arena* arena);
 String8 OS_PathUserData(Arena* arena);
 String8 OS_PathTempData(Arena* arena);
 String8 OS_PathRelative(Arena* arena, String8 base, String8 rel);
+
+// NOTE(calco): -- Time --
+
+// Maybe defined sometimes ???
+// DateTime OS_TimeSystemTimeToDateTime(os_specific_param);
+// os_specific_time OS_TimeDateTimeToSystemTime(DateTime date_time);
+
+DateTime OS_TimeUniversal();
+DateTime OS_TimeLocal();
+DateTime OS_TimeLocalFromUniversal(DateTime universal);
+DateTime OS_TimeUniversalFromLocal(DateTime local);
+
+PrecisionTime OS_TimeMicroseconds();
 
 #endif

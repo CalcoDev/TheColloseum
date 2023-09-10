@@ -11,6 +11,7 @@ project(colloseum_of_shadows LANGUAGES C)
 # )
 
 set(sources 
+    "base/base_types.c"
     "base/base_memory.c" 
     "base/base_string.c" 
     "os/os.c"
@@ -46,14 +47,21 @@ if(WIN32)
     if(shlwapi)
         target_link_libraries("${PROJECT_NAME}" "${shlwapi}")
     else()
-        message("Could not gind shlwapi.")
+        message("Could not find shlwapi.")
     endif()
 
     find_library(userenv UserEnv.lib)
     if(userenv)
         target_link_libraries("${PROJECT_NAME}" "${userenv}")
     else()
-        message("Could not gind userenv.")
+        message("Could not find userenv.")
+    endif()
+
+    find_library(windowsapp WindowsApp.lib)
+    if(userenv)
+        target_link_libraries("${PROJECT_NAME}" "${windowsapp}")
+    else()
+        message("Could not find windowsapp.")
     endif()
 else()
     set(SHLWAPI)

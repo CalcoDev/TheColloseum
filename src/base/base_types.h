@@ -35,6 +35,24 @@ typedef double F64;
 
 typedef void VoidFunction(void);
 
+// NOTE(calco): -- Time --
+typedef U64 PrecisionTime;
+
+typedef U64 DenseTime;
+typedef struct DateTime
+{
+  U16 milisecond; // [0, 999]
+  U8 second;      // [0, 59]
+  U8 minute;      // [0, 59]
+  U8 hour;        // [0, 23]
+  U8 day;         // [0, 30]
+  U8 month;       // [0, 11]
+  U32 year;       // years
+} DateTime;
+
+DenseTime DenseTimeFromDateTime(DateTime date_time);
+DateTime DateTimeFromDenseTime(DenseTime dense_time);
+
 // NOTES(calco): -- Helpers
 #define AlignUpPow2(x, p)   (((x) + (p)-1) & ~((p)-1))
 #define AlignDownPow2(x, p) ((x) & -((p)-1))

@@ -19,7 +19,28 @@ void ProcessWindowInput(GLFWwindow* window)
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 }
+
 int main()
+{
+  OS_Init();
+
+  PrecisionTime prec_time = OS_TimeMicroseconds();
+
+  // DenseTime dense_time = OS_TimeUniversal();
+  DateTime universal_date   = OS_TimeUniversal();
+  DenseTime universal_dense = DenseTimeFromDateTime(universal_date);
+  DateTime decoded          = DateTimeFromDenseTime(universal_dense);
+
+  DateTime local_date          = OS_TimeLocal();
+  DateTime conv_local_date     = OS_TimeLocalFromUniversal(universal_date);
+  DateTime conv_universal_date = OS_TimeUniversalFromLocal(local_date);
+
+  PrecisionTime prec_time2 = OS_TimeMicroseconds();
+
+  return 0;
+}
+
+int _main()
 {
   // NOTES(calco): Init Memory
   M_BaseMemory memory = OS_BaseMemory();
