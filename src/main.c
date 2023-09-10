@@ -20,7 +20,7 @@ void ProcessWindowInput(GLFWwindow* window)
   }
 }
 
-int main()
+int _main()
 {
   OS_Init();
 
@@ -40,9 +40,11 @@ int main()
   return 0;
 }
 
-int _main()
+int main()
 {
   // NOTES(calco): Init Memory
+  OS_Init();
+
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
   ArenaInit(&arena, &memory, Megabytes(1));
@@ -149,22 +151,38 @@ int _main()
   R_PipelineAddBuffer(&pipeline, &vertex_buffer);
   R_PipelineAddBuffer(&pipeline, &index_buffer);
 
+  PrecisionTime prev_loop_time    = 0;
+  PrecisionTime current_loop_time = 0;
+  PrecisionTime delta_time        = 0;
+
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
   {
-    glfwPollEvents();
+    current_loop_time = OS_TimeMicroseconds();
+    delta_time        = current_loop_time - prev_loop_time;
 
-    // Render
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // 60 FPS, both render and update
+    if (delta_time > 16000)
+    {
+      glfwPollEvents();
 
-    R_PipelineBind(&pipeline);
-    glDrawElements(
-        GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
-    );
+      // Update Game Logic
+      Log("Updated: %u!\nTime between frames: %u", current_loop_time,
+          delta_time);
 
-    glfwSwapBuffers(window);
-    // Update
+      // Render
+      glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT);
+
+      R_PipelineBind(&pipeline);
+      glDrawElements(
+          GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
+      );
+
+      glfwSwapBuffers(window);
+
+      prev_loop_time = current_loop_time;
+    }
   }
 
   // Clean up after OpenGL
