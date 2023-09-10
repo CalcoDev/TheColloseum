@@ -24,6 +24,10 @@ int _main()
 {
   OS_Init();
 
+  M_BaseMemory memory = OS_BaseMemory();
+  Arena arena;
+  ArenaInit(&arena, &memory, Megabytes(1));
+
   PrecisionTime prec_time = OS_TimeMicroseconds();
 
   // DenseTime dense_time = OS_TimeUniversal();
@@ -37,6 +41,8 @@ int _main()
 
   PrecisionTime prec_time2 = OS_TimeMicroseconds();
 
+  ArenaRelease(&arena);
+
   return 0;
 }
 
@@ -47,7 +53,7 @@ int main()
 
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
-  ArenaInit(&arena, &memory, Megabytes(1));
+  ArenaInit(&arena, &memory, Gigabytes(1));
 
   // NOTES(calco): GLFW
   Log("Initialising glfw.", "");
@@ -167,8 +173,8 @@ int main()
       glfwPollEvents();
 
       // Update Game Logic
-      Log("Updated: %u!\nTime between frames: %u", current_loop_time,
-          delta_time);
+      // Log("Updated: %u!\nTime between frames: %u", current_loop_time,
+      //     delta_time);
 
       // Render
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
