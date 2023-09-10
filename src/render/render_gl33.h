@@ -19,8 +19,23 @@ typedef struct R_Shader
 // NOTE(calco): Generic name shader pack, refers to a program in opengl.
 typedef struct R_ShaderPack
 {
-  // TODO(calco): Vertex Array Object
   U32 handle;
 } R_ShaderPack;
+
+// NOTE(calco): Generic name pipeline, refers to a VAO in opengl?
+typedef struct R_Pipeline
+{
+  // Shader
+  R_ShaderPack* shader_pack;
+
+  // VAO stuff
+  R_Attribute* attributes;
+  U64 attribute_count;
+  U32 handle;
+
+  // Internal state
+  U64 _attrib; // # of attributes added
+  U64 _bind;   // # of attributes bound
+} R_Pipeline;
 
 #endif

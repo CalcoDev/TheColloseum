@@ -81,19 +81,19 @@ int main()
       -0.5f, 0.5f,  // top left
   };
   U32 indices[] = {
-      0, 1, 3, // first triangle
-      1, 2, 3  // second triangle
+      0, 3, 1, // first triangle
+      1, 3, 2  // second triangle
   };
 
   // Create a vertex buffer
   R_Buffer vertex_buffer = {0};
   R_BufferInit(&vertex_buffer, BufferFlag_Type_Vertex);
-  R_BufferData(&vertex_buffer, vertices, sizeof(vertices) / sizeof(F32));
+  R_BufferData(&vertex_buffer, vertices, sizeof(vertices));
 
   // Create an index buffer
   R_Buffer index_buffer = {0};
   R_BufferInit(&index_buffer, BufferFlag_Type_Index);
-  R_BufferData(&index_buffer, indices, sizeof(indices) / sizeof(U32));
+  R_BufferData(&index_buffer, indices, sizeof(indices));
 
   // Do some shaders real quick.
   String8 exe_path = OS_PathExecutableDir(&arena);
@@ -118,11 +118,31 @@ int main()
   R_ShaderPack program;
   R_ShaderPackInit(&program, shaders, 2);
 
+  // Create the actual rendering pipeline.
+  R_Attribute attribute;
+  attribute.name = Str8Lit("Position");
+  attribute.type = AttributeType_F2;
+
+  R_Pipeline pipeline;
+  R_PipelineInit(&pipeline, &program, &attribute, 1);
+  R_PipelineAddBuffer(&pipeline, &vertex_buffer);
+  R_PipelineAddBuffer(&pipeline, &index_buffer);
+
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
   {
     glfwPollEvents();
+
     // Render
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    R_PipelineBind(&pipeline);
+    glDrawElements(
+        GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
+    );
+
+    glfwSwapBuffers(window);
     // Update
   }
 
@@ -133,6 +153,8 @@ int main()
   R_ShaderFreeGPU(&vs);
   R_ShaderFreeGPU(&fs);
   R_ShaderPackFree(&program);
+
+  R_PipelineFreeGPU(&pipeline);
 
   Log("Destroying window.", "");
   glfwDestroyWindow(window);
