@@ -8,5 +8,7 @@
 #include "base_string.h"
 //
 #include "base_log.h"
+//
+#include "base_hashmap.h"
 
 #endif

@@ -28,7 +28,7 @@ char* getShaderContent(const char* fileName)
   size = ftell(fp) + 1;
   fclose(fp);
 
-  fp = fopen(fileName, "r");
+  fp            = fopen(fileName, "r");
   shaderContent = memset(malloc(size), '\0', size);
   fread(shaderContent, 1, size - 1, fp);
   fclose(fp);
@@ -206,6 +206,7 @@ int amain()
     // float time_value = glfwGetTime();
     // float r = (1 + sinf(time_value + 1)) * 0.5f;
     // float g = (1 + sinf(time_value + r)) * 0.5f;
+    // float b = (1 + sinf(time_value + r + g)) * 0.5f;
     // float b = (1 + sinf(time_value + r + g)) * 0.5f;
     // S32 uniform_location = glGetUniformLocation(program_handle,
     // "cpu_colour"); glUniform4f(uniform_location, r, g, b, 1.0f);

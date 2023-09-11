@@ -20,7 +20,23 @@ void ProcessWindowInput(GLFWwindow* window)
   }
 }
 
-int _main()
+U64 hash(String8 key)
+{
+  U64 hash   = 5381;
+  U64 offset = 0;
+  U8 c;
+
+  while (offset < key.size)
+  {
+    c      = *(key.data + offset);
+    hash   = ((hash << 5) + hash) + c;
+    offset = offset + 1;
+  }
+
+  return hash % 1024;
+}
+
+int main()
 {
   OS_Init();
 
@@ -28,25 +44,41 @@ int _main()
   Arena arena;
   ArenaInit(&arena, &memory, Megabytes(1));
 
-  PrecisionTime prec_time = OS_TimeMicroseconds();
+  String8 u1 = Str8Lit("time_lol");
+  String8 u2 = Str8Lit("health_lol");
+  String8 u3 = Str8Lit("shield_lol");
+  String8 u4 = Str8Lit("void_lol");
 
-  // DenseTime dense_time = OS_TimeUniversal();
-  DateTime universal_date   = OS_TimeUniversal();
-  DenseTime universal_dense = DenseTimeFromDateTime(universal_date);
-  DateTime decoded          = DateTimeFromDenseTime(universal_dense);
+  Hashmap_String8U64 uniform_hashmap;
+  Hashmap_String8U64_Init(&arena, &uniform_hashmap, 1024, hash);
 
-  DateTime local_date          = OS_TimeLocal();
-  DateTime conv_local_date     = OS_TimeLocalFromUniversal(universal_date);
-  DateTime conv_universal_date = OS_TimeUniversalFromLocal(local_date);
+  Hashmap_String8U64_Add(&uniform_hashmap, u1, 1);
+  Hashmap_String8U64_Add(&uniform_hashmap, u2, 2);
+  Hashmap_String8U64_Add(&uniform_hashmap, u3, 3);
+  Hashmap_String8U64_Add(&uniform_hashmap, u4, 4);
 
-  PrecisionTime prec_time2 = OS_TimeMicroseconds();
+  printf(
+      "Bucket 1: %s - %u\n", (char*)u1.data,
+      Hashmap_String8U64_Get(&uniform_hashmap, u1)
+  );
+  printf(
+      "Bucket 2: %s - %u\n", (char*)u2.data,
+      Hashmap_String8U64_Get(&uniform_hashmap, u2)
+  );
+  printf(
+      "Bucket 3: %s - %u\n", (char*)u3.data,
+      Hashmap_String8U64_Get(&uniform_hashmap, u3)
+  );
+  printf(
+      "Bucket 4: %s - %u\n", (char*)u4.data,
+      Hashmap_String8U64_Get(&uniform_hashmap, u4)
+  );
 
   ArenaRelease(&arena);
-
   return 0;
 }
 
-int main()
+int _main()
 {
   // NOTES(calco): Init Memory
   OS_Init();

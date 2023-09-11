@@ -74,6 +74,8 @@ void R_ShaderFreeGPU(R_Shader* shader);
 void R_ShaderPackInit(R_ShaderPack* pack, R_Shader** shaders, U64 shader_count);
 void R_ShaderPackFree(R_ShaderPack* pack);
 
+// void R_ShaderPackUpload
+
 // NOTE(calco): -- Pipeline Functions --
 void R_PipelineInit(
     R_Pipeline* pipeline, R_ShaderPack* shader_pack, R_Attribute* attributes,

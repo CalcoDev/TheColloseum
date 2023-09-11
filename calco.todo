@@ -1,3 +1,11 @@
+Future
+- Uniform support in shaders and pipelines
+- Audio 
+- Textures
+- Simple renderers
+
+Big patchnotes
+
 - Error handling update
 
 - Move all documentation into the header files, not the implementation.
