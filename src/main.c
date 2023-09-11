@@ -49,29 +49,29 @@ int main()
   String8 u3 = Str8Lit("shield_lol");
   String8 u4 = Str8Lit("void_lol");
 
-  Hashmap_String8U64 uniform_hashmap;
-  Hashmap_String8U64_Init(&arena, &uniform_hashmap, 1024, hash);
+  Hashmap_String8_To_U64 uniform_hashmap;
+  Hashmap_String8_To_U64_Init(&arena, &uniform_hashmap, 1024, hash);
 
-  Hashmap_String8U64_Add(&uniform_hashmap, u1, 1);
-  Hashmap_String8U64_Add(&uniform_hashmap, u2, 2);
-  Hashmap_String8U64_Add(&uniform_hashmap, u3, 3);
-  Hashmap_String8U64_Add(&uniform_hashmap, u4, 4);
+  Hashmap_String8_To_U64_Add(&uniform_hashmap, u1, 1);
+  Hashmap_String8_To_U64_Add(&uniform_hashmap, u2, 2);
+  Hashmap_String8_To_U64_Add(&uniform_hashmap, u3, 3);
+  Hashmap_String8_To_U64_Add(&uniform_hashmap, u4, 4);
 
   printf(
       "Bucket 1: %s - %u\n", (char*)u1.data,
-      Hashmap_String8U64_Get(&uniform_hashmap, u1)
+      Hashmap_String8_To_U64_Get(&uniform_hashmap, u1)
   );
   printf(
       "Bucket 2: %s - %u\n", (char*)u2.data,
-      Hashmap_String8U64_Get(&uniform_hashmap, u2)
+      Hashmap_String8_To_U64_Get(&uniform_hashmap, u2)
   );
   printf(
       "Bucket 3: %s - %u\n", (char*)u3.data,
-      Hashmap_String8U64_Get(&uniform_hashmap, u3)
+      Hashmap_String8_To_U64_Get(&uniform_hashmap, u3)
   );
   printf(
       "Bucket 4: %s - %u\n", (char*)u4.data,
-      Hashmap_String8U64_Get(&uniform_hashmap, u4)
+      Hashmap_String8_To_U64_Get(&uniform_hashmap, u4)
   );
 
   ArenaRelease(&arena);
