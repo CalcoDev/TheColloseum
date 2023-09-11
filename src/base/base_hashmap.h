@@ -8,18 +8,21 @@
 // we dont do collisions for now
 
 // NOTE(calco): -- Hashmap --
-typedef struct Hashmap_Pair_String8U64
-{
-  // TODO(calco): Should these be pointers?
-  String8 key;
-  U64 value;
-} Hashmap_Pair_String8U64;
+
+// THIS IS SCUFFED. I DO NOT THINK PREPROCESSORS ARE SUPPOSED TO BE USED THIS
+// WAY HOWEVER IT MAKES GENERICS :SKULL:
+
+// #define Hashmap_CreateProrotype(key_type, value_type)\
+// typedef key_type Hashmap_##key_type##_To_##value_type##_Key;\
+// typedef value_type Hashmap_##key_type##_To_##value_type##_Value;\
+// \
+// typedef struct Hashmap_
 
 typedef U64 (*Hashmap_String8U64_HashFunction)(String8);
 
 typedef struct Hashmap_String8U64
 {
-  Hashmap_Pair_String8U64* values;
+  U64* values;
   Hashmap_String8U64_HashFunction hash_function;
 } Hashmap_String8U64;
 

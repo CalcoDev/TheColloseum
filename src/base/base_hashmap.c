@@ -7,18 +7,18 @@ void Hashmap_String8U64_Init(
 {
   void* mem = ArenaPush(arena, bucket_count * sizeof(U64));
 
-  hashmap->values        = (Hashmap_Pair_String8U64*)mem;
+  hashmap->values        = (U64*)mem;
   hashmap->hash_function = hash_function;
 }
 
 void Hashmap_String8U64_Add(Hashmap_String8U64* hashmap, String8 key, U64 value)
 {
-  U64 hash                        = hashmap->hash_function(key);
-  (hashmap->values + hash)->value = value;
+  U64 hash                  = hashmap->hash_function(key);
+  *(hashmap->values + hash) = value;
 }
 
 U64 Hashmap_String8U64_Get(Hashmap_String8U64* hashmap, String8 key)
 {
   U64 hash = hashmap->hash_function(key);
-  return (hashmap->values + hash)->value;
+  return *(hashmap->values + hash);
 }
