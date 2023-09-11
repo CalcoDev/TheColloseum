@@ -36,6 +36,9 @@ U64 hash(String8 key)
   return hash % 1024;
 }
 
+Hashmap_CreatePrototype(String8, U64);
+Hashmap_Implement(String8, U64);
+
 int main()
 {
   OS_Init();
