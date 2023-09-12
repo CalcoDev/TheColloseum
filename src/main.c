@@ -216,12 +216,12 @@ int main()
       glClear(GL_COLOR_BUFFER_BIT);
 
       R_PipelineBind(&pipeline);
-      R_ShaderPackUploadFloat3(
-          pipeline.shader_pack, Str8Lit("colour"), 0, 0, 0
-      );
-      R_ShaderPackUploadFloat1(
-          pipeline.shader_pack, Str8Lit("time"), elapsed_time
-      );
+      // R_ShaderPackUploadFloat3(
+      //     pipeline.shader_pack, Str8Lit("colour"), 0, 0, 0
+      // );
+      // R_ShaderPackUploadFloat1(
+      //     pipeline.shader_pack, Str8Lit("time"), elapsed_time
+      // );
 
       glDrawElements(
           GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
