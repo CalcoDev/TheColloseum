@@ -80,6 +80,93 @@ U64 conv_GetAttributeTypeByteSize(R_AttributeType type)
   return (ttype == GL_FLOAT ? sizeof(F32) : sizeof(S32)) * (U64)size;
 }
 
+GLint conv_GetTextureInternalFormat(R_TextureFormat format)
+{
+  switch (format)
+  {
+    case TextureFormat_RInteger:
+      return GL_R32I;
+    case TextureFormat_R:
+      return GL_R8;
+    case TextureFormat_RG:
+      return GL_RG8;
+    case TextureFormat_RGB:
+      return GL_RGB8;
+    case TextureFormat_RGBA:
+      return GL_RGBA8;
+    case TextureFormat_DepthStencil:
+      return GL_DEPTH24_STENCIL8;
+  }
+
+  LogFatal(
+      "conv_GetTextureInternalFormat was provided an unknown format type!", ""
+  );
+  return 0;
+}
+
+GLenum conv_GetTextureFormat(R_TextureFormat format)
+{
+  switch (format)
+  {
+    case TextureFormat_RInteger:
+      return GL_RED_INTEGER;
+    case TextureFormat_R:
+      return GL_RED;
+    case TextureFormat_RG:
+      return GL_RG;
+    case TextureFormat_RGB:
+      return GL_RGB;
+    case TextureFormat_RGBA:
+      return GL_RGBA;
+    case TextureFormat_DepthStencil:
+      return GL_DEPTH_STENCIL;
+  }
+
+  LogFatal("conv_GetTextureFormat was provided an unknown format type!", "");
+  return 0;
+}
+
+GLenum conv_GetTextureDatatype(R_TextureFormat format)
+{
+  if (format == TextureFormat_DepthStencil)
+  {
+    return GL_UNSIGNED_INT_24_8;
+  }
+
+  return GL_UNSIGNED_BYTE;
+}
+
+GLint conv_GetTextureWrapType(R_TextureWrap wrap)
+{
+  switch (wrap)
+  {
+    case TextureWrap_ClampToEdge:
+      return GL_CLAMP_TO_EDGE;
+    case TextureWrap_ClampToBorder:
+      return GL_CLAMP_TO_BORDER;
+    case TextureWrap_Repeat:
+      return GL_REPEAT;
+    case TextureWrap_MirroredRepeat:
+      return GL_MIRRORED_REPEAT;
+  }
+
+  LogFatal("conv_GetTextureWrapType was provided an unknown texture wrap!", "");
+  return 0;
+}
+
+GLint conv_GetTextureFilter(R_TextureFilter filter)
+{
+  switch (filter)
+  {
+    case TextureFilter_Nearest:
+      return GL_NEAREST;
+    case TextureFilter_Linear:
+      return GL_LINEAR;
+  }
+
+  LogFatal("conv_GetTextureFilter was provided an unknown texture filter!", "");
+}
+
 // NOTE(calco): -- Resource Functions --
 // Implement the functions described in render.h
 
@@ -196,7 +283,7 @@ U64 get_handle_shaderpack_loc(R_ShaderPack* pack, String8 name)
   return loc;
 }
 
-void R_ShaderPackUploadInt(R_ShaderPack* pack, String8 name, S32 s1)
+void R_ShaderPackUploadInt1(R_ShaderPack* pack, String8 name, S32 s1)
 {
   U64 loc = get_handle_shaderpack_loc(pack, name);
   glUniform1i(loc, s1);
@@ -324,4 +411,71 @@ void R_PipelineBind(R_Pipeline* pipeline)
 void R_PipelineFreeGPU(R_Pipeline* pipeline)
 {
   glDeleteVertexArrays(1, &pipeline->handle);
+}
+
+// NOTE(calco): -- Textures --
+
+void R_TextureInit(
+    R_Texture* texture, U32 width, U32 height, R_TextureWrap wrap_s,
+    R_TextureWrap wrap_t, R_TextureFilter filter_min,
+    R_TextureFilter filter_mag, R_TextureFormat format, void* data
+)
+{
+  texture->width      = width;
+  texture->height     = height;
+  texture->wrap_s     = wrap_s;
+  texture->wrap_t     = wrap_t;
+  texture->filter_min = filter_min;
+  texture->filter_mag = filter_mag;
+  texture->format     = format;
+
+  glGenTextures(1, &texture->handle);
+  glBindTexture(GL_TEXTURE_2D, texture->handle);
+  glTexImage2D(
+      GL_TEXTURE_2D, 0, conv_GetTextureInternalFormat(texture->format),
+      texture->width, texture->height, 0,
+      conv_GetTextureFormat(texture->format),
+      conv_GetTextureDatatype(texture->format), data
+  );
+
+  AssertTrue(
+      filter_mag == TextureFilter_Nearest || filter_mag == TextureFilter_Linear,
+      "Texture Filter cannot be null!", ""
+  );
+
+  glTexParameteri(
+      GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, conv_GetTextureWrapType(texture->wrap_s)
+  );
+  glTexParameteri(
+      GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, conv_GetTextureWrapType(texture->wrap_t)
+  );
+  glTexParameteri(
+      GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+      conv_GetTextureFilter(texture->filter_min)
+  );
+  glTexParameteri(
+      GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+      conv_GetTextureFilter(texture->filter_mag)
+  );
+}
+
+void R_TextureData(R_Texture* texture, void* data)
+{
+  glBindTexture(GL_TEXTURE_2D, texture->handle);
+  glTexSubImage2D(
+      GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height,
+      conv_GetTextureFormat(texture->format),
+      conv_GetTextureDatatype(texture->filter_mag), data
+  );
+}
+
+void R_TextureBind(R_Texture* texture, U32 slot)
+{
+  glActiveTexture(GL_TEXTURE0 + slot);
+  glBindTexture(GL_TEXTURE_2D, texture->handle);
+}
+
+void R_TextureFree(R_Texture* texture)
+{
+  glDeleteTextures(1, &texture->handle);
 }

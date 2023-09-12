@@ -3,6 +3,9 @@
 #include <glfw/glfw3.h>
 #include <stdio.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
 #include "base/base_include.h"
 #include "os/os.h"
 #include "render/render.h"
@@ -137,10 +140,17 @@ int main()
 
   // Data
   F32 vertices[] = {
-      0.5f,  0.5f,  // top right
+      0.5f,  0.5f, // top right
+      1.0f,  1.0f, // tex coords
+
       0.5f,  -0.5f, // bottom right
+      1.0f,  -1.0f, // tex coords
+
       -0.5f, -0.5f, // bottom left
-      -0.5f, 0.5f,  // top left
+      -1.0f, -1.0f, // tex coords
+
+      -0.5f, 0.5f, // top left
+      -1.0f, 1.0f, // tex coords
   };
   U32 indices[] = {
       0, 3, 1, // first triangle
@@ -181,14 +191,32 @@ int main()
   R_ShaderPackInit(&program, shaders, 2, &arena, 7);
 
   // Create the actual rendering pipeline.
-  R_Attribute attribute;
-  attribute.name = Str8Lit("Position");
-  attribute.type = AttributeType_F2;
+  R_Attribute vertex_attribs[2];
+  vertex_attribs[0].name = Str8Lit("Position");
+  vertex_attribs[0].type = AttributeType_F2;
+  vertex_attribs[1].name = Str8Lit("TexCoord");
+  vertex_attribs[1].type = AttributeType_F2;
 
   R_Pipeline pipeline;
-  R_PipelineInit(&pipeline, &program, &attribute, 1);
+  R_PipelineInit(&pipeline, &program, vertex_attribs, 2);
   R_PipelineAddBuffer(&pipeline, &vertex_buffer);
   R_PipelineAddBuffer(&pipeline, &index_buffer);
+
+  // Some texture action lol
+  R_Texture texture;
+  R_TextureInit(
+      &texture, 128, 128, TextureWrap_ClampToEdge, TextureWrap_ClampToEdge,
+      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB, NULL
+  );
+
+  String8 texture_path =
+      OS_PathRelative(&arena, exe_path, Str8Lit("./assets/sprites/player.jpg"));
+
+  S32 x, y, channels;
+  stbi_set_flip_vertically_on_load(1);
+  char* data = stbi_load((const char*)texture_path.data, &x, &y, &channels, 0);
+  R_TextureData(&texture, (void*)data);
+  stbi_image_free(data);
 
   PrecisionTime elapsed_time      = 0;
   PrecisionTime prev_loop_time    = 0;
@@ -215,6 +243,7 @@ int main()
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
 
+      R_TextureBind(&texture, 0);
       R_PipelineBind(&pipeline);
       // R_ShaderPackUploadFloat3(
       //     pipeline.shader_pack, Str8Lit("colour"), 0, 0, 0

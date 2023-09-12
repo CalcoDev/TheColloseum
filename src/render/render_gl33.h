@@ -42,4 +42,21 @@ typedef struct R_Pipeline
   U64 _bind;   // # of attributes bound
 } R_Pipeline;
 
+// NOTE(calco): -- Textures --
+typedef struct R_Texture
+{
+  U32 width;
+  U32 height;
+
+  R_TextureWrap wrap_s;
+  R_TextureWrap wrap_t;
+
+  R_TextureFilter filter_min;
+  R_TextureFilter filter_mag;
+
+  R_TextureFormat format;
+
+  U32 handle;
+} R_Texture;
+
 #endif

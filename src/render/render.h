@@ -46,6 +46,38 @@ typedef struct R_Attribute
   R_AttributeType type;
 } R_Attribute;
 
+typedef enum R_TextureWrap
+{
+  TextureWrap_Null              = 0x0,
+  TextureWrap_ClampToEdge       = 0x1,
+  TextureWrap_ClampToBorder     = 0x2,
+  TextureWrap_Repeat            = 0x3,
+  TextureWrap_MirroredRepeat    = 0x4,
+  TextureWrap_MirrorClampToEdge = 0x5,
+} R_TextureWrap;
+
+typedef enum R_TextureFilter
+{
+  TextureFilter_Null                 = 0x0,
+  TextureFilter_Nearest              = 0x1,
+  TextureFilter_Linear               = 0x2,
+  TextureFilter_LinearMipmapLinear   = 0x3,
+  TextureFilter_LinearMipmapNearest  = 0x4,
+  TextureFilter_NearestMipmapLinear  = 0x5,
+  TextureFilter_NearestMipmapNearest = 0x6,
+} R_TextureFilter;
+
+typedef enum R_TextureFormat
+{
+  TextureFormat_Null         = 0x0,
+  TextureFormat_RInteger     = 0x1,
+  TextureFormat_R            = 0x2,
+  TextureFormat_RG           = 0x3,
+  TextureFormat_RGB          = 0x4,
+  TextureFormat_RGBA         = 0x5,
+  TextureFormat_DepthStencil = 0x6,
+} R_TextureFormat;
+
 // NOTE(calco): -- Implementation --
 #ifdef BASE_GRAPHICS_BACKEND_GL33
 #  include "render_gl33.h"
@@ -106,5 +138,15 @@ void R_PipelineInit(
 void R_PipelineAddBuffer(R_Pipeline* pipeline, R_Buffer* buffer);
 void R_PipelineBind(R_Pipeline* pipeline);
 void R_PipelineFreeGPU(R_Pipeline* pipeline);
+
+// NOTE(calco): -- Textures --
+void R_TextureInit(
+    R_Texture* texture, U32 width, U32 height, R_TextureWrap wrap_s,
+    R_TextureWrap wrap_t, R_TextureFilter filter_min,
+    R_TextureFilter filter_mag, R_TextureFormat format, void* data
+);
+void R_TextureData(R_Texture* texture, void* data);
+void R_TextureBind(R_Texture* texture, U32 slot);
+void R_TextureFree(R_Texture* texture);
 
 #endif
