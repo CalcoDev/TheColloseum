@@ -86,4 +86,4 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/GLFW")
 target_link_libraries("${PROJECT_NAME}" glfw)
 
 # move assets folder
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/assets" DESTINATION "${CMAKE_BINARY_DIR}/Debug")
+# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/assets" DESTINATION "${CMAKE_BINARY_DIR}/Debug")

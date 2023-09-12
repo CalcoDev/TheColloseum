@@ -1,8 +1,11 @@
 #ifndef RENDER_GL33_H
 #define RENDER_GL33_H
 
+#include "base/base_hashmap.h"
 #include "base/base_types.h"
 #include "render.h"
+
+Hashmap_CreatePrototype(String8, U64);
 
 typedef struct R_Buffer
 {
@@ -19,6 +22,7 @@ typedef struct R_Shader
 // NOTE(calco): Generic name shader pack, refers to a program in opengl.
 typedef struct R_ShaderPack
 {
+  Hashmap(String8, U64) uniforms;
   U32 handle;
 } R_ShaderPack;
 

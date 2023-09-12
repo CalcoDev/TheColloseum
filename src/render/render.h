@@ -70,11 +70,33 @@ void R_ShaderFreeGPU(R_Shader* shader);
  * @param pack The shader pack to initialize.
  * @param shaders A pointer to an array pointing to each of the shaders.
  * @param shader_count The amount of shaders to add.
+ * @param arena The arena to allocate the uniform buffer hashmap on to
+ * @param uniform_count The number of uniforms you wish to be cached.
+ * @warning uniform_count should be a prime value, for better hashing!
  */
-void R_ShaderPackInit(R_ShaderPack* pack, R_Shader** shaders, U64 shader_count);
+void R_ShaderPackInit(
+    R_ShaderPack* pack, R_Shader** shaders, U64 shader_count, Arena* arena,
+    U64 uniform_count
+);
 void R_ShaderPackFree(R_ShaderPack* pack);
 
-// void R_ShaderPackUpload
+void R_ShaderPackUploadInt1(R_ShaderPack* pack, String8 name, S32 s1);
+void R_ShaderPackUploadInt2(R_ShaderPack* pack, String8 name, S32 s1, S32 s2);
+void R_ShaderPackUploadInt3(
+    R_ShaderPack* pack, String8 name, S32 s1, S32 s2, S32 s3
+);
+void R_ShaderPackUploadInt4(
+    R_ShaderPack* pack, String8 name, S32 s1, S32 s2, S32 s3, S32 s4
+);
+
+void R_ShaderPackUploadFloat1(R_ShaderPack* pack, String8 name, F32 f1);
+void R_ShaderPackUploadFloat2(R_ShaderPack* pack, String8 name, F32 f1, F32 f2);
+void R_ShaderPackUploadFloat3(
+    R_ShaderPack* pack, String8 name, F32 f1, F32 f2, F32 f3
+);
+void R_ShaderPackUploadFloat4(
+    R_ShaderPack* pack, String8 name, F32 f1, F32 f2, F32 f3, F32 f4
+);
 
 // NOTE(calco): -- Pipeline Functions --
 void R_PipelineInit(

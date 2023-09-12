@@ -4,6 +4,8 @@
 #include "base/base_log.h"
 #include "render_gl33.h"
 
+Hashmap_Implement(String8, U64);
+
 // NOTE(calco): -- Helper Functions --
 // Translate the generic render.h enums and structs to backend specific things.
 GLenum conv_GetBufferType(R_BufferFlags flags)
@@ -123,9 +125,42 @@ void R_ShaderData(R_Shader* shader, String8 data)
 
 void R_ShaderFreeGPU(R_Shader* shader) { glDeleteShader(shader->handle); }
 
-// NOTE(calco): -- Shader Pack Functions --
-void R_ShaderPackInit(R_ShaderPack* pack, R_Shader** shaders, U64 shader_count)
+U64 string8_hash(String8 key, U64 table_size)
 {
+  U64 hash   = 5381;
+  U64 offset = 0;
+  U8 c;
+
+  while (offset < key.size)
+  {
+    c      = *(key.data + offset);
+    hash   = ((hash << 5) + hash) + c;
+    offset = offset + 1;
+  }
+
+  return hash % table_size;
+}
+
+B32 hash_elem_null(Hashmap_Entry(String8, U64) entry)
+{
+  if (entry.key.size == 0)
+    return 1;
+
+  return 0;
+}
+
+// NOTE(calco): -- Shader Pack Functions --
+void R_ShaderPackInit(
+    R_ShaderPack* pack, R_Shader** shaders, U64 shader_count, Arena* arena,
+    U64 uniform_count
+)
+{
+  // TODO(calco): uniform count should be a prime number, but enforced.
+  Hashmap_Init(
+      String8, U64, arena, &pack->uniforms, uniform_count, string8_hash,
+      hash_elem_null
+  );
+
   pack->handle = glCreateProgram();
   for (U64 i = 0; i < shader_count; ++i)
   {
@@ -149,6 +184,73 @@ void R_ShaderPackInit(R_ShaderPack* pack, R_Shader** shaders, U64 shader_count)
 
 // TODO(calco): Figure out if attached shaders should be deleted too.
 void R_ShaderPackFree(R_ShaderPack* pack) { glDeleteProgram(pack->handle); }
+
+U64 get_handle_shaderpack_loc(R_ShaderPack* pack, String8 name)
+{
+  U64 loc;
+  if (!Hashmap_TryGet(String8, U64, &pack->uniforms, name, &loc))
+  {
+    loc = glGetUniformLocation(pack->handle, name.data);
+    Hashmap_Add(String8, U64, &pack->uniforms, name, loc);
+  }
+  return loc;
+}
+
+void R_ShaderPackUploadInt(R_ShaderPack* pack, String8 name, S32 s1)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform1i(loc, s1);
+}
+
+void R_ShaderPackUploadInt2(R_ShaderPack* pack, String8 name, S32 s1, S32 s2)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform2i(loc, s1, s2);
+}
+
+void R_ShaderPackUploadInt3(
+    R_ShaderPack* pack, String8 name, S32 s1, S32 s2, S32 s3
+)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform3i(loc, s1, s2, s3);
+}
+
+void R_ShaderPackUploadInt4(
+    R_ShaderPack* pack, String8 name, S32 s1, S32 s2, S32 s3, S32 s4
+)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform4i(loc, s1, s2, s3, s4);
+}
+
+void R_ShaderPackUploadFloat1(R_ShaderPack* pack, String8 name, F32 f1)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform1f(loc, f1);
+}
+
+void R_ShaderPackUploadFloat2(R_ShaderPack* pack, String8 name, F32 f1, F32 f2)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform2f(loc, f1, f2);
+}
+
+void R_ShaderPackUploadFloat3(
+    R_ShaderPack* pack, String8 name, F32 f1, F32 f2, F32 f3
+)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform3f(loc, f1, f2, f3);
+}
+
+void R_ShaderPackUploadFloat4(
+    R_ShaderPack* pack, String8 name, F32 f1, F32 f2, F32 f3, F32 f4
+)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniform4f(loc, f1, f2, f3, f4);
+}
 
 // NOTE(calco): -- Pipeline Functions --
 /**

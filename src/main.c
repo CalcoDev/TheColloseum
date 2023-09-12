@@ -20,7 +20,7 @@ void ProcessWindowInput(GLFWwindow* window)
   }
 }
 
-U64 hash(String8 key)
+U64 hash_func(String8 key, U64 table_size)
 {
   U64 hash   = 5381;
   U64 offset = 0;
@@ -33,13 +33,18 @@ U64 hash(String8 key)
     offset = offset + 1;
   }
 
-  return hash % 1024;
+  return hash % table_size;
 }
 
-Hashmap_CreatePrototype(String8, U64);
-Hashmap_Implement(String8, U64);
+B32 null_elem(Hashmap_Entry(String8, U64) entry)
+{
+  if (entry.key.size == 0)
+    return 1;
 
-int main()
+  return 0;
+}
+
+int _main()
 {
   OS_Init();
 
@@ -47,41 +52,34 @@ int main()
   Arena arena;
   ArenaInit(&arena, &memory, Megabytes(1));
 
-  String8 u1 = Str8Lit("time_lol");
-  String8 u2 = Str8Lit("health_lol");
-  String8 u3 = Str8Lit("shield_lol");
-  String8 u4 = Str8Lit("void_lol");
+  Hashmap(String8, U64) hash;
+  Hashmap_Init(String8, U64, &arena, &hash, 17, hash_func, null_elem);
 
-  Hashmap_String8_To_U64 uniform_hashmap;
-  Hashmap_String8_To_U64_Init(&arena, &uniform_hashmap, 1024, hash);
+  Hashmap_Add(String8, U64, &hash, Str8Lit("time"), 0);
+  Hashmap_Add(String8, U64, &hash, Str8Lit("hp"), 1);
+  Hashmap_Add(String8, U64, &hash, Str8Lit("blur"), 2);
 
-  Hashmap_String8_To_U64_Add(&uniform_hashmap, u1, 1);
-  Hashmap_String8_To_U64_Add(&uniform_hashmap, u2, 2);
-  Hashmap_String8_To_U64_Add(&uniform_hashmap, u3, 3);
-  Hashmap_String8_To_U64_Add(&uniform_hashmap, u4, 4);
+  U64 v1 = Hashmap_Get(String8, U64, &hash, Str8Lit("time"));
+  U64 v2 = Hashmap_Get(String8, U64, &hash, Str8Lit("hp"));
+  U64 v3 = Hashmap_Get(String8, U64, &hash, Str8Lit("blur"));
 
-  printf(
-      "Bucket 1: %s - %u\n", (char*)u1.data,
-      Hashmap_String8_To_U64_Get(&uniform_hashmap, u1)
-  );
-  printf(
-      "Bucket 2: %s - %u\n", (char*)u2.data,
-      Hashmap_String8_To_U64_Get(&uniform_hashmap, u2)
-  );
-  printf(
-      "Bucket 3: %s - %u\n", (char*)u3.data,
-      Hashmap_String8_To_U64_Get(&uniform_hashmap, u3)
-  );
-  printf(
-      "Bucket 4: %s - %u\n", (char*)u4.data,
-      Hashmap_String8_To_U64_Get(&uniform_hashmap, u4)
-  );
+  U64 v1_p;
+  U64 v2_p;
+  U64 v3_p;
+
+  B32 b1 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("time"), &v1_p);
+  B32 b2 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("hp"), &v2_p);
+  B32 b3 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("blur"), &v3_p);
+
+  B32 b4 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("no1"), &v1_p);
+  B32 b5 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("no2"), &v2_p);
+  B32 b6 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("blue"), &v3_p);
 
   ArenaRelease(&arena);
   return 0;
 }
 
-int _main()
+int main()
 {
   // NOTES(calco): Init Memory
   OS_Init();
@@ -180,7 +178,7 @@ int _main()
 
   R_Shader* shaders[2] = {&vs, &fs};
   R_ShaderPack program;
-  R_ShaderPackInit(&program, shaders, 2);
+  R_ShaderPackInit(&program, shaders, 2, &arena, 7);
 
   // Create the actual rendering pipeline.
   R_Attribute attribute;
@@ -192,6 +190,7 @@ int _main()
   R_PipelineAddBuffer(&pipeline, &vertex_buffer);
   R_PipelineAddBuffer(&pipeline, &index_buffer);
 
+  PrecisionTime elapsed_time      = 0;
   PrecisionTime prev_loop_time    = 0;
   PrecisionTime current_loop_time = 0;
   PrecisionTime delta_time        = 0;
@@ -201,6 +200,7 @@ int _main()
   {
     current_loop_time = OS_TimeMicroseconds();
     delta_time        = current_loop_time - prev_loop_time;
+    elapsed_time      = elapsed_time + delta_time;
 
     // 60 FPS, both render and update
     if (delta_time > 16000)
@@ -216,6 +216,13 @@ int _main()
       glClear(GL_COLOR_BUFFER_BIT);
 
       R_PipelineBind(&pipeline);
+      R_ShaderPackUploadFloat3(
+          pipeline.shader_pack, Str8Lit("colour"), 0, 0, 0
+      );
+      R_ShaderPackUploadFloat1(
+          pipeline.shader_pack, Str8Lit("time"), elapsed_time
+      );
+
       glDrawElements(
           GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
       );
