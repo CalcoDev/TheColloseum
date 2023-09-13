@@ -14,6 +14,7 @@ set(sources
     "base/base_types.c"
     "base/base_memory.c" 
     "base/base_string.c" 
+    "base/base_math.c" 
     "os/os.c"
     "render/render.c"
 )

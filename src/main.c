@@ -47,6 +47,13 @@ B32 null_elem(Hashmap_Entry(String8, U64) entry)
   return 0;
 }
 
+int main()
+{
+  // math experiements
+
+  return 0;
+}
+
 int _main()
 {
   OS_Init();
@@ -82,7 +89,7 @@ int _main()
   return 0;
 }
 
-int main()
+int __main()
 {
   // NOTES(calco): Init Memory
   OS_Init();
