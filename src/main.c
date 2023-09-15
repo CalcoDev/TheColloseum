@@ -300,6 +300,10 @@ int main()
   PrecisionTime current_loop_time = 0;
   PrecisionTime delta_time        = 0;
 
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CW);
+  glCullFace(GL_BACK);
+
   // Data for transforms.
   Vec3F32 translate = Vec3F32_MultScalar(
       Vec3F32_Forward, 2.f
@@ -323,6 +327,33 @@ int main()
   F32 a = (-clip_far - clip_near) / (clip_near - clip_far);
   F32 b = (2.f * clip_far * clip_near) / (clip_near - clip_far);
 
+  /*
+
+  Small explanation on coordinate systems:
+  1. Local / Model Coordinates.
+  The default thing when modeling, blender for example.
+
+  2. World coordinates
+  What I am used to seeing in Unity or Godot and shi... stuff.
+
+  3. Camera Coordinates
+  Converting world coords relative to camera in order to only have to calculate
+  the camera view matrix thing ONCE.
+
+  4. Clip Coordinates
+  Ooga booga yes.
+
+  5. Normalized Device Coordinaes
+  Aka clip space becomes -1 1 range
+
+  6. Viewport
+  into the window thy go.
+
+  1 2 and 3 are usually put togehter to create the MVP / WVP
+
+  */
+
+  // projection aka the P
   Mat4x4F32 projection      = Mat4x4_Identity();
   projection.elements[0][0] = d / aspect_ratio;
   projection.elements[1][1] = d;
@@ -335,9 +366,10 @@ int main()
   projection.elements[2][2] = b;
   projection.elements[2][3] = a;
 
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CW);
-  glCullFace(GL_BACK);
+  Vec3F32 camera_pos = Vec3F32_Make(0.f, 0.f, 0.f);
+  Vec3F32 camera_u   = Vec3F32_Right;
+  Vec3F32 camera_v   = Vec3F32_Up;
+  Vec3F32 camera_n   = Vec3F32_Forward;
 
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
@@ -361,21 +393,47 @@ int main()
 
       // Log("Rotation radians: %.2f", rotation_radians);
 
-      // Mat4x4F32 transform = Mat4x4_Mult(
-      //     Mat4x4_MakeTranslate(translate),
-      //     Mat4x4_Mult(
-      //         Mat4x4_MakeRotation(rotation_axis, rotation_radians),
-      //         Mat4x4_MakeScale(scale)
-      //     )
-      // );
+      // MATRIX STUFF
 
-      Mat4x4F32 final = Mat4x4_Mult(
-          projection, //
+      // world transform aka model projection M
+      Mat4x4F32 world_transform = Mat4x4_Mult(
+          Mat4x4_MakeTranslate(translate),
           Mat4x4_Mult(
-              Mat4x4_MakeTranslate(translate),
-              Mat4x4_MakeRotation(rotation_axis, rotation_radians)
+              Mat4x4_MakeRotation(rotation_axis, rotation_radians),
+              Mat4x4_MakeScale(scale)
           )
       );
+
+      // camera transform aka view transform aka V
+      Mat4x4F32 camera_transform = Mat4x4_MakeValue(0.f);
+
+      // Set up transposed i and j hat for reverse camera
+      camera_transform.elements[0][0] = camera_u.x;
+      camera_transform.elements[0][1] = camera_u.y;
+      camera_transform.elements[0][2] = camera_u.z;
+
+      camera_transform.elements[1][0] = camera_v.x;
+      camera_transform.elements[1][1] = camera_v.y;
+      camera_transform.elements[1][2] = camera_v.z;
+
+      camera_transform.elements[2][0] = camera_n.x;
+      camera_transform.elements[2][1] = camera_n.y;
+      camera_transform.elements[2][2] = camera_n.z;
+
+      // Translate everything so that camera is 0, 0
+      camera_transform.elements[0][3] = -camera_pos.x;
+      camera_transform.elements[1][3] = -camera_pos.y;
+      camera_transform.elements[2][3] = -camera_pos.z;
+
+      // Keep depth buffer Z the same ???
+      camera_transform.elements[3][3] = 1.f;
+
+      // Could calc here, but usually passed to the shader.
+      // Mat4x4F32 mvp = Mat4x4_Mult(
+      //     projection, Mat4x4_Mult(camera_transform, world_transform)
+      // );
+
+      // MATRIX STUFF OVER
 
       // Render
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -385,7 +443,13 @@ int main()
       R_PipelineBind(&pipeline);
 
       R_ShaderPackUploadMat4(
-          pipeline.shader_pack, Str8Lit("finalMat"), final.elements[0]
+          pipeline.shader_pack, Str8Lit("model"), world_transform.elements[0]
+      );
+      R_ShaderPackUploadMat4(
+          pipeline.shader_pack, Str8Lit("view"), camera_transform.elements[0]
+      );
+      R_ShaderPackUploadMat4(
+          pipeline.shader_pack, Str8Lit("projection"), projection.elements[0]
       );
 
       glDrawElements(
