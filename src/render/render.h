@@ -24,7 +24,7 @@ typedef enum R_ShaderType
   ShaderType_Null     = 0x0,
   ShaderType_Vertex   = 0x1,
   ShaderType_Fragment = 0x2,
-  ShaderType_Geometry = 0x3
+  ShaderType_Geometry = 0x4
 } R_ShaderType;
 
 typedef enum R_AttributeType
@@ -32,12 +32,12 @@ typedef enum R_AttributeType
   AttributeType_Null = 0x0,
   AttributeType_F1   = 0x1,
   AttributeType_F2   = 0x2,
-  AttributeType_F3   = 0x3,
-  AttributeType_F4   = 0x4,
-  AttributeType_S1   = 0x5,
-  AttributeType_S2   = 0x6,
-  AttributeType_S3   = 0x7,
-  AttributeType_S4   = 0x8,
+  AttributeType_F3   = 0x4,
+  AttributeType_F4   = 0x8,
+  AttributeType_S1   = 0x10,
+  AttributeType_S2   = 0x20,
+  AttributeType_S3   = 0x40,
+  AttributeType_S4   = 0x80,
 } R_AttributeType;
 
 typedef struct R_Attribute
@@ -51,9 +51,9 @@ typedef enum R_TextureWrap
   TextureWrap_Null              = 0x0,
   TextureWrap_ClampToEdge       = 0x1,
   TextureWrap_ClampToBorder     = 0x2,
-  TextureWrap_Repeat            = 0x3,
-  TextureWrap_MirroredRepeat    = 0x4,
-  TextureWrap_MirrorClampToEdge = 0x5,
+  TextureWrap_Repeat            = 0x4,
+  TextureWrap_MirroredRepeat    = 0x8,
+  TextureWrap_MirrorClampToEdge = 0x10,
 } R_TextureWrap;
 
 typedef enum R_TextureFilter
@@ -61,10 +61,10 @@ typedef enum R_TextureFilter
   TextureFilter_Null                 = 0x0,
   TextureFilter_Nearest              = 0x1,
   TextureFilter_Linear               = 0x2,
-  TextureFilter_LinearMipmapLinear   = 0x3,
-  TextureFilter_LinearMipmapNearest  = 0x4,
-  TextureFilter_NearestMipmapLinear  = 0x5,
-  TextureFilter_NearestMipmapNearest = 0x6,
+  TextureFilter_LinearMipmapLinear   = 0x4,
+  TextureFilter_LinearMipmapNearest  = 0x8,
+  TextureFilter_NearestMipmapLinear  = 0x10,
+  TextureFilter_NearestMipmapNearest = 0x20,
 } R_TextureFilter;
 
 typedef enum R_TextureFormat
@@ -72,10 +72,10 @@ typedef enum R_TextureFormat
   TextureFormat_Null         = 0x0,
   TextureFormat_RInteger     = 0x1,
   TextureFormat_R            = 0x2,
-  TextureFormat_RG           = 0x3,
-  TextureFormat_RGB          = 0x4,
-  TextureFormat_RGBA         = 0x5,
-  TextureFormat_DepthStencil = 0x6,
+  TextureFormat_RG           = 0x4,
+  TextureFormat_RGB          = 0x8,
+  TextureFormat_RGBA         = 0x10,
+  TextureFormat_DepthStencil = 0x20,
 } R_TextureFormat;
 
 // NOTE(calco): -- Implementation --
