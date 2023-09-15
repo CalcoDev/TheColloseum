@@ -24,11 +24,11 @@ static F64 EulersConstantF64 = 2.7182818284590452353602874713527;
 #define CosF32(f)        cosf(f);
 #define TanF32(f)        tanf(f);
 
-F32 LerpF32(F32 a, F32 b, F32 t);
-F32 LerpS32(S32 a, S32 b, F32 t)
+F32 F32_Lerp(F32 a, F32 b, F32 t);
+S32 S32_Lerp(S32 a, S32 b, F32 t);
 
-    // NOTE(calco): -- Vector2 Types --
-    typedef struct Vec2F32
+// NOTE(calco): -- Vector2 Types --
+typedef struct Vec2F32
 {
   F32 x;
   F32 y;
@@ -60,52 +60,86 @@ typedef struct Vec3S32
 // and readabilitys sake it will be AddV2F32();
 
 Vec2F32 V2F32(F32 a, F32 b);
-Vec2F32 AddV2F32(Vec2F32 a, Vec2F32 b);
-Vec2F32 SubV2F32(Vec2F32 a, Vec2F32 b);
-Vec2F32 MultV2F32(Vec2F32 a, Vec2F32 b);
-Vec2F32 DivV2F32(Vec2F32 a, Vec2F32 b);
-Vec2F32 ScaleV2F32(Vec2F32 a, F32 b);
-F32 DotV2F32(Vec2F32 a, Vec2F32 b);
-F32 MagnitudeV2F32(Vec2F32 a);
-F32 SqrMagnitudeV2F32(Vec2F32 a);
-Vec2F32 NormalizeV2F32(Vec2F32 a);
-Vec2F32 LerpV2F32(Vec2F32 a, Vec2F32 b, F32 t);
+Vec2F32 V2F32_Add(Vec2F32 a, Vec2F32 b);
+Vec2F32 V2F32_Sub(Vec2F32 a, Vec2F32 b);
+Vec2F32 V2F32_Mult(Vec2F32 a, Vec2F32 b);
+Vec2F32 V2F32_Div(Vec2F32 a, Vec2F32 b);
+Vec2F32 V2F32_Scale(Vec2F32 a, F32 b);
+F32 V2F32_Dot(Vec2F32 a, Vec2F32 b);
+F32 V2F32_Magnitude(Vec2F32 a);
+F32 V2F32_SqrMagnitude(Vec2F32 a);
+Vec2F32 V2F32_Normalize(Vec2F32 a);
+Vec2F32 V2F32_Lerp(Vec2F32 a, Vec2F32 b, F32 t);
 
 Vec2S32 V2S32(S32 a, S32 b);
-Vec2S32 AddV2S32(Vec2S32 a, Vec2S32 b);
-Vec2S32 SubV2S32(Vec2S32 a, Vec2S32 b);
-Vec2S32 MultV2S32(Vec2S32 a, Vec2S32 b);
-Vec2S32 DivV2S32(Vec2S32 a, Vec2S32 b);
-Vec2S32 ScaleV2S32(Vec2S32 a, S32 b);
-F32 DotV2S32(Vec2S32 a, Vec2S32 b);
-F32 MagnitudeV2S32(Vec2S32 a);
-F32 SqrMagnitudeV2S32(Vec2S32 a);
-Vec2S32 NormalizeV2S32(Vec2S32 a);
-Vec2S32 LerpV2S32(Vec2S32 a, Vec2S32 b, F32 t);
+Vec2S32 V2S32_Add(Vec2S32 a, Vec2S32 b);
+Vec2S32 V2S32_Sub(Vec2S32 a, Vec2S32 b);
+Vec2S32 V2S32_Mult(Vec2S32 a, Vec2S32 b);
+Vec2S32 V2S32_Div(Vec2S32 a, Vec2S32 b);
+Vec2S32 V2S32_Scale(Vec2S32 a, S32 b);
+F32 V2S32_Dot(Vec2S32 a, Vec2S32 b);
+F32 V2S32_Magnitude(Vec2S32 a);
+F32 V2S32_SqrMagnitude(Vec2S32 a);
+Vec2S32 V2S32_Normalize(Vec2S32 a);
+Vec2S32 V2S32_Lerp(Vec2S32 a, Vec2S32 b, F32 t);
 
 // NOTE(calco): -- Vector3 Helper Functions --
 Vec3F32 V3F32(F32 a, F32 b, F32 c);
-Vec3F32 AddV3F32(Vec3F32 a, Vec3F32 b);
-Vec3F32 SubV3F32(Vec3F32 a, Vec3F32 b);
-Vec3F32 MultV3F32(Vec3F32 a, Vec3F32 b);
-Vec3F32 DivV3F32(Vec3F32 a, Vec3F32 b);
-Vec3F32 ScaleV3F32(Vec3F32 a, F32 b);
-F32 DotV3F32(Vec3F32 a, Vec3F32 b);
-F32 MagnitudeV3F32(Vec3F32 a);
-F32 SqrMagnitudeV3F32(Vec3F32 a);
-Vec3F32 NormalizeV3F32(Vec3F32 a);
-Vec3F32 LerpV3F32(Vec3F32 a, Vec3F32 b, F32 t);
+Vec3F32 V3F32_Add(Vec3F32 a, Vec3F32 b);
+Vec3F32 V3F32_Sub(Vec3F32 a, Vec3F32 b);
+Vec3F32 V3F32_Mult(Vec3F32 a, Vec3F32 b);
+Vec3F32 V3F32_Div(Vec3F32 a, Vec3F32 b);
+Vec3F32 V3F32_Scale(Vec3F32 a, F32 b);
+F32 V3F32_Dot(Vec3F32 a, Vec3F32 b);
+F32 V3F32_Magnitude(Vec3F32 a);
+F32 V3F32_SqrMagnitude(Vec3F32 a);
+Vec3F32 V3F32_Normalize(Vec3F32 a);
+Vec3F32 V3F32_Lerp(Vec3F32 a, Vec3F32 b, F32 t);
 
 Vec3S32 V3S32(S32 a, S32 b);
-Vec3S32 AddV3S32(Vec3S32 a, Vec3S32 b);
-Vec3S32 SubV3S32(Vec3S32 a, Vec3S32 b);
-Vec3S32 MultV3S32(Vec3S32 a, Vec3S32 b);
-Vec3S32 DivV3S32(Vec3S32 a, Vec3S32 b);
-Vec3S32 ScaleV3S32(Vec3S32 a, S32 b);
-F32 DotV3S32(Vec3S32 a, Vec3S32 b);
-F32 MagnitudeV3S32(Vec3S32 a);
-F32 SqrMagnitudeV3S32(Vec3S32 a);
-Vec3S32 NormalizeV3S32(Vec3S32 a);
-Vec3S32 LerpV3S32(Vec3S32 a, Vec3S32 b, F32 t);
+Vec3S32 V3S32_Add(Vec3S32 a, Vec3S32 b);
+Vec3S32 V3S32_Sub(Vec3S32 a, Vec3S32 b);
+Vec3S32 V3S32_Mult(Vec3S32 a, Vec3S32 b);
+Vec3S32 V3S32_Div(Vec3S32 a, Vec3S32 b);
+Vec3S32 V3S32_Scale(Vec3S32 a, S32 b);
+F32 V3S32_Dot(Vec3S32 a, Vec3S32 b);
+F32 V3S32_Magnitude(Vec3S32 a);
+F32 V3S32_SqrMagnitude(Vec3S32 a);
+Vec3S32 V3S32_Normalize(Vec3S32 a);
+Vec3S32 V3S32_Lerp(Vec3S32 a, Vec3S32 b, F32 t);
+
+// NOTE(calco): -- Static Vector 2s --
+#define V2F32_One   V2F32(1.0f, 1.0f)
+#define V2F32_Zero  V2F32(0.0f, 0.0f)
+#define V2F32_Right V2F32(1.0f, 0.0f)
+#define V2F32_Up    V2F32(0.0f, 1.0f)
+#define V2F32_Left  V2F32(-1.0f, 0.0f)
+#define V2F32_Down  V2F32(0.0f, -1.0f)
+
+#define V2S32_One   V2S32(1, 1)
+#define V2S32_Zero  V2S32(0, 0)
+#define V2S32_Right V2S32(1, 0)
+#define V2S32_Up    V2S32(0, 1)
+#define V2S32_Left  V2S32(-1, 0)
+#define V2S32_Down  V2S32(0, -1)
+
+// NOTE(calco): -- Static Vector 3s --
+#define V3F32_One     V3F32(1.0f, 1.0f, 1.0f)
+#define V3F32_Zero    V3F32(0.0f, 0.0f, 0.0f)
+#define V3F32_Forward V3F32(0.0f, 0.0f, 1.0f)
+#define V3F32_Back    V3F32(0.0f, 0.0f, -1.0f)
+#define V3F32_Right   V3F32(1.0f, 0.0f, 0.0f)
+#define V3F32_Up      V3F32(0.0f, 1.0f, 0.0f)
+#define V3F32_Left    V3F32(-1.0f, 0.0f, 0.0f)
+#define V3F32_Down    V3F32(0.0f, -1.0f, 0.0f)
+
+#define V3S32_One     V3S32(1, 1, 1)
+#define V3S32_Zero    V3S32(0, 0, 0)
+#define V3F32_Forward V3F32(0, 0, 1)
+#define V3F32_Back    V3F32(0, 0, -1)
+#define V3S32_Right   V3S32(1, 0, 0)
+#define V3S32_Up      V3S32(0, 1, 0)
+#define V3S32_Left    V3S32(-1, 0, 0)
+#define V3S32_Down    V3S32(0, -1, 0)
 
 #endif

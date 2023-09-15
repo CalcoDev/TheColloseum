@@ -49,10 +49,12 @@ B32 null_elem(HashmapEntry(String8, U64) entry)
 
 int main()
 {
-  // math experiements
+  Vec2F32 l = V2F32_Left;
+  Vec2F32 u = V2F32_Up;
 
-  Vec2F32 v = V2F32(12, 15);
-  Vec2F32 c = V2F32(12, 51);
+  F32 d1 = V2F32_Dot(l, u);
+  F32 d2 = V2F32_Dot(V2F32_Right, V2F32_Down);
+  F32 d3 = V2F32_Dot(V2F32_Up, V2F32_Down);
 
   return 0;
 }

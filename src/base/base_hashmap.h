@@ -1,9 +1,9 @@
 #ifndef BASEHASHMAPH
 #define BASEHASHMAPH
 
-#include "basememory.h";
-#include "basestring.h";
-#include "basetypes.h";
+#include "base_memory.h";
+#include "base_string.h";
+#include "base_types.h";
 
 // we dont do collisions for now
 
