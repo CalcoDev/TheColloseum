@@ -78,57 +78,57 @@ typedef struct Mat4x4F32
 } Mat4x4F32;
 
 // NOTE(calco): -- Vector2 Helper Functions --
-// yes yes, wrong naming convention, should be V2F32Add(), but for usability
-// and readabilitys sake it will be AddV2F32();
+// yes yes, wrong naming convention, should be Vec2F32Add(), but for usability
+// and readabilitys sake it will be AddVec2F32_Make();
 
-Vec2F32 V2F32(F32 a, F32 b);
-Vec2F32 V2F32_Add(Vec2F32 a, Vec2F32 b);
-Vec2F32 V2F32_Sub(Vec2F32 a, Vec2F32 b);
-Vec2F32 V2F32_Mult(Vec2F32 a, Vec2F32 b);
-Vec2F32 V2F32_Div(Vec2F32 a, Vec2F32 b);
-Vec2F32 V2F32_Scale(Vec2F32 a, F32 b);
-F32 V2F32_Dot(Vec2F32 a, Vec2F32 b);
-F32 V2F32_Magnitude(Vec2F32 a);
-F32 V2F32_SqrMagnitude(Vec2F32 a);
-Vec2F32 V2F32_Normalize(Vec2F32 a);
-Vec2F32 V2F32_Lerp(Vec2F32 a, Vec2F32 b, F32 t);
+Vec2F32 Vec2F32_Make(F32 a, F32 b);
+Vec2F32 Vec2F32_Add(Vec2F32 a, Vec2F32 b);
+Vec2F32 Vec2F32_Sub(Vec2F32 a, Vec2F32 b);
+Vec2F32 Vec2F32_Mult(Vec2F32 a, Vec2F32 b);
+Vec2F32 Vec2F32_Div(Vec2F32 a, Vec2F32 b);
+Vec2F32 Vec2F32_Scale(Vec2F32 a, F32 b);
+F32 Vec2F32_Dot(Vec2F32 a, Vec2F32 b);
+F32 Vec2F32_Magnitude(Vec2F32 a);
+F32 Vec2F32_SqrMagnitude(Vec2F32 a);
+Vec2F32 Vec2F32_Normalize(Vec2F32 a);
+Vec2F32 Vec2F32_Lerp(Vec2F32 a, Vec2F32 b, F32 t);
 
-Vec2S32 V2S32(S32 a, S32 b);
-Vec2S32 V2S32_Add(Vec2S32 a, Vec2S32 b);
-Vec2S32 V2S32_Sub(Vec2S32 a, Vec2S32 b);
-Vec2S32 V2S32_Mult(Vec2S32 a, Vec2S32 b);
-Vec2S32 V2S32_Div(Vec2S32 a, Vec2S32 b);
-Vec2S32 V2S32_Scale(Vec2S32 a, S32 b);
-F32 V2S32_Dot(Vec2S32 a, Vec2S32 b);
-F32 V2S32_Magnitude(Vec2S32 a);
-F32 V2S32_SqrMagnitude(Vec2S32 a);
-Vec2S32 V2S32_Normalize(Vec2S32 a);
-Vec2S32 V2S32_Lerp(Vec2S32 a, Vec2S32 b, F32 t);
+Vec2S32 Vec2S32_Make(S32 a, S32 b);
+Vec2S32 Vec2S32_Add(Vec2S32 a, Vec2S32 b);
+Vec2S32 Vec2S32_Sub(Vec2S32 a, Vec2S32 b);
+Vec2S32 Vec2S32_Mult(Vec2S32 a, Vec2S32 b);
+Vec2S32 Vec2S32_Div(Vec2S32 a, Vec2S32 b);
+Vec2S32 Vec2S32_Scale(Vec2S32 a, S32 b);
+F32 Vec2S32_Dot(Vec2S32 a, Vec2S32 b);
+F32 Vec2S32_Magnitude(Vec2S32 a);
+F32 Vec2S32_SqrMagnitude(Vec2S32 a);
+Vec2S32 Vec2S32_Normalize(Vec2S32 a);
+Vec2S32 Vec2S32_Lerp(Vec2S32 a, Vec2S32 b, F32 t);
 
 // NOTE(calco): -- Vector3 Helper Functions --
-Vec3F32 V3F32(F32 a, F32 b, F32 c);
-Vec3F32 V3F32_Add(Vec3F32 a, Vec3F32 b);
-Vec3F32 V3F32_Sub(Vec3F32 a, Vec3F32 b);
-Vec3F32 V3F32_Mult(Vec3F32 a, Vec3F32 b);
-Vec3F32 V3F32_Div(Vec3F32 a, Vec3F32 b);
-Vec3F32 V3F32_Scale(Vec3F32 a, F32 b);
-F32 V3F32_Dot(Vec3F32 a, Vec3F32 b);
-F32 V3F32_Magnitude(Vec3F32 a);
-F32 V3F32_SqrMagnitude(Vec3F32 a);
-Vec3F32 V3F32_Normalize(Vec3F32 a);
-Vec3F32 V3F32_Lerp(Vec3F32 a, Vec3F32 b, F32 t);
+Vec3F32 Vec3F32_Make(F32 a, F32 b, F32 c);
+Vec3F32 Vec3F32_Add(Vec3F32 a, Vec3F32 b);
+Vec3F32 Vec3F32_Sub(Vec3F32 a, Vec3F32 b);
+Vec3F32 Vec3F32_Mult(Vec3F32 a, Vec3F32 b);
+Vec3F32 Vec3F32_Div(Vec3F32 a, Vec3F32 b);
+Vec3F32 Vec3F32_Scale(Vec3F32 a, F32 b);
+F32 Vec3F32_Dot(Vec3F32 a, Vec3F32 b);
+F32 Vec3F32_Magnitude(Vec3F32 a);
+F32 Vec3F32_SqrMagnitude(Vec3F32 a);
+Vec3F32 Vec3F32_Normalize(Vec3F32 a);
+Vec3F32 Vec3F32_Lerp(Vec3F32 a, Vec3F32 b, F32 t);
 
-Vec3S32 V3S32(S32 a, S32 b, S32 c);
-Vec3S32 V3S32_Add(Vec3S32 a, Vec3S32 b);
-Vec3S32 V3S32_Sub(Vec3S32 a, Vec3S32 b);
-Vec3S32 V3S32_Mult(Vec3S32 a, Vec3S32 b);
-Vec3S32 V3S32_Div(Vec3S32 a, Vec3S32 b);
-Vec3S32 V3S32_Scale(Vec3S32 a, S32 b);
-F32 V3S32_Dot(Vec3S32 a, Vec3S32 b);
-F32 V3S32_Magnitude(Vec3S32 a);
-F32 V3S32_SqrMagnitude(Vec3S32 a);
-Vec3S32 V3S32_Normalize(Vec3S32 a);
-Vec3S32 V3S32_Lerp(Vec3S32 a, Vec3S32 b, F32 t);
+Vec3S32 Vec3S32_Make(S32 a, S32 b, S32 c);
+Vec3S32 Vec3S32_Add(Vec3S32 a, Vec3S32 b);
+Vec3S32 Vec3S32_Sub(Vec3S32 a, Vec3S32 b);
+Vec3S32 Vec3S32_Mult(Vec3S32 a, Vec3S32 b);
+Vec3S32 Vec3S32_Div(Vec3S32 a, Vec3S32 b);
+Vec3S32 Vec3S32_Scale(Vec3S32 a, S32 b);
+F32 Vec3S32_Dot(Vec3S32 a, Vec3S32 b);
+F32 Vec3S32_Magnitude(Vec3S32 a);
+F32 Vec3S32_SqrMagnitude(Vec3S32 a);
+Vec3S32 Vec3S32_Normalize(Vec3S32 a);
+Vec3S32 Vec3S32_Lerp(Vec3S32 a, Vec3S32 b, F32 t);
 
 // NOTE(calco): -- Matrix Helper Functions --
 Mat3x3F32 Mat3x3_Identity();
@@ -162,37 +162,37 @@ Vec2F32 Vec2F32_ApplyMatrix(Mat3x3F32 mat, Vec2F32 vec);
 Vec3F32 Vec3F32_ApplyMatrix(Mat4x4F32 mat, Vec3F32 vec);
 
 // NOTE(calco): -- Static Vector 2s --
-#define V2F32_One   V2F32(1.0f, 1.0f)
-#define V2F32_Zero  V2F32(0.0f, 0.0f)
-#define V2F32_Right V2F32(1.0f, 0.0f)
-#define V2F32_Up    V2F32(0.0f, 1.0f)
-#define V2F32_Left  V2F32(-1.0f, 0.0f)
-#define V2F32_Down  V2F32(0.0f, -1.0f)
+#define Vec2F32_One   Vec2F32_Make(1.0f, 1.0f)
+#define Vec2F32_Zero  Vec2F32_Make(0.0f, 0.0f)
+#define Vec2F32_Right Vec2F32_Make(1.0f, 0.0f)
+#define Vec2F32_Up    Vec2F32_Make(0.0f, 1.0f)
+#define Vec2F32_Left  Vec2F32_Make(-1.0f, 0.0f)
+#define Vec2F32_Down  Vec2F32_Make(0.0f, -1.0f)
 
-#define V2S32_One   V2S32(1, 1)
-#define V2S32_Zero  V2S32(0, 0)
-#define V2S32_Right V2S32(1, 0)
-#define V2S32_Up    V2S32(0, 1)
-#define V2S32_Left  V2S32(-1, 0)
-#define V2S32_Down  V2S32(0, -1)
+#define Vec2S32_One   Vec2S32_Make(1, 1)
+#define Vec2S32_Zero  Vec2S32_Make(0, 0)
+#define Vec2S32_Right Vec2S32_Make(1, 0)
+#define Vec2S32_Up    Vec2S32_Make(0, 1)
+#define Vec2S32_Left  Vec2S32_Make(-1, 0)
+#define Vec2S32_Down  Vec2S32_Make(0, -1)
 
 // NOTE(calco): -- Static Vector 3s --
-#define V3F32_One     V3F32(1.0f, 1.0f, 1.0f)
-#define V3F32_Zero    V3F32(0.0f, 0.0f, 0.0f)
-#define V3F32_Forward V3F32(0.0f, 0.0f, 1.0f)
-#define V3F32_Back    V3F32(0.0f, 0.0f, -1.0f)
-#define V3F32_Right   V3F32(1.0f, 0.0f, 0.0f)
-#define V3F32_Up      V3F32(0.0f, 1.0f, 0.0f)
-#define V3F32_Left    V3F32(-1.0f, 0.0f, 0.0f)
-#define V3F32_Down    V3F32(0.0f, -1.0f, 0.0f)
+#define Vec3F32_One     Vec3F32_Make(1.0f, 1.0f, 1.0f)
+#define Vec3F32_Zero    Vec3F32_Make(0.0f, 0.0f, 0.0f)
+#define Vec3F32_Forward Vec3F32_Make(0.0f, 0.0f, 1.0f)
+#define Vec3F32_Back    Vec3F32_Make(0.0f, 0.0f, -1.0f)
+#define Vec3F32_Right   Vec3F32_Make(1.0f, 0.0f, 0.0f)
+#define Vec3F32_Up      Vec3F32_Make(0.0f, 1.0f, 0.0f)
+#define Vec3F32_Left    Vec3F32_Make(-1.0f, 0.0f, 0.0f)
+#define Vec3F32_Down    Vec3F32_Make(0.0f, -1.0f, 0.0f)
 
-#define V3S32_One     V3S32(1, 1, 1)
-#define V3S32_Zero    V3S32(0, 0, 0)
-#define V3F32_Forward V3F32(0, 0, 1)
-#define V3F32_Back    V3F32(0, 0, -1)
-#define V3S32_Right   V3S32(1, 0, 0)
-#define V3S32_Up      V3S32(0, 1, 0)
-#define V3S32_Left    V3S32(-1, 0, 0)
-#define V3S32_Down    V3S32(0, -1, 0)
+#define Vec3S32_One     Vec3S32_Make(1, 1, 1)
+#define Vec3S32_Zero    Vec3S32_Make(0, 0, 0)
+#define Vec3F32_Forward Vec3F32_Make(0, 0, 1)
+#define Vec3F32_Back    Vec3F32_Make(0, 0, -1)
+#define Vec3S32_Right   Vec3S32_Make(1, 0, 0)
+#define Vec3S32_Up      Vec3S32_Make(0, 1, 0)
+#define Vec3S32_Left    Vec3S32_Make(-1, 0, 0)
+#define Vec3S32_Down    Vec3S32_Make(0, -1, 0)
 
 #endif
