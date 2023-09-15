@@ -258,17 +258,17 @@ Vec3S32 Vec3S32_Div(Vec3S32 a, Vec3S32 b)
   return Vec3S32_Make(a.x / b.x, a.y / b.y, a.z / b.z);
 }
 
-Vec3S32 Vec3F32_AddScalar(Vec3S32 a, S32 b)
+Vec3S32 Vec3S32_AddScalar(Vec3S32 a, S32 b)
 {
   return Vec3S32_Make(a.x + b, a.y + b, a.z + b);
 }
 
-Vec3S32 Vec3F32_SubScalar(Vec3S32 a, S32 b)
+Vec3S32 Vec3S32_SubScalar(Vec3S32 a, S32 b)
 {
   return Vec3S32_Make(a.x - b, a.y - b, a.z - b);
 }
 
-Vec3S32 Vec3F32_DivScalar(Vec3S32 a, S32 b)
+Vec3S32 Vec3S32_DivScalar(Vec3S32 a, S32 b)
 {
   return Vec3S32_Make(a.x / b, a.y / b, a.z / b);
 }

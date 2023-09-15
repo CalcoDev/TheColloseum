@@ -160,6 +160,9 @@ int main()
   U32 window_width        = video_mode->width / 2;
   U32 window_height       = video_mode->height / 2;
 
+  // U32 window_width  = 800;
+  // U32 window_height = 800;
+
   Log("Creating glfw window.", "");
   GLFWwindow* window =
       glfwCreateWindow(window_width, window_height, "Direct X-ing", NULL, NULL);
@@ -190,21 +193,43 @@ int main()
 
   // Data
   F32 vertices[] = {
-      0.5f,  0.5f, // top right
-      1.0f,  1.0f, // tex coords
-
-      0.5f,  -0.5f, // bottom right
-      1.0f,  -1.0f, // tex coords
-
-      -0.5f, -0.5f, // bottom left
-      -1.0f, -1.0f, // tex coords
-
-      -0.5f, 0.5f, // top left
-      -1.0f, 1.0f, // tex coords
+      0.5f, 0.5f, 0.5f,    // 0
+      1.0f, 1.0f,          // tex coords
+                           //
+      -0.5f, 0.5f, -0.5f,  // 1
+      1.0f, -1.0f,         // tex coords
+                           //
+      -0.5f, 0.5f, 0.5f,   // 2
+      -1.0f, -1.0f,        // tex coords
+                           //
+      0.5f, -0.5f, -0.5f,  // 3
+      -1.0f, 1.0f,         // tex coords
+                           //
+      -0.5f, -0.5f, -0.5f, // 4
+      -1.0f, 1.0f,         // tex coords
+                           //
+      0.5f, 0.5f, -0.5f,   // 5
+      -1.0f, 1.0f,         // tex coords
+                           //
+      0.5f, -0.5f, 0.5f,   // 6
+      -1.0f, 1.0f,         // tex coords
+                           //
+      -0.5f, -0.5f, 0.5f,  // 7
+      -1.0f, 1.0f,         // tex coords
   };
   U32 indices[] = {
-      0, 3, 1, // first triangle
-      1, 3, 2  // second triangle
+      0, 1, 2, //
+      1, 3, 4, //
+      5, 6, 3, //
+      7, 3, 6, //
+      2, 4, 7, //
+      0, 7, 6, //
+      0, 5, 1, //
+      1, 5, 3, //
+      5, 0, 6, //
+      7, 4, 3, //
+      2, 1, 4, //
+      0, 2, 7  //
   };
 
   // Create a vertex buffer
@@ -243,7 +268,7 @@ int main()
   // Create the actual rendering pipeline.
   R_Attribute vertex_attribs[2];
   vertex_attribs[0].name = Str8Lit("Position");
-  vertex_attribs[0].type = AttributeType_F2;
+  vertex_attribs[0].type = AttributeType_F3;
   vertex_attribs[1].name = Str8Lit("TexCoord");
   vertex_attribs[1].type = AttributeType_F2;
 
@@ -253,19 +278,21 @@ int main()
   R_PipelineAddBuffer(&pipeline, &index_buffer);
 
   // Some texture action lol
-  R_Texture texture;
-  R_TextureInit(
-      &texture, 128, 128, TextureWrap_ClampToEdge, TextureWrap_ClampToEdge,
-      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB, NULL
-  );
-
   String8 texture_path =
       OS_PathRelative(&arena, exe_path, Str8Lit("./assets/sprites/player.jpg"));
 
   S32 x, y, channels;
   stbi_set_flip_vertically_on_load(1);
   char* data = stbi_load((const char*)texture_path.data, &x, &y, &channels, 0);
+
+  R_Texture texture;
+  R_TextureInit(
+      &texture, x, y, TextureWrap_ClampToEdge, TextureWrap_ClampToEdge,
+      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB, NULL
+  );
+
   R_TextureData(&texture, (void*)data);
+
   stbi_image_free(data);
 
   PrecisionTime elapsed_time      = 0;
@@ -274,12 +301,43 @@ int main()
   PrecisionTime delta_time        = 0;
 
   // Data for transforms.
-  Vec3F32 translate = Vec3F32_Zero; // Vec3F32_Make(0.2f, 0.5f, 0.f);
+  Vec3F32 translate = Vec3F32_MultScalar(
+      Vec3F32_Forward, 2.f
+  ); // Vec3F32_Make(0.2f, 0.5f, 0.f);
 
-  Vec3F32 rotation_axis = Vec3F32_Forward;
+  Vec3F32 rotation_axis = Vec3F32_Up;
   F32 rotation_radians  = F32_Pi * 0.5f;
 
-  Vec3F32 scale = Vec3F32_Make(0.5f, 1.3f, 1.f);
+  Vec3F32 scale = Vec3F32_Make(1.f, 1.f, 1.f);
+
+  F32 alpha        = 90.f;
+  F32 halfAlhpaTan = F32_Tan(F32_DegToRad(alpha * 0.5f));
+  F32 d            = 1 / halfAlhpaTan;
+
+  F32 aspect_ratio = (F32)window_width / (F32)window_height;
+
+  F32 clip_near = 0.03f;
+  F32 clip_far  = 1000.f;
+
+  // Calculate A and B to map [clip_near, clip_far] to [-1, 1], as opengl says
+  F32 a = (-clip_far - clip_near) / (clip_near - clip_far);
+  F32 b = (2.f * clip_far * clip_near) / (clip_near - clip_far);
+
+  Mat4x4F32 projection      = Mat4x4_Identity();
+  projection.elements[0][0] = d / aspect_ratio;
+  projection.elements[1][1] = d;
+
+  // Move Z into W
+  projection.elements[3][3] = 0.f;
+  projection.elements[3][2] = 1.f;
+
+  // Clip
+  projection.elements[2][2] = b;
+  projection.elements[2][3] = a;
+
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CW);
+  glCullFace(GL_BACK);
 
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
@@ -301,13 +359,21 @@ int main()
       if (F32_Abs(rotation_radians) > 2 * F32_Pi)
         rotation_radians = 0.f;
 
-      Log("Rotation radians: %.2f", rotation_radians);
+      // Log("Rotation radians: %.2f", rotation_radians);
 
-      Mat4x4F32 transform = Mat4x4_Mult(
-          Mat4x4_MakeTranslate(translate),
+      // Mat4x4F32 transform = Mat4x4_Mult(
+      //     Mat4x4_MakeTranslate(translate),
+      //     Mat4x4_Mult(
+      //         Mat4x4_MakeRotation(rotation_axis, rotation_radians),
+      //         Mat4x4_MakeScale(scale)
+      //     )
+      // );
+
+      Mat4x4F32 final = Mat4x4_Mult(
+          projection, //
           Mat4x4_Mult(
-              Mat4x4_MakeRotation(rotation_axis, rotation_radians),
-              Mat4x4_MakeScale(scale)
+              Mat4x4_MakeTranslate(translate),
+              Mat4x4_MakeRotation(rotation_axis, rotation_radians)
           )
       );
 
@@ -319,7 +385,7 @@ int main()
       R_PipelineBind(&pipeline);
 
       R_ShaderPackUploadMat4(
-          pipeline.shader_pack, Str8Lit("transform"), transform.elements[0]
+          pipeline.shader_pack, Str8Lit("finalMat"), final.elements[0]
       );
 
       glDrawElements(

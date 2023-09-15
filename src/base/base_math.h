@@ -17,8 +17,8 @@ static F64 F64_EulersConstant = 2.7182818284590452353602874713527;
 #define F32_Floor(f)      floorf(f);
 #define F32_Ceil(f)       ceilf(f);
 #define F32_Round(f)      roundf(f);
-#define F32_DegToRad(deg) ((PiF32 / 180.f) * (deg))
-#define F32_RadToDeg(rad) ((180.f / PiF32) * (rad))
+#define F32_DegToRad(deg) ((F32_Pi / 180.f) * (deg))
+#define F32_RadToDeg(rad) ((180.f / F32_Pi) * (rad))
 #define F32_SquareRoot(f) sqrtf(f);
 #define F32_Sin(f)        sinf(f);
 #define F32_Cos(f)        cosf(f);
