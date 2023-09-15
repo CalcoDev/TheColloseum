@@ -130,6 +130,8 @@ void R_ShaderPackUploadFloat4(
     R_ShaderPack* pack, String8 name, F32 f1, F32 f2, F32 f3, F32 f4
 );
 
+void R_ShaderPackUploadMat4(R_ShaderPack* pack, String8 name, F32** elements);
+
 // NOTE(calco): -- Pipeline Functions --
 void R_PipelineInit(
     R_Pipeline* pipeline, R_ShaderPack* shader_pack, R_Attribute* attributes,

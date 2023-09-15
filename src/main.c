@@ -47,7 +47,7 @@ B32 null_elem(HashmapEntry(String8, U64) entry)
   return 0;
 }
 
-int main()
+int __main()
 {
   // Vec2F32 l = Vec2F32_Left;
   // Vec2F32 u = Vec2F32_Up;
@@ -73,7 +73,7 @@ int main()
   // Vec3F32 vec = Vec3F32_Make(10.f, 15.f, 0.f);
 
   // Mat4x4F32 id     = Mat4x4_Identity();
-  // Mat4x4F32 transf = Mat4x4_MakeTransform(Vec3F32_Make(2.f, 2.f, -69.f));
+  // Mat4x4F32 transf = Mat4x4_MakeTranslate(Vec3F32_Make(2.f, 2.f, -69.f));
   // Mat4x4F32 rot    = Mat4x4_MakeRotation(Vec3F32_Forward, PiF32 * 0.5f);
   // Mat4x4F32 scl    = Mat4x4_MakeScale(Vec3F32_Make(2.f, 2.f, 2.f));
 
@@ -132,7 +132,7 @@ int _main()
   return 0;
 }
 
-int __main()
+int main()
 {
   // NOTES(calco): Init Memory
   OS_Init();
@@ -273,6 +273,14 @@ int __main()
   PrecisionTime current_loop_time = 0;
   PrecisionTime delta_time        = 0;
 
+  // Data for transforms.
+  Vec3F32 translate = Vec3F32_Zero; // Vec3F32_Make(0.2f, 0.5f, 0.f);
+
+  Vec3F32 rotation_axis = Vec3F32_Forward;
+  F32 rotation_radians  = F32_Pi * 0.5f;
+
+  Vec3F32 scale = Vec3F32_Make(0.5f, 1.3f, 1.f);
+
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
   {
@@ -289,18 +297,30 @@ int __main()
       // Log("Updated: %u!\nTime between frames: %u", current_loop_time,
       //     delta_time);
 
+      rotation_radians += delta_time / 1000.f / 500.f;
+      if (F32_Abs(rotation_radians) > 2 * F32_Pi)
+        rotation_radians = 0.f;
+
+      Log("Rotation radians: %.2f", rotation_radians);
+
+      Mat4x4F32 transform = Mat4x4_Mult(
+          Mat4x4_MakeTranslate(translate),
+          Mat4x4_Mult(
+              Mat4x4_MakeRotation(rotation_axis, rotation_radians),
+              Mat4x4_MakeScale(scale)
+          )
+      );
+
       // Render
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
 
       R_TextureBind(&texture, 0);
       R_PipelineBind(&pipeline);
-      // R_ShaderPackUploadFloat3(
-      //     pipeline.shader_pack, Str8Lit("colour"), 0, 0, 0
-      // );
-      // R_ShaderPackUploadFloat1(
-      //     pipeline.shader_pack, Str8Lit("time"), elapsed_time
-      // );
+
+      R_ShaderPackUploadMat4(
+          pipeline.shader_pack, Str8Lit("transform"), transform.elements[0]
+      );
 
       glDrawElements(
           GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0

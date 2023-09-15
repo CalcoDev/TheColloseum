@@ -5,24 +5,26 @@
 #include <math.h>
 
 // NOTE(calco): -- Constants --
-static F32 InfinityF32 = INFINITY;
+static F32 F32_Infinity = INFINITY;
 
-static F32 PiF32             = 3.1415926535897f;
-static F32 EulersConstantF32 = 2.7182818284590452353602874713527f;
+static F32 F32_Pi             = 3.1415926535897f;
+static F32 F32_EulersConstant = 2.7182818284590452353602874713527f;
 
-static F64 PiF64             = 3.1415926535897;
-static F64 EulersConstantF64 = 2.7182818284590452353602874713527;
+static F64 F64_Pi             = 3.1415926535897;
+static F64 F64_EulersConstant = 2.7182818284590452353602874713527;
 
 // NOTE(calco): -- Base Math --
-#define FloorF32(f)      floorf(f);
-#define CeilF32(f)       ceilf(f);
-#define RoundF32(f)      roundf(f);
-#define DegToRadF32(deg) ((PiF32 / 180.f) * (deg))
-#define RadToDegF32(rad) ((180.f / PiF32) * (rad))
-#define SquareRootF32(f) sqrtf(f);
-#define SinF32(f)        sinf(f);
-#define CosF32(f)        cosf(f);
-#define TanF32(f)        tanf(f);
+#define F32_Floor(f)      floorf(f);
+#define F32_Ceil(f)       ceilf(f);
+#define F32_Round(f)      roundf(f);
+#define F32_DegToRad(deg) ((PiF32 / 180.f) * (deg))
+#define F32_RadToDeg(rad) ((180.f / PiF32) * (rad))
+#define F32_SquareRoot(f) sqrtf(f);
+#define F32_Sin(f)        sinf(f);
+#define F32_Cos(f)        cosf(f);
+#define F32_Tan(f)        tanf(f);
+
+F32 F32_Abs(F32 f);
 
 F32 F32_Lerp(F32 a, F32 b, F32 t);
 S32 S32_Lerp(S32 a, S32 b, F32 t);
@@ -86,7 +88,10 @@ Vec2F32 Vec2F32_Add(Vec2F32 a, Vec2F32 b);
 Vec2F32 Vec2F32_Sub(Vec2F32 a, Vec2F32 b);
 Vec2F32 Vec2F32_Mult(Vec2F32 a, Vec2F32 b);
 Vec2F32 Vec2F32_Div(Vec2F32 a, Vec2F32 b);
-Vec2F32 Vec2F32_Scale(Vec2F32 a, F32 b);
+Vec2F32 Vec2F32_AddScalar(Vec2F32 a, F32 b);
+Vec2F32 Vec2F32_SubScalar(Vec2F32 a, F32 b);
+Vec2F32 Vec2F32_DivScalar(Vec2F32 a, F32 b);
+Vec2F32 Vec2F32_MultScalar(Vec2F32 a, F32 b);
 F32 Vec2F32_Dot(Vec2F32 a, Vec2F32 b);
 F32 Vec2F32_Magnitude(Vec2F32 a);
 F32 Vec2F32_SqrMagnitude(Vec2F32 a);
@@ -98,7 +103,10 @@ Vec2S32 Vec2S32_Add(Vec2S32 a, Vec2S32 b);
 Vec2S32 Vec2S32_Sub(Vec2S32 a, Vec2S32 b);
 Vec2S32 Vec2S32_Mult(Vec2S32 a, Vec2S32 b);
 Vec2S32 Vec2S32_Div(Vec2S32 a, Vec2S32 b);
-Vec2S32 Vec2S32_Scale(Vec2S32 a, S32 b);
+Vec2S32 Vec2S32_AddScalar(Vec2S32 a, S32 b);
+Vec2S32 Vec2S32_SubScalar(Vec2S32 a, S32 b);
+Vec2S32 Vec2S32_DivScalar(Vec2S32 a, S32 b);
+Vec2S32 Vec2S32_MultScalar(Vec2S32 a, S32 b);
 F32 Vec2S32_Dot(Vec2S32 a, Vec2S32 b);
 F32 Vec2S32_Magnitude(Vec2S32 a);
 F32 Vec2S32_SqrMagnitude(Vec2S32 a);
@@ -111,7 +119,10 @@ Vec3F32 Vec3F32_Add(Vec3F32 a, Vec3F32 b);
 Vec3F32 Vec3F32_Sub(Vec3F32 a, Vec3F32 b);
 Vec3F32 Vec3F32_Mult(Vec3F32 a, Vec3F32 b);
 Vec3F32 Vec3F32_Div(Vec3F32 a, Vec3F32 b);
-Vec3F32 Vec3F32_Scale(Vec3F32 a, F32 b);
+Vec3F32 Vec3F32_AddScalar(Vec3F32 a, F32 b);
+Vec3F32 Vec3F32_SubScalar(Vec3F32 a, F32 b);
+Vec3F32 Vec3F32_DivScalar(Vec3F32 a, F32 b);
+Vec3F32 Vec3F32_MultScalar(Vec3F32 a, F32 b);
 F32 Vec3F32_Dot(Vec3F32 a, Vec3F32 b);
 F32 Vec3F32_Magnitude(Vec3F32 a);
 F32 Vec3F32_SqrMagnitude(Vec3F32 a);
@@ -123,7 +134,10 @@ Vec3S32 Vec3S32_Add(Vec3S32 a, Vec3S32 b);
 Vec3S32 Vec3S32_Sub(Vec3S32 a, Vec3S32 b);
 Vec3S32 Vec3S32_Mult(Vec3S32 a, Vec3S32 b);
 Vec3S32 Vec3S32_Div(Vec3S32 a, Vec3S32 b);
-Vec3S32 Vec3S32_Scale(Vec3S32 a, S32 b);
+Vec3S32 Vec3S32_AddScalar(Vec3S32 a, S32 b);
+Vec3S32 Vec3S32_SubScalar(Vec3S32 a, S32 b);
+Vec3S32 Vec3S32_DivScalar(Vec3S32 a, S32 b);
+Vec3S32 Vec3S32_MultScalar(Vec3S32 a, S32 b);
 F32 Vec3S32_Dot(Vec3S32 a, Vec3S32 b);
 F32 Vec3S32_Magnitude(Vec3S32 a);
 F32 Vec3S32_SqrMagnitude(Vec3S32 a);
@@ -147,7 +161,7 @@ Mat3x3F32 Mat3x3_Transpose(Mat3x3F32 mat);
 Mat4x4F32 Mat4x4_Identity();
 
 Mat4x4F32 Mat4x4_MakeValue(F32 value);
-Mat4x4F32 Mat4x4_MakeTransform(Vec3F32 translate);
+Mat4x4F32 Mat4x4_MakeTranslate(Vec3F32 translate);
 Mat4x4F32 Mat4x4_MakeScale(Vec3F32 scale);
 Mat4x4F32 Mat4x4_MakeRotation(Vec3F32 axis, F32 radians);
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective

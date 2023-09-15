@@ -339,6 +339,20 @@ void R_ShaderPackUploadFloat4(
   glUniform4f(loc, f1, f2, f3, f4);
 }
 
+/**
+ * @brief Uploads a Mat4 to the shader program, if such a unifrom exists.
+ * @param pack The shader program to check for the uniform's location.
+ * @param name The name of the Mat4 in the shader.
+ * @param elements A pointer to 16 32-bit floats, stored in row-major order!
+ * @warning Elements are expected to be stored in row-major order NOT
+ * column-major.
+ */
+void R_ShaderPackUploadMat4(R_ShaderPack* pack, String8 name, F32** elements)
+{
+  U64 loc = get_handle_shaderpack_loc(pack, name);
+  glUniformMatrix4fv(loc, 1, GL_TRUE, elements);
+}
+
 // NOTE(calco): -- Pipeline Functions --
 /**
  * @brief Sets up the pipeline data.

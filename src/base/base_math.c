@@ -1,11 +1,19 @@
 #include "base_math.h"
 
 // NOTE(calco): -- Base Math --
+F32 F32_Abs(F32 f)
+{
+  if (f < 0)
+    return -f;
+
+  return f;
+}
+
+F32 F32_Lerp(F32 a, F32 b, F32 t) { return a * (t - 1.0f) + b * t; }
 S32 S32_Lerp(S32 a, S32 b, F32 t)
 {
   return (S32)(a * (t - 1.0f)) + (S32)(b * t);
 }
-F32 F32_Lerp(F32 a, F32 b, F32 t) { return a * (t - 1.0f) + b * t; }
 
 // NOTE(calco): -- Vector2 Helper Functions --
 Vec2F32 Vec2F32_Make(F32 a, F32 b)
@@ -19,33 +27,57 @@ Vec2F32 Vec2F32_Add(Vec2F32 a, Vec2F32 b)
 {
   return Vec2F32_Make(a.x + b.x, a.y + b.y);
 }
+
 Vec2F32 Vec2F32_Sub(Vec2F32 a, Vec2F32 b)
 {
   return Vec2F32_Make(a.x - b.x, a.y - b.y);
 }
+
 Vec2F32 Vec2F32_Mult(Vec2F32 a, Vec2F32 b)
 {
   return Vec2F32_Make(a.x * b.x, a.y * b.y);
 }
+
 Vec2F32 Vec2F32_Div(Vec2F32 a, Vec2F32 b)
 {
   return Vec2F32_Make(a.x / b.x, a.y / b.y);
 }
-Vec2F32 Vec2F32_Scale(Vec2F32 a, F32 b)
+
+Vec2F32 Vec2F32_AddScalar(Vec2F32 a, F32 b)
+{
+  return Vec2F32_Make(a.x + b, a.y + b);
+}
+
+Vec2F32 Vec2F32_SubScalar(Vec2F32 a, F32 b)
+{
+  return Vec2F32_Make(a.x - b, a.y - b);
+}
+
+Vec2F32 Vec2F32_DivScalar(Vec2F32 a, F32 b)
+{
+  return Vec2F32_Make(a.x / b, a.y / b);
+}
+
+Vec2F32 Vec2F32_MultScalar(Vec2F32 a, F32 b)
 {
   return Vec2F32_Make(a.x * b, a.y * b);
 }
+
 F32 Vec2F32_Dot(Vec2F32 a, Vec2F32 b) { return a.x * b.x + a.y * b.y; }
+
 F32 Vec2F32_Magnitude(Vec2F32 a)
 {
-  return SquareRootF32(a.x * a.x + a.y * a.y);
+  return F32_SquareRoot(a.x * a.x + a.y * a.y);
 }
+
 F32 Vec2F32_SqrMagnitude(Vec2F32 a) { return a.x * a.x + a.y * a.y; }
+
 Vec2F32 Vec2F32_Normalize(Vec2F32 a)
 {
   F32 mag = Vec2F32_Magnitude(a);
   return Vec2F32_Make(a.x / mag, a.y / mag);
 }
+
 Vec2F32 Vec2F32_Lerp(Vec2F32 a, Vec2F32 b, F32 t)
 {
   return Vec2F32_Make(F32_Lerp(a.x, b.x, t), F32_Lerp(a.y, b.y, t));
@@ -58,37 +90,62 @@ Vec2S32 Vec2S32_Make(S32 a, S32 b)
   v.y = b;
   return v;
 }
+
 Vec2S32 Vec2S32_Add(Vec2S32 a, Vec2S32 b)
 {
   return Vec2S32_Make(a.x + b.x, a.y + b.y);
 }
+
 Vec2S32 Vec2S32_Sub(Vec2S32 a, Vec2S32 b)
 {
   return Vec2S32_Make(a.x - b.x, a.y - b.y);
 }
+
 Vec2S32 Vec2S32_Mult(Vec2S32 a, Vec2S32 b)
 {
   return Vec2S32_Make(a.x * b.x, a.y * b.y);
 }
+
 Vec2S32 Vec2S32_Div(Vec2S32 a, Vec2S32 b)
 {
   return Vec2S32_Make(a.x / b.x, a.y / b.y);
 }
-Vec2S32 Vec2S32_Scale(Vec2S32 a, S32 b)
+
+Vec2S32 Vec2S32_AddScalar(Vec2S32 a, S32 b)
+{
+  return Vec2S32_Make(a.x + b, a.y + b);
+}
+
+Vec2S32 Vec2S32_SubScalar(Vec2S32 a, S32 b)
+{
+  return Vec2S32_Make(a.x - b, a.y - b);
+}
+
+Vec2S32 Vec2S32_DivScalar(Vec2S32 a, S32 b)
+{
+  return Vec2S32_Make(a.x / b, a.y / b);
+}
+
+Vec2S32 Vec2S32_MultScalar(Vec2S32 a, S32 b)
 {
   return Vec2S32_Make(a.x * b, a.y * b);
 }
+
 F32 Vec2S32_Dot(Vec2S32 a, Vec2S32 b) { return a.x * b.x + a.y * b.y; }
+
 F32 Vec2S32_Magnitude(Vec2S32 a)
 {
-  return SquareRootF32(a.x * a.x + a.y * a.y);
+  return F32_SquareRoot(a.x * a.x + a.y * a.y);
 }
+
 F32 Vec2S32_SqrMagnitude(Vec2S32 a) { return a.x * a.x + a.y * a.y; }
+
 Vec2S32 Vec2S32_Normalize(Vec2S32 a)
 {
   F32 mag = Vec2S32_Magnitude(a);
   return Vec2S32_Make((S32)(a.x / mag), (S32)(a.y / mag));
 }
+
 Vec2S32 Vec2S32_Lerp(Vec2S32 a, Vec2S32 b, F32 t)
 {
   return Vec2S32_Make(S32_Lerp(a.x, b.x, t), S32_Lerp(a.y, b.y, t));
@@ -103,43 +160,68 @@ Vec3F32 Vec3F32_Make(F32 a, F32 b, F32 c)
   v.z = c;
   return v;
 }
+
 Vec3F32 Vec3F32_Add(Vec3F32 a, Vec3F32 b)
 {
   return Vec3F32_Make(a.x + b.x, a.y + b.y, a.z + b.z);
 }
+
 Vec3F32 Vec3F32_Sub(Vec3F32 a, Vec3F32 b)
 {
   return Vec3F32_Make(a.x - b.x, a.y - b.y, a.z - b.z);
 }
+
 Vec3F32 Vec3F32_Mult(Vec3F32 a, Vec3F32 b)
 {
   return Vec3F32_Make(a.x * b.x, a.y * b.y, a.z * b.z);
 }
+
 Vec3F32 Vec3F32_Div(Vec3F32 a, Vec3F32 b)
 {
   return Vec3F32_Make(a.x / b.x, a.y / b.y, a.z / b.z);
 }
-Vec3F32 Vec3F32_Scale(Vec3F32 a, F32 b)
+
+Vec3F32 Vec3F32_AddScalar(Vec3F32 a, F32 b)
+{
+  return Vec3F32_Make(a.x + b, a.y + b, a.z + b);
+}
+
+Vec3F32 Vec3F32_SubScalar(Vec3F32 a, F32 b)
+{
+  return Vec3F32_Make(a.x - b, a.y - b, a.z - b);
+}
+
+Vec3F32 Vec3F32_DivScalar(Vec3F32 a, F32 b)
+{
+  return Vec3F32_Make(a.x / b, a.y / b, a.z / b);
+}
+
+Vec3F32 Vec3F32_MultScalar(Vec3F32 a, F32 b)
 {
   return Vec3F32_Make(a.x * b, a.y * b, a.z * b);
 }
+
 F32 Vec3F32_Dot(Vec3F32 a, Vec3F32 b)
 {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+
 F32 Vec3F32_Magnitude(Vec3F32 a)
 {
-  return SquareRootF32(a.x * a.x + a.y * a.y + a.z * a.z);
+  return F32_SquareRoot(a.x * a.x + a.y * a.y + a.z * a.z);
 }
+
 F32 Vec3F32_SqrMagnitude(Vec3F32 a)
 {
   return a.x * a.x + a.y * a.y + a.z * a.z;
 }
+
 Vec3F32 Vec3F32_Normalize(Vec3F32 a)
 {
   F32 mag = Vec3F32_Magnitude(a);
   return Vec3F32_Make(a.x / mag, a.y / mag, a.z / mag);
 }
+
 Vec3F32 Vec3F32_Lerp(Vec3F32 a, Vec3F32 b, F32 t)
 {
   return Vec3F32_Make(
@@ -155,43 +237,68 @@ Vec3S32 Vec3S32_Make(S32 a, S32 b, S32 c)
   v.z = c;
   return v;
 }
+
 Vec3S32 Vec3S32_Add(Vec3S32 a, Vec3S32 b)
 {
   return Vec3S32_Make(a.x + b.x, a.y + b.y, a.z + b.z);
 }
+
 Vec3S32 Vec3S32_Sub(Vec3S32 a, Vec3S32 b)
 {
   return Vec3S32_Make(a.x - b.x, a.y - b.y, a.z - b.z);
 }
+
 Vec3S32 Vec3S32_Mult(Vec3S32 a, Vec3S32 b)
 {
   return Vec3S32_Make(a.x * b.x, a.y * b.y, a.z * b.z);
 }
+
 Vec3S32 Vec3S32_Div(Vec3S32 a, Vec3S32 b)
 {
   return Vec3S32_Make(a.x / b.x, a.y / b.y, a.z / b.z);
 }
-Vec3S32 Vec3S32_Scale(Vec3S32 a, S32 b)
+
+Vec3S32 Vec3F32_AddScalar(Vec3S32 a, S32 b)
+{
+  return Vec3S32_Make(a.x + b, a.y + b, a.z + b);
+}
+
+Vec3S32 Vec3F32_SubScalar(Vec3S32 a, S32 b)
+{
+  return Vec3S32_Make(a.x - b, a.y - b, a.z - b);
+}
+
+Vec3S32 Vec3F32_DivScalar(Vec3S32 a, S32 b)
+{
+  return Vec3S32_Make(a.x / b, a.y / b, a.z / b);
+}
+
+Vec3S32 Vec3S32_MultScalar(Vec3S32 a, S32 b)
 {
   return Vec3S32_Make(a.x * b, a.y * b, a.z * b);
 }
+
 F32 Vec3S32_Dot(Vec3S32 a, Vec3S32 b)
 {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+
 F32 Vec3S32_Magnitude(Vec3S32 a)
 {
-  return SquareRootF32(a.x * a.x + a.y * a.y + a.z * a.z);
+  return F32_SquareRoot(a.x * a.x + a.y * a.y + a.z * a.z);
 }
+
 F32 Vec3S32_SqrMagnitude(Vec3S32 a)
 {
   return a.x * a.x + a.y * a.y + a.z * a.z;
 }
+
 Vec3S32 Vec3S32_Normalize(Vec3S32 a)
 {
   F32 mag = Vec3S32_Magnitude(a);
   return Vec3S32_Make((S32)(a.x / mag), (S32)(a.y / mag), (S32)(a.z / mag));
 }
+
 Vec3S32 Vec3S32_Lerp(Vec3S32 a, Vec3S32 b, F32 t)
 {
   return Vec3S32_Make(
@@ -232,10 +339,10 @@ Mat3x3F32 Mat3x3_MakeScale(Vec2F32 scale)
 Mat3x3F32 Mat3x3_MakeRotation(F32 radians)
 {
   Mat3x3F32 mat      = Mat3x3_MakeValue(1.0f);
-  mat.elements[0][0] = +CosF32(radians);
-  mat.elements[0][1] = -SinF32(radians);
-  mat.elements[1][0] = +SinF32(radians);
-  mat.elements[1][1] = +CosF32(radians);
+  mat.elements[0][0] = +F32_Cos(radians);
+  mat.elements[0][1] = -F32_Sin(radians);
+  mat.elements[1][0] = +F32_Sin(radians);
+  mat.elements[1][1] = +F32_Cos(radians);
   return mat;
 }
 
@@ -286,7 +393,7 @@ Mat4x4F32 Mat4x4_MakeValue(F32 value)
   return mat;
 }
 
-Mat4x4F32 Mat4x4_MakeTransform(Vec3F32 translate)
+Mat4x4F32 Mat4x4_MakeTranslate(Vec3F32 translate)
 {
   Mat4x4F32 mat      = Mat4x4_MakeValue(1.0f);
   mat.elements[0][3] = translate.x;
@@ -308,8 +415,8 @@ Mat4x4F32 Mat4x4_MakeRotation(Vec3F32 axis, F32 radians)
 {
   Mat4x4F32 mat      = Mat4x4_MakeValue(1.f);
   axis               = Vec3F32_Normalize(axis);
-  F32 sin_theta      = SinF32(radians);
-  F32 cos_theta      = CosF32(radians);
+  F32 sin_theta      = F32_Sin(radians);
+  F32 cos_theta      = F32_Cos(radians);
   F32 cos_value      = 1.f - cos_theta;
   mat.elements[0][0] = (axis.x * axis.x * cos_value) + cos_theta;
   mat.elements[1][0] = (axis.x * axis.y * cos_value) + (axis.z * sin_theta);
