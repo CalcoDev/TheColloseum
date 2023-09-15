@@ -5,7 +5,7 @@
 #include "base/base_types.h"
 #include "render.h"
 
-Hashmap_CreatePrototype(String8, U64);
+HashmapCreatePrototype(String8, U64);
 
 typedef struct R_Buffer
 {

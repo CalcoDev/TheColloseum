@@ -4,7 +4,7 @@
 #include "base/base_log.h"
 #include "render_gl33.h"
 
-Hashmap_Implement(String8, U64);
+HashmapImplement(String8, U64);
 
 // NOTE(calco): -- Helper Functions --
 // Translate the generic render.h enums and structs to backend specific things.
@@ -228,7 +228,7 @@ U64 string8_hash(String8 key, U64 table_size)
   return hash % table_size;
 }
 
-B32 hash_elem_null(Hashmap_Entry(String8, U64) entry)
+B32 hash_elem_null(HashmapEntry(String8, U64) entry)
 {
   if (entry.key.size == 0)
     return 1;
@@ -243,7 +243,7 @@ void R_ShaderPackInit(
 )
 {
   // TODO(calco): uniform count should be a prime number, but enforced.
-  Hashmap_Init(
+  HashmapInit(
       String8, U64, arena, &pack->uniforms, uniform_count, string8_hash,
       hash_elem_null
   );
@@ -275,10 +275,10 @@ void R_ShaderPackFree(R_ShaderPack* pack) { glDeleteProgram(pack->handle); }
 U64 get_handle_shaderpack_loc(R_ShaderPack* pack, String8 name)
 {
   U64 loc;
-  if (!Hashmap_TryGet(String8, U64, &pack->uniforms, name, &loc))
+  if (!HashmapTryGet(String8, U64, &pack->uniforms, name, &loc))
   {
     loc = glGetUniformLocation(pack->handle, name.data);
-    Hashmap_Add(String8, U64, &pack->uniforms, name, loc);
+    HashmapAdd(String8, U64, &pack->uniforms, name, loc);
   }
   return loc;
 }

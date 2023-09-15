@@ -39,7 +39,7 @@ U64 hash_func(String8 key, U64 table_size)
   return hash % table_size;
 }
 
-B32 null_elem(Hashmap_Entry(String8, U64) entry)
+B32 null_elem(HashmapEntry(String8, U64) entry)
 {
   if (entry.key.size == 0)
     return 1;
@@ -50,6 +50,9 @@ B32 null_elem(Hashmap_Entry(String8, U64) entry)
 int main()
 {
   // math experiements
+
+  Vec2F32 v = V2F32(12, 15);
+  Vec2F32 c = V2F32(12, 51);
 
   return 0;
 }
@@ -63,27 +66,27 @@ int _main()
   ArenaInit(&arena, &memory, Megabytes(1));
 
   Hashmap(String8, U64) hash;
-  Hashmap_Init(String8, U64, &arena, &hash, 17, hash_func, null_elem);
+  HashmapInit(String8, U64, &arena, &hash, 17, hash_func, null_elem);
 
-  Hashmap_Add(String8, U64, &hash, Str8Lit("time"), 0);
-  Hashmap_Add(String8, U64, &hash, Str8Lit("hp"), 1);
-  Hashmap_Add(String8, U64, &hash, Str8Lit("blur"), 2);
+  HashmapAdd(String8, U64, &hash, Str8Lit("time"), 0);
+  HashmapAdd(String8, U64, &hash, Str8Lit("hp"), 1);
+  HashmapAdd(String8, U64, &hash, Str8Lit("blur"), 2);
 
-  U64 v1 = Hashmap_Get(String8, U64, &hash, Str8Lit("time"));
-  U64 v2 = Hashmap_Get(String8, U64, &hash, Str8Lit("hp"));
-  U64 v3 = Hashmap_Get(String8, U64, &hash, Str8Lit("blur"));
+  U64 v1 = HashmapGet(String8, U64, &hash, Str8Lit("time"));
+  U64 v2 = HashmapGet(String8, U64, &hash, Str8Lit("hp"));
+  U64 v3 = HashmapGet(String8, U64, &hash, Str8Lit("blur"));
 
   U64 v1_p;
   U64 v2_p;
   U64 v3_p;
 
-  B32 b1 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("time"), &v1_p);
-  B32 b2 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("hp"), &v2_p);
-  B32 b3 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("blur"), &v3_p);
+  B32 b1 = HashmapTryGet(String8, U64, &hash, Str8Lit("time"), &v1_p);
+  B32 b2 = HashmapTryGet(String8, U64, &hash, Str8Lit("hp"), &v2_p);
+  B32 b3 = HashmapTryGet(String8, U64, &hash, Str8Lit("blur"), &v3_p);
 
-  B32 b4 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("no1"), &v1_p);
-  B32 b5 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("no2"), &v2_p);
-  B32 b6 = Hashmap_TryGet(String8, U64, &hash, Str8Lit("blue"), &v3_p);
+  B32 b4 = HashmapTryGet(String8, U64, &hash, Str8Lit("no1"), &v1_p);
+  B32 b5 = HashmapTryGet(String8, U64, &hash, Str8Lit("no2"), &v2_p);
+  B32 b6 = HashmapTryGet(String8, U64, &hash, Str8Lit("blue"), &v3_p);
 
   ArenaRelease(&arena);
   return 0;

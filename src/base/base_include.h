@@ -3,6 +3,8 @@
 
 #include "base_types.h"
 //
+#include "base_math.h"
+//
 #include "base_memory.h"
 //
 #include "base_string.h"
