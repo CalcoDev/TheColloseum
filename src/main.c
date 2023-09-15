@@ -56,6 +56,44 @@ int main()
   F32 d2 = V2F32_Dot(V2F32_Right, V2F32_Down);
   F32 d3 = V2F32_Dot(V2F32_Up, V2F32_Down);
 
+  Mat3x3F32 a = {{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}};
+  Mat3x3F32 b = {{{9, 8, 7}, {6, 5, 4}, {3, 2, 1}}};
+  Mat3x3F32 c = Mat3x3_Mult(a, b);
+
+  // Vec2F32 vec = V2F32(10.f, 15.f);
+
+  // Mat3x3F32 id     = Mat3x3_Identity();
+  // Mat3x3F32 transf = Mat3x3_MakeTransform(V2F32(2.f, -21.f));
+  // Mat3x3F32 rot    = Mat3x3_MakeRotation(PiF32 * 0.5f);
+  // Mat3x3F32 scl    = Mat3x3_MakeScale(V2F32(2.f, 2.f));
+
+  // Mat3x3F32 final = Mat3x3_Mult(transf, Mat3x3_Mult(rot, scl));
+  // Vec2F32 v       = Vec2F32_ApplyMatrix(final, vec);
+
+  Vec3F32 vec = V3F32(10.f, 15.f, 0.f);
+
+  Mat4x4F32 id     = Mat4x4_Identity();
+  Mat4x4F32 transf = Mat4x4_MakeTransform(V3F32(2.f, 2.f, -69.f));
+  Mat4x4F32 rot    = Mat4x4_MakeRotation(V3F32_Forward, PiF32 * 0.5f);
+  Mat4x4F32 scl    = Mat4x4_MakeScale(V3F32(2.f, 2.f, 2.f));
+
+  Mat4x4F32 final = Mat4x4_Mult(transf, Mat4x4_Mult(rot, scl));
+  Vec3F32 v       = Vec3F32_ApplyMatrix(final, vec);
+
+  // Mat3x3F32 rot_scl = Mat3x3_Mult(rot, scl);
+  // Mat3x3F32 scl_rot = Mat3x3_Mult(scl, rot);
+
+  // Mat3x3F32 rot_scl_transf = Mat3x3_Mult(rot_scl, transf);
+  // Mat3x3F32 transf_rot_scl = Mat3x3_Mult(transf, rot_scl);
+
+  // Mat3x3F32 scl_rot_transf = Mat3x3_Mult(scl_rot, transf);
+  // Mat3x3F32 transf_scl_rot = Mat3x3_Mult(transf, scl_rot);
+
+  // Vec2F32 v1 = Vec2F32_ApplyMatrix(rot_scl_transf, vec);
+  // Vec2F32 v2 = Vec2F32_ApplyMatrix(transf_rot_scl, vec);
+  // Vec2F32 v3 = Vec2F32_ApplyMatrix(scl_rot_transf, vec);
+  // Vec2F32 v4 = Vec2F32_ApplyMatrix(transf_scl_rot, vec);
+
   return 0;
 }
 
