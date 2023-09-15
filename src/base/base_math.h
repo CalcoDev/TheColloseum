@@ -57,6 +57,16 @@ typedef struct Vec3S32
   S32 z;
 } Vec3S32;
 
+// NOTE(calco): -- Vector Conversion Functions --
+Vec2S32 Vec2F32_ToVec2S32(Vec2F32 vec2f);
+Vec3F32 Vec2F32_ToVec3F32(Vec2F32 vec2f);
+
+Vec2F32 Vec2S32_ToVec2F32(Vec2S32 vec2s);
+Vec3S32 Vec2S32_ToVec3S32(Vec2S32 vec2s);
+
+Vec2F32 Vec3F32_ToVec2F32(Vec3F32 vec3f);
+Vec2S32 Vec3S32_ToVec2S32(Vec3S32 vec3s);
+
 // NOTE(calco): -- Matrix Types --
 
 /**
@@ -124,6 +134,7 @@ Vec3F32 Vec3F32_SubScalar(Vec3F32 a, F32 b);
 Vec3F32 Vec3F32_DivScalar(Vec3F32 a, F32 b);
 Vec3F32 Vec3F32_MultScalar(Vec3F32 a, F32 b);
 F32 Vec3F32_Dot(Vec3F32 a, Vec3F32 b);
+Vec3F32 Vec3F32_Cross(Vec3F32 a, Vec3F32 b);
 F32 Vec3F32_Magnitude(Vec3F32 a);
 F32 Vec3F32_SqrMagnitude(Vec3F32 a);
 Vec3F32 Vec3F32_Normalize(Vec3F32 a);

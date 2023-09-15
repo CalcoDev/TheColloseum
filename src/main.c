@@ -15,11 +15,43 @@ void glfwErrorCallback(int code, const char* msg)
   LogError("glfw error: %s (%i)", msg, code);
 }
 
-void ProcessWindowInput(GLFWwindow* window)
+static F32 Inp_XAxis = 0.f;
+static F32 Inp_ZAxis = 0.f;
+static F32 MoveSp    = 0.05f;
+
+void ProcessWindowInput(
+    GLFWwindow* window, int key, int scancode, int action, int mods
+)
 {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
   {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+
+  if (action == GLFW_PRESS)
+  {
+    if (key == GLFW_KEY_D)
+      Inp_XAxis = 1.f;
+    if (key == GLFW_KEY_A)
+      Inp_XAxis = -1.f;
+
+    if (key == GLFW_KEY_W)
+      Inp_ZAxis = 1.f;
+    if (key == GLFW_KEY_S)
+      Inp_ZAxis = -1.f;
+  }
+
+  if (action == GLFW_RELEASE)
+  {
+    if (key == GLFW_KEY_D)
+      Inp_XAxis = 0.f;
+    if (key == GLFW_KEY_A)
+      Inp_XAxis = 0.f;
+
+    if (key == GLFW_KEY_W)
+      Inp_ZAxis = 0.f;
+    if (key == GLFW_KEY_S)
+      Inp_ZAxis = 0.f;
   }
 }
 
@@ -320,7 +352,7 @@ int main()
 
   F32 aspect_ratio = (F32)window_width / (F32)window_height;
 
-  F32 clip_near = 0.03f;
+  F32 clip_near = 0.003f;
   F32 clip_far  = 1000.f;
 
   // Calculate A and B to map [clip_near, clip_far] to [-1, 1], as opengl says
@@ -386,6 +418,24 @@ int main()
       // Update Game Logic
       // Log("Updated: %u!\nTime between frames: %u", current_loop_time,
       //     delta_time);
+
+      Vec3F32 x_axis = Vec3F32_MultScalar(
+          Vec3F32_Normalize(Vec3F32_Cross(camera_v, camera_n)),
+          Inp_XAxis * MoveSp
+      );
+      Vec3F32 z_axis = Vec3F32_MultScalar(
+          Vec3F32_Normalize(Vec3F32_Cross(camera_v, camera_u)),
+          -1.f * Inp_ZAxis * MoveSp
+      );
+
+      // Log("XAxis - (%.2f, %.2f, %.2f).", x_axis.x, x_axis.y, x_axis.z);
+      // Log("ZAxis - (%.2f, %.2f, %.2f).", z_axis.x, z_axis.y, z_axis.z);
+
+      Vec3F32 movement = Vec3F32_Add(x_axis, z_axis);
+      // Log("Movement - (%.2f, %.2f, %.2f).", movement.x, movement.y,
+      // movement.z);
+
+      camera_pos = Vec3F32_Add(camera_pos, movement);
 
       rotation_radians += delta_time / 1000.f / 500.f;
       if (F32_Abs(rotation_radians) > 2 * F32_Pi)

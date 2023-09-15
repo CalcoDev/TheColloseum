@@ -15,6 +15,37 @@ S32 S32_Lerp(S32 a, S32 b, F32 t)
   return (S32)(a * (t - 1.0f)) + (S32)(b * t);
 }
 
+// NOTE(calco): -- Vector Conversion Functions --
+Vec2S32 Vec2F32_ToVec2S32(Vec2F32 vec2f)
+{
+  return Vec2S32_Make((S32)(vec2f.x), (S32)(vec2f.y));
+}
+
+Vec3F32 Vec2F32_ToVec3F32(Vec2F32 vec2f)
+{
+  return Vec3F32_Make(vec2f.x, vec2f.y, 0.f);
+}
+
+Vec2F32 Vec2S32_ToVec2F32(Vec2S32 vec2s)
+{
+  return Vec2F32_Make((F32)(vec2s.x), (F32)(vec2s.y));
+}
+
+Vec3S32 Vec2S32_ToVec3S32(Vec2S32 vec2s)
+{
+  return Vec3S32_Make(vec2s.x, vec2s.y, 0);
+}
+
+Vec2F32 Vec3F32_ToVec2F32(Vec3F32 vec3f)
+{
+  return Vec2F32_Make(vec3f.x, vec3f.y);
+}
+
+Vec2S32 Vec3S32_ToVec2S32(Vec3S32 vec3s)
+{
+  return Vec2S32_Make(vec3s.x, vec3s.y);
+}
+
 // NOTE(calco): -- Vector2 Helper Functions --
 Vec2F32 Vec2F32_Make(F32 a, F32 b)
 {
@@ -206,6 +237,15 @@ F32 Vec3F32_Dot(Vec3F32 a, Vec3F32 b)
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+Vec3F32 Vec3F32_Cross(Vec3F32 a, Vec3F32 b)
+{
+  Vec3F32 c = {0};
+  c.x       = (a.y * b.z) - (a.z * b.y);
+  c.y       = (a.z * b.x) - (a.x * b.z);
+  c.z       = (a.x * b.y) - (a.y * b.x);
+  return c;
+}
+
 F32 Vec3F32_Magnitude(Vec3F32 a)
 {
   return F32_SquareRoot(a.x * a.x + a.y * a.y + a.z * a.z);
@@ -280,7 +320,16 @@ Vec3S32 Vec3S32_MultScalar(Vec3S32 a, S32 b)
 
 F32 Vec3S32_Dot(Vec3S32 a, Vec3S32 b)
 {
-  return a.x * b.x + a.y * b.y + a.z * b.z;
+  return (F32)(a.x * b.x + a.y * b.y + a.z * b.z);
+}
+
+Vec3F32 Vec3S32_Cross(Vec3S32 a, Vec3S32 b)
+{
+  Vec3F32 c = {0};
+  c.x       = (F32)((a.y * b.z) - (a.z * b.y));
+  c.y       = (F32)((a.z * b.x) - (a.x * b.z));
+  c.z       = (F32)((a.x * b.y) - (a.y * b.x));
+  return c;
 }
 
 F32 Vec3S32_Magnitude(Vec3S32 a)
