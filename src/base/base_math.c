@@ -106,6 +106,10 @@ F32 Vec2F32_SqrMagnitude(Vec2F32 a) { return a.x * a.x + a.y * a.y; }
 Vec2F32 Vec2F32_Normalize(Vec2F32 a)
 {
   F32 mag = Vec2F32_Magnitude(a);
+
+  if (F32_Abs(mag) < 0.0000001f)
+    return Vec2F32_Zero;
+
   return Vec2F32_Make(a.x / mag, a.y / mag);
 }
 

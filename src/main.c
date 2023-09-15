@@ -15,9 +15,9 @@ void glfwErrorCallback(int code, const char* msg)
   LogError("glfw error: %s (%i)", msg, code);
 }
 
-static F32 Inp_XAxis = 0.f;
-static F32 Inp_ZAxis = 0.f;
-static F32 MoveSp    = 0.05f;
+// static F32 Inp_XAxis = 0.f;
+// static F32 Inp_ZAxis = 0.f;
+static F32 MoveSp = 0.05f;
 
 void ProcessWindowInput(
     GLFWwindow* window, int key, int scancode, int action, int mods
@@ -28,31 +28,31 @@ void ProcessWindowInput(
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 
-  if (action == GLFW_PRESS)
-  {
-    if (key == GLFW_KEY_D)
-      Inp_XAxis = 1.f;
-    if (key == GLFW_KEY_A)
-      Inp_XAxis = -1.f;
+  // if (action == GLFW_PRESS)
+  // {
+  //   if (key == GLFW_KEY_D)
+  //     Inp_XAxis = 1.f;
+  //   if (key == GLFW_KEY_A)
+  //     Inp_XAxis = -1.f;
 
-    if (key == GLFW_KEY_W)
-      Inp_ZAxis = 1.f;
-    if (key == GLFW_KEY_S)
-      Inp_ZAxis = -1.f;
-  }
+  //   if (key == GLFW_KEY_W)
+  //     Inp_ZAxis = 1.f;
+  //   if (key == GLFW_KEY_S)
+  //     Inp_ZAxis = -1.f;
+  // }
 
-  if (action == GLFW_RELEASE)
-  {
-    if (key == GLFW_KEY_D)
-      Inp_XAxis = 0.f;
-    if (key == GLFW_KEY_A)
-      Inp_XAxis = 0.f;
+  // if (action == GLFW_RELEASE)
+  // {
+  //   if (key == GLFW_KEY_D)
+  //     Inp_XAxis = 0.f;
+  //   if (key == GLFW_KEY_A)
+  //     Inp_XAxis = 0.f;
 
-    if (key == GLFW_KEY_W)
-      Inp_ZAxis = 0.f;
-    if (key == GLFW_KEY_S)
-      Inp_ZAxis = 0.f;
-  }
+  //   if (key == GLFW_KEY_W)
+  //     Inp_ZAxis = 0.f;
+  //   if (key == GLFW_KEY_S)
+  //     Inp_ZAxis = 0.f;
+  // }
 }
 
 U64 hash_func(String8 key, U64 table_size)
@@ -419,13 +419,21 @@ int main()
       // Log("Updated: %u!\nTime between frames: %u", current_loop_time,
       //     delta_time);
 
+      Vec2F32 inp = {0};
+      inp.x       = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) -
+              (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS);
+      inp.y = (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) -
+              (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
+      inp = Vec2F32_Normalize(inp);
+
+      Log("Normalized: (%.2f, %.2f)", inp.x, inp.y);
+
       Vec3F32 x_axis = Vec3F32_MultScalar(
-          Vec3F32_Normalize(Vec3F32_Cross(camera_v, camera_n)),
-          Inp_XAxis * MoveSp
+          Vec3F32_Normalize(Vec3F32_Cross(camera_v, camera_n)), inp.x * MoveSp
       );
       Vec3F32 z_axis = Vec3F32_MultScalar(
           Vec3F32_Normalize(Vec3F32_Cross(camera_v, camera_u)),
-          -1.f * Inp_ZAxis * MoveSp
+          -1.f * inp.y * MoveSp
       );
 
       // Log("XAxis - (%.2f, %.2f, %.2f).", x_axis.x, x_axis.y, x_axis.z);
