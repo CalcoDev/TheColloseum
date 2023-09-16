@@ -149,6 +149,7 @@ F32 Vec3F32_Magnitude(Vec3F32 a);
 F32 Vec3F32_SqrMagnitude(Vec3F32 a);
 Vec3F32 Vec3F32_Normalize(Vec3F32 a);
 Vec3F32 Vec3F32_Lerp(Vec3F32 a, Vec3F32 b, F32 t);
+Vec3F32 Vec3F32_RotateAxis(Vec3F32 vec, Vec3F32 axis, F32 radians);
 
 Vec3S32 Vec3S32_Make(S32 a, S32 b, S32 c);
 Vec3S32 Vec3S32_Add(Vec3S32 a, Vec3S32 b);
@@ -185,6 +186,7 @@ Mat4x4F32 Mat4x4_MakeValue(F32 value);
 Mat4x4F32 Mat4x4_MakeTranslate(Vec3F32 translate);
 Mat4x4F32 Mat4x4_MakeScale(Vec3F32 scale);
 Mat4x4F32 Mat4x4_MakeRotation(Vec3F32 axis, F32 radians);
+Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up);
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective
 
 Mat4x4F32 Mat4x4_Mult(Mat4x4F32 a, Mat4x4F32 b);
@@ -231,8 +233,11 @@ Vec3F32 Vec3F32_ApplyMatrix(Mat4x4F32 mat, Vec3F32 vec);
 #define Vec3S32_Down    Vec3S32_Make(0, -1, 0)
 
 // NOTE(calco): -- Quaternion Helper Functions --
+QuatF32 QuatF32_Identity();
+
 QuatF32 QuatF32_Make(F32 x, F32 y, F32 z, F32 w);
 QuatF32 QuatF32_MakeFromAxisAngle(Vec3F32 axis, F32 radians);
+QuatF32 QuatF32_MakeFromEulerAngles(F32 x, F32 y, F32 z);
 
 QuatF32 QuatF32_Add(QuatF32 a, QuatF32 b);
 QuatF32 QuatF32_Sub(QuatF32 a, QuatF32 b);
@@ -241,6 +246,9 @@ QuatF32 QuatF32_MultScalar(QuatF32 a, F32 f);
 QuatF32 QuatF32_Normalize(QuatF32 quat);
 F32 QuatF32_Dot(QuatF32 a, QuatF32 b);
 QuatF32 QuatF32_Lerp(QuatF32 a, QuatF32 b, F32 t);
+QuatF32 QuatF32_Conjugate(QuatF32 quat);
 Mat4x4F32 QuatF32_Mat4x4FromQuatF32(QuatF32 quat);
+
+Vec3F32 QuatF32_RotateVector(QuatF32 quat, Vec3F32 vec);
 
 #endif

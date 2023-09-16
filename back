@@ -56,6 +56,18 @@ void CursorPositionCallback(GLFWwindow* window, F64 d_xpos, F64 d_ypos)
     Pitch = -85.f;
 }
 
+int _main()
+{
+  OS_Init();
+
+  M_BaseMemory memory = OS_BaseMemory();
+  Arena arena;
+  ArenaInit(&arena, &memory, Megabytes(1));
+
+  ArenaRelease(&arena);
+  return 0;
+}
+
 int main()
 {
   // NOTES(calco): Init Memory
@@ -118,30 +130,36 @@ int main()
 
   // Data
   F32 vertices[] = {
-      -1.0f, -1.0f, -1.0f, // 0
-      1.0f,  0.0f,  0.0f,  // Red
-      1.0f,  -1.0f, -1.0f, // 1
-      0.0f,  1.0f,  0.0f,  // Green
-      1.0f,  1.0f,  -1.0f, // 2
-      0.0f,  0.0f,  1.0f,  // Blue
-      -1.0f, 1.0f,  -1.0f, // 3
-      1.0f,  1.0f,  0.0f,  // Yellow
-      -1.0f, -1.0f, 1.0f,  // 4
-      1.0f,  0.0f,  1.0f,  // Magenta
-      1.0f,  -1.0f, 1.0f,  // 5
-      0.0f,  1.0f,  1.0f,  // Cyan
-      1.0f,  1.0f,  1.0f,  // 6
-      1.0f,  1.0f,  1.0f,  // White
-      -1.0f, 1.0f,  1.0f,  // 7
-      0.0f,  0.0f,  0.0f   // Black
+      -1.f,  -1.f,  0.5f,  // 0
+      1.0f,  1.0f,         // tex coords
+      1.f,   -1.f,  0.5f,  // 1
+      1.0f,  -1.0f,        // tex coords
+      -1.f,  1.f,   0.5f,  // 2
+      -1.0f, -1.0f,        // tex coords
+      1.f,   1.f,   0.5f,  // 3
+      -1.0f, 1.0f,         // tex coords
+      -1.f,  -1.f,  -0.5f, // 4
+      -1.0f, 1.0f,         // tex coords
+      1.f,   -1.f,  -0.5f, // 5
+      -1.0f, 1.0f,         // tex coords
+      -1.f,  1.f,   -0.5f, // 6
+      -1.0f, 1.0f,         // tex coords
+      1.f,   1.f,   -0.5f, // 7
+      -1.0f, 1.0f,         // tex coords
   };
   U32 indices[] = {
-      0, 1, 2, 2, 3, 0, // Front
-      4, 5, 6, 6, 7, 4, // Back
-      1, 5, 6, 6, 2, 1, // Right
-      0, 4, 7, 7, 3, 0, // Left
-      3, 2, 6, 6, 7, 3, // Top
-      0, 1, 5, 5, 4, 0  // Bottom
+      2, 6, 7, // Top
+      2, 3, 7, // Top
+      0, 4, 5, // Bottom
+      0, 1, 5, // Bottom
+      0, 2, 6, // Left
+      0, 4, 6, // Left
+      1, 3, 7, // Right
+      1, 5, 7, // Right
+      0, 2, 3, // Front
+      0, 1, 3, // Front
+      4, 6, 7, // Back
+      4, 5, 7  // Back
   };
 
   // Create a vertex buffer
@@ -181,8 +199,8 @@ int main()
   R_Attribute vertex_attribs[2];
   vertex_attribs[0].name = Str8Lit("Position");
   vertex_attribs[0].type = AttributeType_F3;
-  vertex_attribs[1].name = Str8Lit("Colour");
-  vertex_attribs[1].type = AttributeType_F3;
+  vertex_attribs[1].name = Str8Lit("TexCoord");
+  vertex_attribs[1].type = AttributeType_F2;
 
   R_Pipeline pipeline;
   R_PipelineInit(&pipeline, &program, vertex_attribs, 2);
@@ -215,60 +233,35 @@ int main()
   // Model Matrix (local to world)
   Mat4x4F32 model_matrix = Mat4x4_MakeValue(0.f);
 
-  Vec3F32 translate = Vec3F32_Make(0.f, 0.f, 0.f);
-  Vec3F32 scale     = Vec3F32_Make(1.f, 1.f, 1.f);
-  Mat4x4F32 rotation =
-      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(0.f, 0.f, 0.f));
-
-  // View Matrix / Camera
-  Mat4x4F32 view_matrix = Mat4x4_MakeValue(0.f);
-
-  Vec3F32 camera_pos = Vec3F32_Make(0.f, 0.f, -10.f);
-  // Vec3F32 camera_forward = Vec3F32_Forward;
-  Vec3F32 camera_up = Vec3F32_Up;
+  Vec3F32 translate     = Vec3F32_Make(0.f, 0.f, 0.f);
+  Vec3F32 rotation_axis = Vec3F32_Up;
+  F32 rotation_radians  = 0.f; // F32_Pi * 0.25f
+  Vec3F32 scale         = Vec3F32_One;
 
   // Projection Matrix
-  Mat4x4F32 projection_matrix = Mat4x4_MakeValue(1.f);
+  Mat4x4F32 projection_matrix = Mat4x4_MakeValue(0.f);
 
   F32 half_fov     = F32_DegToRad(45.f);
   F32 aspect_ratio = (F32)window_width / (F32)window_height;
   F32 c_near       = 0.1f;
-  F32 c_far        = 1000.f;
+  F32 c_far        = 100.f;
 
   projection_matrix.elements[0][0] = 1.f / (F32_Tan(half_fov) * aspect_ratio);
-  projection_matrix.elements[1][1] = 1.f / (F32_Tan(half_fov));
-  projection_matrix.elements[3][2] = -1.f;
+  projection_matrix.elements[1][1] = 1.f / F32_Tan(half_fov);
   projection_matrix.elements[2][2] = -(c_far + c_near) / (c_far - c_near);
+  projection_matrix.elements[3][2] = -1.f;
   projection_matrix.elements[2][3] = -(2.f * c_far * c_near) / (c_far - c_near);
-  projection_matrix.elements[3][3] = 0.f;
 
-  // projection_matrix = Mat4x4_Transpose(projection_matrix);
+  // View Matrix / Camera
+  Mat4x4F32 view_matrix = Mat4x4_MakeValue(0.f);
 
-  // F32 rotation_radians = 0.f;
-
-  Vec3F32 cube_positions[] = {
-      Vec3F32_Make(0.f, 0.f, 0.f),
-      Vec3F32_Make(0.f, 20.f, 15.f),
-      Vec3F32_Make(32.f, -27.f, 0.f),
-      Vec3F32_Make(-36.f, 0.f, -29.f),
-  };
-
-  Mat4x4F32 cube_rotations[] = {
-      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(247.f, 128.f, 59.f)
-      ),
-      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(12.f, 106.f, 259.f)
-      ),
-      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(172.f, 206.f, 82.f)
-      ),
-      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(84.f, 29.f, 169.f)),
-  };
-
-  Vec3F32 cube_scales[] = {
-      Vec3F32_Make(1.f, 2.3f, 0.4f),
-      Vec3F32_Make(0.5f, 1.7f, 5.2f),
-      Vec3F32_Make(2.5f, 8.f, 0.2f),
-      Vec3F32_Make(1.f, 1.f, 1.f),
-  };
+  Vec3F32 camera_pos = Vec3F32_Make(0.f, 0.f, 10.f);
+  Vec3F32 camera_forward =
+      Vec3F32_Normalize(Vec3F32_Sub(camera_pos, Vec3F32_Zero));
+  Vec3F32 camera_right =
+      Vec3F32_Normalize(Vec3F32_Cross(Vec3F32_Up, camera_forward));
+  Vec3F32 camera_up =
+      Vec3F32_Normalize(Vec3F32_Cross(camera_forward, camera_right));
 
   Log("Starting game loop.", "");
   while (!glfwWindowShouldClose(window))
@@ -282,28 +275,109 @@ int main()
     {
       glfwPollEvents();
 
-      // View Matrix
-      camera_pos.x = sin(glfwGetTime() * 0.2f) * 40.f;
-      camera_pos.y = 20.f;
-      camera_pos.z = cos(glfwGetTime() * 0.2f) * 40.f;
+      // -- start of camera
+      // Camera Position
+      Vec3F32 inp;
+      inp.x = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) -
+              (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS);
+      inp.z = (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) -
+              (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS);
+      inp.y = (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) -
+              (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+      // inp = Vec3F32_Normalize(inp);
 
-      view_matrix = Mat4x4_MakeLookAt(camera_pos, Vec3F32_Zero, camera_up);
-      view_matrix = Mat4x4_Transpose(view_matrix);
+      // Vec3F32 x_axis = Vec3F32_MultScalar(
+      //     Vec3F32_Cross(camera_forward, camera_up), inp.x * MoveSp
+      // );
+      // Vec3F32 y_axis   = Vec3F32_MultScalar(camera_up, inp.y * MoveSp);
+      // Vec3F32 z_axis   = Vec3F32_MultScalar(camera_forward, inp.z * MoveSp);
+      // Vec3F32 movement = Vec3F32_Add(Vec3F32_Add(x_axis, y_axis), z_axis);
+      // camera_pos       = Vec3F32_Add(camera_pos, movement);
+
+      // Camera Rotation
+      // Log("Yaw (%.2f) - Pitch (%.2f)", Yaw, Pitch);
+      // F32 b = (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) -
+      //         (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS);
+      // if (F32_Abs(b) > 0.01f)
+      // {
+      //   const F32 angle = F32_DegToRad(1.f) * b;
+
+      //   Vec3F32 axis = Vec3F32_Cross(Vec3F32_Up, camera_forward);
+      //   axis         = Vec3F32_Normalize(axis);
+
+      //   camera_forward = Vec3F32_RotateAxis(camera_forward, axis, angle);
+      //   camera_forward = Vec3F32_Normalize(camera_forward);
+
+      //   camera_up = Vec3F32_Cross(camera_forward, axis);
+      //   camera_up = Vec3F32_Normalize(camera_up);
+      // }
+
+      // b = (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) -
+      //     (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS);
+      // if (F32_Abs(b) > 0.01f)
+      // {
+      //   const F32 angle = F32_DegToRad(1.f) * b;
+
+      //   Vec3F32 axis = Vec3F32_Cross(Vec3F32_Up, camera_forward);
+      //   axis         = Vec3F32_Normalize(axis);
+
+      //   camera_forward = Vec3F32_RotateAxis(camera_forward, Vec3F32_Up,
+      //   angle); camera_forward = Vec3F32_Normalize(camera_forward);
+
+      //   camera_up = Vec3F32_Cross(camera_forward, axis);
+      //   camera_up = Vec3F32_Normalize(camera_up);
+      // }
+
+      // -- end of camera
+
+      // Rotate the cube.
+      // rotation_radians += delta_time / 1000.f / 500.f;
+      // if (F32_Abs(rotation_radians) > 2 * F32_Pi)
+      //   rotation_radians = 0.f;
+
+      // Model Matrix
+      model_matrix = Mat4x4_Mult(
+          Mat4x4_MakeTranslate(translate),
+          Mat4x4_Mult(
+              Mat4x4_MakeRotation(rotation_axis, rotation_radians),
+              Mat4x4_MakeScale(scale)
+          )
+      );
+
+      // View Matrix
+      Vec3F32 n = camera_forward;
+      Vec3F32 v = camera_up;
+      Vec3F32 u = Vec3F32_Cross(n, v);
+
+      view_matrix = Mat4x4_MakeValue(0.f);
+
+      view_matrix.elements[0][0] = u.x;
+      view_matrix.elements[0][1] = u.y;
+      view_matrix.elements[0][2] = u.z;
+      view_matrix.elements[1][0] = v.x;
+      view_matrix.elements[1][1] = v.y;
+      view_matrix.elements[1][2] = v.z;
+      view_matrix.elements[2][0] = n.x;
+      view_matrix.elements[2][1] = n.y;
+      view_matrix.elements[2][2] = n.z;
+      view_matrix.elements[0][3] = -camera_pos.x;
+      view_matrix.elements[1][3] = -camera_pos.y;
+      view_matrix.elements[2][3] = -camera_pos.z;
+
+      // MATRIX STUFF OVER
 
       // Render
       glEnable(GL_DEPTH_TEST);
-
-      // glEnable(GL_CULL_FACE);
-      // glCullFace(GL_FRONT);
-      // glFrontFace(GL_CCW);
-
       glDepthMask(GL_TRUE);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-      // R_TextureBind(&texture, 0);
+      R_TextureBind(&texture, 0);
       R_PipelineBind(&pipeline);
 
+      R_ShaderPackUploadMat4(
+          pipeline.shader_pack, Str8Lit("model"), model_matrix.elements[0]
+      );
       R_ShaderPackUploadMat4(
           pipeline.shader_pack, Str8Lit("view"), view_matrix.elements[0]
       );
@@ -312,28 +386,12 @@ int main()
           projection_matrix.elements[0]
       );
 
-      for (U64 i = 0; i < 4; ++i)
-      {
-        // Model Matrix
-        model_matrix = Mat4x4_Mult(
-            Mat4x4_MakeTranslate(Vec3F32_Add(translate, cube_positions[i])),
-            Mat4x4_Mult(
-                Mat4x4_Mult(rotation, cube_rotations[i]),
-                Mat4x4_MakeScale(Vec3F32_Add(scale, cube_scales[i]))
-            )
-        );
-
-        R_ShaderPackUploadMat4(
-            pipeline.shader_pack, Str8Lit("model"), model_matrix.elements[0]
-        );
-
-        glDrawElements(
-            GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT,
-            (void*)0
-        );
-      }
+      glDrawElements(
+          GL_TRIANGLES, sizeof(indices) / sizeof(U32), GL_UNSIGNED_INT, (void*)0
+      );
 
       glfwSwapBuffers(window);
+
       prev_loop_time = current_loop_time;
     }
   }

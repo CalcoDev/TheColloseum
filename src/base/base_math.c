@@ -281,6 +281,25 @@ Vec3F32 Vec3F32_Lerp(Vec3F32 a, Vec3F32 b, F32 t)
   );
 }
 
+Vec3F32 Vec3F32_RotateAxis(Vec3F32 vec, Vec3F32 axis, F32 radians)
+{
+  F32 half_angle     = radians * 0.5f;
+  F32 sin_half_angle = F32_Sin(half_angle);
+
+  QuatF32 r = {0};
+  r.x       = axis.x * sin_half_angle;
+  r.y       = axis.y * sin_half_angle;
+  r.z       = axis.z * sin_half_angle;
+  r.w       = F32_Cos(half_angle);
+
+  r                   = QuatF32_Normalize(r);
+  QuatF32 r_conjugate = QuatF32_Conjugate(r);
+  QuatF32 v           = QuatF32_Make(vec.x, vec.y, vec.z, 0.f);
+  QuatF32 w           = QuatF32_Mult(QuatF32_Mult(r, v), r_conjugate);
+
+  return Vec3F32_Make(w.x, w.y, w.z);
+}
+
 Vec3S32 Vec3S32_Make(S32 a, S32 b, S32 c)
 {
   Vec3S32 v;
@@ -491,6 +510,66 @@ Mat4x4F32 Mat4x4_MakeRotation(Vec3F32 axis, F32 radians)
   return mat;
 }
 
+Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
+{
+  // Vec3F32 forward = Vec3F32_Sub(target, pos);      // f
+  // forward         = Vec3F32_Normalize(forward);    // f
+  // Vec3F32 right   = Vec3F32_Cross(forward, up);    // s
+  // right           = Vec3F32_Normalize(right);      // s
+  // Vec3F32 new_up  = Vec3F32_Cross(forward, right); // u
+
+  Vec3F32 Z = Vec3F32_Normalize(Vec3F32_Sub(pos, target));
+  Vec3F32 Y = up;
+  Vec3F32 X = Vec3F32_Cross(Y, Z);
+  Y         = Vec3F32_Cross(Z, X);
+
+  X = Vec3F32_Normalize(X);
+  Y = Vec3F32_Normalize(Y);
+
+  Mat4x4F32 viewMatrix;
+
+  viewMatrix.elements[0][0] = X.x;
+  viewMatrix.elements[1][0] = X.y;
+  viewMatrix.elements[2][0] = X.z;
+  viewMatrix.elements[3][0] = -Vec3F32_Dot(X, pos);
+  viewMatrix.elements[0][1] = Y.x;
+  viewMatrix.elements[1][1] = Y.y;
+  viewMatrix.elements[2][1] = Y.z;
+  viewMatrix.elements[3][1] = -Vec3F32_Dot(Y, pos);
+  viewMatrix.elements[0][2] = Z.x;
+  viewMatrix.elements[1][2] = Z.y;
+  viewMatrix.elements[2][2] = Z.z;
+  viewMatrix.elements[3][2] = -Vec3F32_Dot(Z, pos);
+  viewMatrix.elements[0][3] = 0;
+  viewMatrix.elements[1][3] = 0;
+  viewMatrix.elements[2][3] = 0;
+  viewMatrix.elements[3][3] = 1.0f;
+
+  return viewMatrix;
+
+  // viewMatrix.elements[0][0] = right.x;
+  // viewMatrix.elements[1][0] = right.y;
+  // viewMatrix.elements[2][0] = right.z;
+
+  // viewMatrix.elements[0][1] = new_up.x;
+  // viewMatrix.elements[1][1] = new_up.y;
+  // viewMatrix.elements[2][1] = new_up.z;
+
+  // viewMatrix.elements[0][2] = -forward.x;
+  // viewMatrix.elements[1][2] = -forward.y;
+  // viewMatrix.elements[2][2] = -forward.z;
+
+  // viewMatrix.elements[1][3] = 0.0f;
+  // viewMatrix.elements[2][3] = 0.0f;
+  // viewMatrix.elements[0][3] = 0.0f;
+
+  // viewMatrix.elements[3][0] = -Vec3F32_Dot(right, pos);
+  // viewMatrix.elements[3][1] = -Vec3F32_Dot(new_up, pos);
+  // viewMatrix.elements[3][2] = -Vec3F32_Dot(forward, pos);
+
+  // viewMatrix.elements[3][3] = 1.0f;
+}
+
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective
 
 Mat4x4F32 Mat4x4_Mult(Mat4x4F32 a, Mat4x4F32 b)
@@ -555,6 +634,8 @@ Vec3F32 Vec3F32_ApplyMatrix(Mat4x4F32 mat, Vec3F32 vec)
 }
 
 // NOTE(calco): -- Quaternion Helper Functions --
+QuatF32 QuatF32_Identity() { return QuatF32_Make(0.f, 0.f, 0.f, 1.f); }
+
 QuatF32 QuatF32_Make(F32 x, F32 y, F32 z, F32 w)
 {
   QuatF32 quat = {0};
@@ -580,6 +661,28 @@ QuatF32 QuatF32_MakeFromAxisAngle(Vec3F32 axis, F32 radians)
   return quat;
 }
 
+QuatF32 QuatF32_MakeFromEulerAngles(F32 x, F32 y, F32 z)
+{
+  x = F32_DegToRad(x);
+  y = F32_DegToRad(y);
+  z = F32_DegToRad(z);
+
+  F32 sinX = F32_Sin(x);
+  F32 cosX = F32_Cos(x);
+  F32 sinY = F32_Sin(y);
+  F32 cosY = F32_Cos(y);
+  F32 sinZ = F32_Sin(z);
+  F32 cosZ = F32_Cos(z);
+
+  QuatF32 q = {0};
+  q.x       = sinX * cosY * cosZ - cosX * sinY * sinZ;
+  q.y       = cosX * sinY * cosZ + sinX * cosY * sinZ;
+  q.z       = cosX * cosY * sinZ - sinX * sinY * cosZ;
+  q.w       = cosX * cosY * cosZ + sinX * sinY * sinZ;
+
+  return q;
+}
+
 QuatF32 QuatF32_Add(QuatF32 a, QuatF32 b)
 {
   QuatF32 q = {0};
@@ -603,22 +706,10 @@ QuatF32 QuatF32_Sub(QuatF32 a, QuatF32 b)
 QuatF32 QuatF32_Mult(QuatF32 a, QuatF32 b)
 {
   QuatF32 q = {0};
-  q.x       = b.w * +a.x;
-  q.y       = b.z * -a.x;
-  q.z       = b.y * +a.x;
-  q.w       = b.x * -a.x;
-  q.x += b.z * +a.y;
-  q.y += b.w * +a.y;
-  q.z += b.x * -a.y;
-  q.w += b.y * -a.y;
-  q.x += b.y * -a.z;
-  q.y += b.x * +a.z;
-  q.z += b.w * +a.z;
-  q.w += b.z * -a.z;
-  q.x += b.x * +a.w;
-  q.y += b.y * +a.w;
-  q.z += b.z * +a.w;
-  q.w += b.w * +a.w;
+  q.x       = (a.w * b.x) + (a.x * b.w) + (a.y * b.z) - (a.z * b.y);
+  q.y       = (a.w * b.y) - (a.x * b.z) + (a.y * b.w) + (a.z * b.x);
+  q.z       = (a.w * b.z) + (a.x * b.y) - (a.y * b.x) + (a.z * b.w);
+  q.w       = (a.w * b.w) - (a.x * b.x) - (a.y * b.y) - (a.z * b.z);
   return q;
 }
 
@@ -655,6 +746,16 @@ QuatF32 QuatF32_Lerp(QuatF32 a, QuatF32 b, F32 t)
   return q;
 }
 
+QuatF32 QuatF32_Conjugate(QuatF32 quat)
+{
+  QuatF32 q = {0};
+  q.w       = quat.w;
+  q.x       = -quat.x;
+  q.y       = -quat.y;
+  q.z       = -quat.z;
+  return q;
+}
+
 Mat4x4F32 QuatF32_Mat4x4FromQuatF32(QuatF32 quat)
 {
   QuatF32 q_norm = QuatF32_Normalize(quat);
@@ -686,4 +787,15 @@ Mat4x4F32 QuatF32_Mat4x4FromQuatF32(QuatF32 quat)
   result.elements[3][2] = 0.f;
   result.elements[3][3] = 1.f;
   return result;
+}
+
+Vec3F32 QuatF32_RotateVector(QuatF32 quat, Vec3F32 vec)
+{
+  QuatF32 v_quat = QuatF32_Make(vec.x, vec.y, vec.z, 0.0f);
+  QuatF32 result_quat =
+      QuatF32_Mult(QuatF32_Mult(quat, v_quat), QuatF32_Conjugate(quat));
+  Vec3F32 rotated_vector =
+      Vec3F32_Make(result_quat.x, result_quat.y, result_quat.z);
+
+  return rotated_vector;
 }
