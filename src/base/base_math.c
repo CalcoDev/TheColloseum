@@ -9,6 +9,14 @@ F32 F32_Abs(F32 f)
   return f;
 }
 
+F32 F32_Sign(F32 f)
+{
+  if (f < 0)
+    return -1;
+
+  return 1;
+}
+
 F32 F32_Lerp(F32 a, F32 b, F32 t) { return a * (t - 1.0f) + b * t; }
 S32 S32_Lerp(S32 a, S32 b, F32 t)
 {
@@ -568,7 +576,7 @@ QuatF32 QuatF32_MakeFromAxisAngle(Vec3F32 axis, F32 radians)
   quat.x       = vec.x;
   quat.y       = vec.y;
   quat.z       = vec.z;
-  wuat.w       = F32_Cos(half_theta);
+  quat.w       = F32_Cos(half_theta);
   return quat;
 }
 
@@ -596,21 +604,21 @@ QuatF32 QuatF32_Mult(QuatF32 a, QuatF32 b)
 {
   QuatF32 q = {0};
   q.x       = b.w * +a.x;
-  c.y       = b.z * -a.x;
-  c.z       = b.y * +a.x;
-  c.w       = b.x * -a.x;
-  c.x += b.z * +a.y;
-  c.y += b.w * +a.y;
-  c.z += b.x * -a.y;
-  c.w += b.y * -a.y;
-  c.x += b.y * -a.z;
-  c.y += b.x * +a.z;
-  c.z += b.w * +a.z;
-  c.w += b.z * -a.z;
-  c.x += b.x * +a.w;
-  c.y += b.y * +a.w;
-  c.z += b.z * +a.w;
-  c.w += b.w * +a.w;
+  q.y       = b.z * -a.x;
+  q.z       = b.y * +a.x;
+  q.w       = b.x * -a.x;
+  q.x += b.z * +a.y;
+  q.y += b.w * +a.y;
+  q.z += b.x * -a.y;
+  q.w += b.y * -a.y;
+  q.x += b.y * -a.z;
+  q.y += b.x * +a.z;
+  q.z += b.w * +a.z;
+  q.w += b.z * -a.z;
+  q.x += b.x * +a.w;
+  q.y += b.y * +a.w;
+  q.z += b.z * +a.w;
+  q.w += b.w * +a.w;
   return q;
 }
 
