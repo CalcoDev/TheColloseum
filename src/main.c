@@ -95,9 +95,14 @@ int __main()
   // Vec2F32 vec = Vec2F32_Make(10.f, 15.f);
 
   // Mat3x3F32 id     = Mat3x3_Identity();
-  // Mat3x3F32 transf = Mat3x3_MakeTransform(Vec2F32_Make(2.f, -21.f));
-  // Mat3x3F32 rot    = Mat3x3_MakeRotation(PiF32 * 0.5f);
-  // Mat3x3F32 scl    = Mat3x3_MakeScale(Vec2F32_Make(2.f, 2.f));
+  Mat3x3F32 t = Mat3x3_MakeTransform(Vec2F32_Make(2.f, -21.f));
+  Mat3x3F32 r = Mat3x3_MakeRotation(F32_Pi * 0.5f);
+  Mat3x3F32 s = Mat3x3_MakeScale(Vec2F32_Make(2.f, 2.f));
+
+  Mat3x3F32 tr_s = Mat3x3_Mult(s, Mat3x3_Mult(t, r));
+  Mat3x3F32 t_rs = Mat3x3_Mult(t, Mat3x3_Mult(r, s));
+
+  return 0;
 
   // Mat3x3F32 final = Mat3x3_Mult(transf, Mat3x3_Mult(rot, scl));
   // Vec2F32 v       = Vec2F32_ApplyMatrix(final, vec);
@@ -125,8 +130,6 @@ int __main()
   // Vec2F32 v2 = Vec2F32_ApplyMatrix(transf_rot_scl, vec);
   // Vec2F32 v3 = Vec2F32_ApplyMatrix(scl_rot_transf, vec);
   // Vec2F32 v4 = Vec2F32_ApplyMatrix(transf_scl_rot, vec);
-
-  return 0;
 }
 
 int _main()
@@ -356,8 +359,11 @@ int main()
   F32 clip_far  = 1000.f;
 
   // Calculate A and B to map [clip_near, clip_far] to [-1, 1], as opengl says
-  F32 a = (-clip_far - clip_near) / (clip_near - clip_far);
-  F32 b = (2.f * clip_far * clip_near) / (clip_near - clip_far);
+  // F32 a = (-clip_far - clip_near) / (clip_near - clip_far);
+  // F32 b = (2.f * clip_far * clip_near) / (clip_near - clip_far);
+
+  F32 a = 1.f - ((-2.f * clip_near) / (clip_far - clip_near));
+  F32 b = (-2.f * clip_far * clip_near) / (clip_far - clip_near);
 
   /*
 

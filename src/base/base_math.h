@@ -89,6 +89,15 @@ typedef struct Mat4x4F32
   F32 elements[4][4];
 } Mat4x4F32;
 
+// NOTE(calco): -- Quaternions --
+typedef struct QuatF32
+{
+  F32 x;
+  F32 y;
+  F32 z;
+  F32 w;
+} QuatF32;
+
 // NOTE(calco): -- Vector2 Helper Functions --
 // yes yes, wrong naming convention, should be Vec2F32Add(), but for usability
 // and readabilitys sake it will be AddVec2F32_Make();
@@ -219,5 +228,18 @@ Vec3F32 Vec3F32_ApplyMatrix(Mat4x4F32 mat, Vec3F32 vec);
 #define Vec3S32_Up      Vec3S32_Make(0, 1, 0)
 #define Vec3S32_Left    Vec3S32_Make(-1, 0, 0)
 #define Vec3S32_Down    Vec3S32_Make(0, -1, 0)
+
+// NOTE(calco): -- Quaternion Helper Functions --
+QuatF32 QuatF32_Make(F32 x, F32 y, F32 z, F32 w);
+QuatF32 QuatF32_MakeFromAxisAngle(Vec3F32 axis, F32 radians);
+
+QuatF32 QuatF32_Add(QuatF32 a, QuatF32 b);
+QuatF32 QuatF32_Sub(QuatF32 a, QuatF32 b);
+QuatF32 QuatF32_Mult(QuatF32 a, QuatF32 b);
+QuatF32 QuatF32_MultScalar(QuatF32 a, F32 f);
+QuatF32 QuatF32_Normalize(QuatF32 quat);
+F32 QuatF32_Dot(QuatF32 a, QuatF32 b);
+QuatF32 QuatF32_Lerp(QuatF32 a, QuatF32 b, F32 t);
+Mat4x4F32 QuatF32_Mat4x4FromQuatF32(QuatF32 quat);
 
 #endif

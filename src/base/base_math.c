@@ -545,3 +545,137 @@ Vec3F32 Vec3F32_ApplyMatrix(Mat4x4F32 mat, Vec3F32 vec)
 
   return res;
 }
+
+// NOTE(calco): -- Quaternion Helper Functions --
+QuatF32 QuatF32_Make(F32 x, F32 y, F32 z, F32 w)
+{
+  QuatF32 quat = {0};
+  quat.x       = x;
+  quat.y       = y;
+  quat.z       = z;
+  quat.w       = w;
+  return quat;
+}
+
+QuatF32 QuatF32_MakeFromAxisAngle(Vec3F32 axis, F32 radians)
+{
+  Vec3F32 axis_norm = Vec3F32_Normalize(axis);
+
+  F32 half_theta = radians * 0.5f;
+
+  Vec3F32 vec  = Vec3F32_MultScalar(axis_norm, F32_Sin(half_theta));
+  QuatF32 quat = {0};
+  quat.x       = vec.x;
+  quat.y       = vec.y;
+  quat.z       = vec.z;
+  wuat.w       = F32_Cos(half_theta);
+  return quat;
+}
+
+QuatF32 QuatF32_Add(QuatF32 a, QuatF32 b)
+{
+  QuatF32 q = {0};
+  q.x       = a.x + b.x;
+  q.y       = a.y + b.y;
+  q.z       = a.z + b.z;
+  q.w       = a.w + b.w;
+  return q;
+}
+
+QuatF32 QuatF32_Sub(QuatF32 a, QuatF32 b)
+{
+  QuatF32 q = {0};
+  q.x       = a.x - b.x;
+  q.y       = a.y - b.y;
+  q.z       = a.z - b.z;
+  q.w       = a.w - b.w;
+  return q;
+}
+
+QuatF32 QuatF32_Mult(QuatF32 a, QuatF32 b)
+{
+  QuatF32 q = {0};
+  q.x       = b.w * +a.x;
+  c.y       = b.z * -a.x;
+  c.z       = b.y * +a.x;
+  c.w       = b.x * -a.x;
+  c.x += b.z * +a.y;
+  c.y += b.w * +a.y;
+  c.z += b.x * -a.y;
+  c.w += b.y * -a.y;
+  c.x += b.y * -a.z;
+  c.y += b.x * +a.z;
+  c.z += b.w * +a.z;
+  c.w += b.z * -a.z;
+  c.x += b.x * +a.w;
+  c.y += b.y * +a.w;
+  c.z += b.z * +a.w;
+  c.w += b.w * +a.w;
+  return q;
+}
+
+QuatF32 QuatF32_MultScalar(QuatF32 a, F32 f)
+{
+  QuatF32 q = {0};
+  q.x       = a.x * f;
+  q.y       = a.y * f;
+  q.z       = a.z * f;
+  q.w       = a.w * f;
+  return q;
+}
+
+QuatF32 QuatF32_Normalize(QuatF32 quat)
+{
+  F32 length = F32_SquareRoot(
+      quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w
+  );
+  return QuatF32_MultScalar(quat, length);
+}
+
+F32 QuatF32_Dot(QuatF32 a, QuatF32 b)
+{
+  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+QuatF32 QuatF32_Lerp(QuatF32 a, QuatF32 b, F32 t)
+{
+  QuatF32 q = {0};
+  q.x       = F32_Lerp(a.x, b.x, t);
+  q.y       = F32_Lerp(a.y, b.y, t);
+  q.z       = F32_Lerp(a.z, b.z, t);
+  q.w       = F32_Lerp(a.w, b.w, t);
+  return q;
+}
+
+Mat4x4F32 QuatF32_Mat4x4FromQuatF32(QuatF32 quat)
+{
+  QuatF32 q_norm = QuatF32_Normalize(quat);
+  F32 xx         = q_norm.x * q_norm.x;
+  F32 yy         = q_norm.y * q_norm.y;
+  F32 zz         = q_norm.z * q_norm.z;
+  F32 xy         = q_norm.x * q_norm.y;
+  F32 xz         = q_norm.x * q_norm.z;
+  F32 yz         = q_norm.y * q_norm.z;
+  F32 wx         = q_norm.w * q_norm.x;
+  F32 wy         = q_norm.w * q_norm.y;
+  F32 wz         = q_norm.w * q_norm.z;
+
+  Mat4x4F32 result      = {0};
+  result.elements[0][0] = 1.f - 2.f * (yy + zz);
+  result.elements[0][1] = 2.f * (xy + wz);
+  result.elements[0][2] = 2.f * (xz - wy);
+  result.elements[0][3] = 0.f;
+  result.elements[1][0] = 2.f * (xy - wz);
+  result.elements[1][1] = 1.f - 2.f * (xx + zz);
+  result.elements[1][2] = 2.f * (yz + wx);
+  result.elements[1][3] = 0.f;
+  result.elements[2][0] = 2.f * (xz + wy);
+  result.elements[2][1] = 2.f * (yz - wx);
+  result.elements[2][2] = 1.f - 2.f * (xx + yy);
+  result.elements[2][3] = 0.f;
+  result.elements[3][0] = 0.f;
+  result.elements[3][1] = 0.f;
+  result.elements[3][2] = 0.f;
+  result.elements[3][3] = 1.f;
+  return result;
+}
