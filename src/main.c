@@ -226,6 +226,37 @@ int main()
       Vec3F32_Make(1.f, 1.f, 1.f),
   };
 
+  // Framebuffer
+  GLuint _framebuffer = 0;
+  glGenFramebuffers(1, &_framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+  R_Texture _texture;
+  R_TextureInit(
+      &_texture, 3200, 1800, TextureWrap_ClampToEdge, TextureWrap_ClampToEdge,
+      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB, 0
+  );
+
+  GLuint _depth_buffer;
+  glGenRenderbuffers(1, &_depth_buffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, _depth_buffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 3200, 1800);
+  glFramebufferRenderbuffer(
+      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depth_buffer
+  );
+
+  glFramebufferTexture(
+      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _texture.handle, 0
+  );
+
+  GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
+  glDrawBuffers(1, draw_buffers);
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  {
+    LogFatal("aaaaaaaaaa", "");
+  }
+
   Log("Starting game loop.", "");
   while (OS_WindowIsOpen(&window))
   {
@@ -239,14 +270,17 @@ int main()
       OS_WindowPollEvents();
 
       // View Matrix
-      camera_pos.x = sin(glfwGetTime() * 0.2f) * 40.f;
+      camera_pos.x = sin(glfwGetTime()) * 40.f;
       camera_pos.y = 20.f;
-      camera_pos.z = cos(glfwGetTime() * 0.2f) * 40.f;
+      camera_pos.z = cos(glfwGetTime()) * 40.f;
 
       view_matrix = Mat4x4_MakeLookAt(camera_pos, Vec3F32_Zero, camera_up);
       view_matrix = Mat4x4_Transpose(view_matrix);
 
       // Render
+      glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+      glViewport(0, 0, 3200, 1800);
+
       glEnable(GL_DEPTH_TEST);
 
       // glEnable(GL_CULL_FACE);
@@ -288,6 +322,19 @@ int main()
             (void*)0
         );
       }
+
+      // Bind the source framebuffer
+      glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
+      // Bind the default framebuffer (the screen)
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+      glBlitFramebuffer(
+          0, 0, 3200, 1800, 0, 0, 1280, 1080, GL_COLOR_BUFFER_BIT, GL_NEAREST
+      );
+
+      // Unbind the framebuffers (if necessary)
+      glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
       R_RenderSwapchain(&window);
       prev_loop_time = current_loop_time;

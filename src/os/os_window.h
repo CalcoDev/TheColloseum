@@ -11,6 +11,8 @@ typedef void ResizeCallback(OS_Window* window, U32 width, U32 height);
 typedef void KeyCallback(OS_Window* window, U8 key, U32 action);
 typedef void ButtonCallback(OS_Window* window, U8 key, U32 action);
 
+// TODO(calco): Actually do something with the callbacks!!!!
+
 /**
  * @brief Basic window class. For now represents a window opened via GLFW, but
  * it will eventually move on to be OS specific.
