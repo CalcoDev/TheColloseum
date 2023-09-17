@@ -8,6 +8,8 @@ https://github.com/PixelRifts/c-codebase/blob/master/source/base/log.h
 #ifndef BASE_LOG_H
 #define BASE_LOG_H
 
+#include <stdio.h>
+
 #include "base_context.h"
 
 #ifdef BASE_BUILD_DEBUG

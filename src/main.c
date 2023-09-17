@@ -8,12 +8,8 @@
 
 #include "base/base_include.h"
 #include "os/os.h"
+#include "os/os_window.h"
 #include "render/render.h"
-
-void glfwErrorCallback(int code, const char* msg)
-{
-  LogError("glfw error: %s (%i)", msg, code);
-}
 
 // Mouse and movement
 void ProcessWindowInput(
@@ -58,63 +54,23 @@ void CursorPositionCallback(GLFWwindow* window, F64 d_xpos, F64 d_ypos)
 
 int main()
 {
-  // NOTES(calco): Init Memory
-  OS_Init();
-
+  // Set up memory
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
   ArenaInit(&arena, &memory, Gigabytes(1));
 
-  // NOTES(calco): GLFW
-  Log("Initialising glfw.", "");
-  if (!glfwInit())
-  {
-    LogFatal("Error initializing GLFW!", "");
-  }
-  glfwSetErrorCallback(glfwErrorCallback);
+  // Set up OS
+  OS_Init();
 
-  // Init opengl in window.
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // Mac
+  OS_Window window    = OS_WindowInit(1280, 720, Str8Lit("OS Window"));
+  window.key_callback = ProcessWindowInput;
 
-  GLFWmonitor* monitor    = glfwGetPrimaryMonitor();
-  GLFWvidmode* video_mode = glfwGetVideoMode(monitor);
-  U32 window_width        = video_mode->width / 2;
-  U32 window_height       = video_mode->height / 2;
+  R_RenderInit(&window);
 
-  Log("Creating glfw window.", "");
-  GLFWwindow* window =
-      glfwCreateWindow(window_width, window_height, "Direct X-ing", NULL, NULL);
-  if (window == NULL)
-  {
-    glfwTerminate();
-    LogFatal("Error occured creating glfw window.", "");
-  }
-
-  // Center the window
-  U32 window_left = video_mode->width / 2 - window_width / 2;
-  U32 window_top  = video_mode->height / 2 - window_height / 2;
-  glfwSetWindowPos(window, window_left, window_top);
-
-  // Lock the mouse to the screen
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // Set up key callbacks.
-  glfwSetKeyCallback(window, ProcessWindowInput);
-  glfwSetCursorPosCallback(window, CursorPositionCallback);
-
-  // Set window to current context
-  glfwMakeContextCurrent(window);
-
-  // Init glad
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-  {
-    LogFatal("Error initialising glad.", "");
-    glfwTerminate();
-    return -1;
-  }
+  // glfwSetCursorPosCallback(window, CursorPositionCallback);
 
   // Data
   F32 vertices[] = {
@@ -231,7 +187,7 @@ int main()
   Mat4x4F32 projection_matrix = Mat4x4_MakeValue(1.f);
 
   F32 half_fov     = F32_DegToRad(45.f);
-  F32 aspect_ratio = (F32)window_width / (F32)window_height;
+  F32 aspect_ratio = (F32)window.width / (F32)window.height;
   F32 c_near       = 0.1f;
   F32 c_far        = 1000.f;
 
@@ -271,7 +227,7 @@ int main()
   };
 
   Log("Starting game loop.", "");
-  while (!glfwWindowShouldClose(window))
+  while (OS_WindowIsOpen(&window))
   {
     current_loop_time = OS_TimeMicroseconds();
     delta_time        = current_loop_time - prev_loop_time;
@@ -280,7 +236,7 @@ int main()
     // 60 FPS, both render and update
     if (delta_time > 16000)
     {
-      glfwPollEvents();
+      OS_WindowPollEvents();
 
       // View Matrix
       camera_pos.x = sin(glfwGetTime() * 0.2f) * 40.f;
@@ -333,7 +289,7 @@ int main()
         );
       }
 
-      glfwSwapBuffers(window);
+      R_RenderSwapchain(&window);
       prev_loop_time = current_loop_time;
     }
   }
@@ -348,10 +304,8 @@ int main()
 
   R_PipelineFreeGPU(&pipeline);
 
-  Log("Destroying window.", "");
-  glfwDestroyWindow(window);
-  Log("Terminating glfw.", "");
-  glfwTerminate();
+  OS_WindowFree(&window);
+
   ArenaRelease(&arena);
   return 0;
 }

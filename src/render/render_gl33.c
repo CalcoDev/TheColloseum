@@ -1,10 +1,36 @@
 #include <glad/glad.h>
+//
+#include <glfw/glfw3.h>
 #include <stdio.h>
 
 #include "base/base_log.h"
+#include "os/os_window.h"
 #include "render_gl33.h"
 
 HashmapImplement(String8, U64);
+
+// NOTE(calco): -- Renderer Things --
+void R_RenderInit(OS_Window* window)
+{
+  Log("Initializing OpenGL 3.3 renderer.", "");
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // Mac
+
+  glfwMakeContextCurrent(window->handle);
+
+  // Init glad
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
+    LogFatal("Error occured while initialising GLAD.", "");
+    glfwTerminate();
+    return -1;
+  }
+}
+
+void R_RenderSwapchain(OS_Window* window) { glfwSwapBuffers(window->handle); }
 
 // NOTE(calco): -- Helper Functions --
 // Translate the generic render.h enums and structs to backend specific things.

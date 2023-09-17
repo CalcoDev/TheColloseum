@@ -8,6 +8,13 @@
 #include "base/base_context.h"
 #include "base/base_string.h"
 
+// TODO(calco): remove this and refactor because this feels like bad inclusions
+#include "os/os_window.h"
+
+// NOTE(calco): -- Renderer Things --
+void R_RenderInit(OS_Window* window);
+void R_RenderSwapchain(OS_Window* window);
+
 // NOTE(calco): -- Resource Things --
 typedef enum R_BufferFlags
 {

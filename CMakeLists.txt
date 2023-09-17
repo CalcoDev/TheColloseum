@@ -16,6 +16,7 @@ set(sources
     "base/base_string.c" 
     "base/base_math.c" 
     "os/os.c"
+    "os/os_window.c"
     "render/render.c"
 )
 set(source_files_list "")
