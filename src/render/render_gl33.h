@@ -59,4 +59,16 @@ typedef struct R_Texture
   U32 handle;
 } R_Texture;
 
+typedef struct R_Framebuffer
+{
+  U32 width;
+  U32 height;
+
+  // TODO(calco): Add multiple colour attachments, for some odd reason?
+  R_Texture colour_texture;
+  R_Texture depth_texture;
+
+  U32 handle;
+} R_Framebuffer;
+
 #endif

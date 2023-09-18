@@ -227,35 +227,41 @@ int main()
   };
 
   // Framebuffer
-  GLuint _framebuffer = 0;
-  glGenFramebuffers(1, &_framebuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+  //   GLuint _framebuffer = 0;
+  //   glGenFramebuffers(1, &_framebuffer);
+  //   glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+  //   R_Texture camera_texture;
+  //   R_Framebuffer camera_framebuffer;
+  //   camera_framebuffer.colour_texture = camera_texture;
+  //   R_Texture _texture;
+  //   R_TextureInit(
+  //       &_texture, 320, 180, TextureWrap_ClampToEdge,
+  //       TextureWrap_ClampToEdge, TextureFilter_Nearest,
+  //       TextureFilter_Nearest, TextureFormat_RGB, 0
+  //   );
+  //   R_Framebuffer fmbf = R_FramebufferInit()
+  //   GLuint _depth_buffer;
+  //   glGenRenderbuffers(1, &_depth_buffer);
+  //   glBindRenderbuffer(GL_RENDERBUFFER, _depth_buffer);
+  //   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 320, 180);
+  //   glFramebufferRenderbuffer(
+  //       GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depth_buffer
+  //   );
+  //   glFramebufferTexture(
+  //       GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _texture.handle, 0
+  //   );
+  //   GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
+  //   glDrawBuffers(1, draw_buffers);
 
-  R_Texture _texture;
-  R_TextureInit(
-      &_texture, 3200, 1800, TextureWrap_ClampToEdge, TextureWrap_ClampToEdge,
-      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB, 0
+  //   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  //   {
+  //     LogFatal("aaaaaaaaaa", "");
+  //   }
+
+  R_Framebuffer framebuffer = R_FramebufferMake(
+      16, 9, TextureWrap_ClampToEdge, TextureFilter_Nearest, TextureFormat_RGB,
+      1
   );
-
-  GLuint _depth_buffer;
-  glGenRenderbuffers(1, &_depth_buffer);
-  glBindRenderbuffer(GL_RENDERBUFFER, _depth_buffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 3200, 1800);
-  glFramebufferRenderbuffer(
-      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depth_buffer
-  );
-
-  glFramebufferTexture(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _texture.handle, 0
-  );
-
-  GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
-  glDrawBuffers(1, draw_buffers);
-
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-  {
-    LogFatal("aaaaaaaaaa", "");
-  }
 
   Log("Starting game loop.", "");
   while (OS_WindowIsOpen(&window))
@@ -271,16 +277,17 @@ int main()
 
       // View Matrix
       camera_pos.x = sin(glfwGetTime()) * 40.f;
-      camera_pos.y = 20.f;
+      camera_pos.y = -20.f;
       camera_pos.z = cos(glfwGetTime()) * 40.f;
 
       view_matrix = Mat4x4_MakeLookAt(camera_pos, Vec3F32_Zero, camera_up);
       view_matrix = Mat4x4_Transpose(view_matrix);
 
       // Render
-      glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-      glViewport(0, 0, 3200, 1800);
+      //   glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
+      R_FramebufferBind(&framebuffer);
+      R_FramebufferSetViewport(&framebuffer);
       glEnable(GL_DEPTH_TEST);
 
       // glEnable(GL_CULL_FACE);
@@ -323,18 +330,20 @@ int main()
         );
       }
 
-      // Bind the source framebuffer
-      glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
-      // Bind the default framebuffer (the screen)
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+      R_FramebufferBlitToScreenBuffer(&framebuffer, &window);
 
-      glBlitFramebuffer(
-          0, 0, 3200, 1800, 0, 0, 1280, 1080, GL_COLOR_BUFFER_BIT, GL_NEAREST
-      );
+      // Bind the source framebuffer
+      //   glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
+      // Bind the default framebuffer (the screen)
+      //   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+      //   glBlitFramebuffer(
+      //       0, 0, 320, 180, 0, 0, 1280, 1080, GL_COLOR_BUFFER_BIT, GL_NEAREST
+      //   );
 
       // Unbind the framebuffers (if necessary)
-      glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+      //   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+      //   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
       R_RenderSwapchain(&window);
       prev_loop_time = current_loop_time;
@@ -350,6 +359,8 @@ int main()
   R_ShaderPackFree(&program);
 
   R_PipelineFreeGPU(&pipeline);
+
+  R_FramebufferFreeGPU(&framebuffer);
 
   OS_WindowFree(&window);
 

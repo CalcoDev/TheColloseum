@@ -158,4 +158,26 @@ void R_TextureData(R_Texture* texture, void* data);
 void R_TextureBind(R_Texture* texture, U32 slot);
 void R_TextureFree(R_Texture* texture);
 
+// NOTE(calco): -- Framebuffers --
+R_Framebuffer R_FramebufferMake(
+    U32 width, U32 height, R_TextureWrap wrap, R_TextureFilter filter,
+    R_TextureFormat format, B32 depth
+);
+void R_FramebufferInit(
+    R_Framebuffer* framebuffer, U32 width, U32 height, R_Texture colour_texture,
+    R_Texture depth_texture
+);
+void R_FramebufferBind(R_Framebuffer* framebuffer);
+void R_FramebufferSetViewport(R_Framebuffer* framebuffer);
+void R_FramebufferBindScreenBuffer();
+void R_FramebufferBlitToScreenBuffer(
+    R_Framebuffer* framebuffer, OS_Window* window
+);
+
+/**
+ * @brief Frees up all GPU
+ * @param framebuffer
+ */
+void R_FramebufferFreeGPU(R_Framebuffer* framebuffer);
+
 #endif

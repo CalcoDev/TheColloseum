@@ -519,3 +519,99 @@ void R_TextureFree(R_Texture* texture)
 {
   glDeleteTextures(1, &texture->handle);
 }
+
+// NOTE(calco): -- Framebuffers --
+R_Framebuffer R_FramebufferMake(
+    U32 width, U32 height, R_TextureWrap wrap, R_TextureFilter filter,
+    R_TextureFormat format, B32 depth
+)
+{
+  R_Framebuffer framebuffer;
+
+  R_Texture colour_texture = {0};
+  R_TextureInit(
+      &colour_texture, width, height, wrap, wrap, filter, filter, format, 0
+  );
+
+  R_Texture depth_texture = {0};
+  if (depth)
+  {
+    R_TextureInit(
+        &depth_texture, width, height, wrap, wrap, filter, filter,
+        TextureFormat_DepthStencil, 0
+    );
+  }
+
+  R_FramebufferInit(&framebuffer, width, height, colour_texture, depth_texture);
+  return framebuffer;
+}
+
+void R_FramebufferInit(
+    R_Framebuffer* framebuffer, U32 width, U32 height, R_Texture colour_texture,
+    R_Texture depth_texture
+)
+{
+  glGenFramebuffers(1, &framebuffer->handle);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
+
+  framebuffer->width  = width;
+  framebuffer->height = height;
+
+  framebuffer->colour_texture = colour_texture;
+  R_TextureBind(&framebuffer->colour_texture, 0);
+  glFramebufferTexture2D(
+      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      framebuffer->colour_texture.handle, 0
+  );
+
+  if (framebuffer->depth_texture.format != TextureFormat_Null)
+  {
+    framebuffer->depth_texture = depth_texture;
+    R_TextureBind(&framebuffer->depth_texture, 0);
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
+        framebuffer->depth_texture.handle, 0
+    );
+  }
+}
+
+void R_FramebufferBind(R_Framebuffer* framebuffer)
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
+}
+
+void R_FramebufferSetViewport(R_Framebuffer* framebuffer)
+{
+  glViewport(0, 0, framebuffer->width, framebuffer->height);
+}
+
+void R_FramebufferBindScreenBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
+void R_FramebufferBlitToScreenBuffer(
+    R_Framebuffer* framebuffer, OS_Window* window
+)
+{
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->handle);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBlitFramebuffer(
+      0, 0, framebuffer->width, framebuffer->height, 0, 0, window->width,
+      window->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST
+  );
+
+  // TODO(calco): Consider not using GL_NEAREST for upscaling the framebuffer?
+}
+
+void R_FramebufferFreeGPU(R_Framebuffer* framebuffer)
+{
+  if (framebuffer->colour_texture.format != TextureFormat_Null)
+  {
+    R_TextureFree(&framebuffer->colour_texture.handle);
+  }
+
+  if (framebuffer->depth_texture.format != TextureFormat_Null)
+  {
+    R_TextureFree(&framebuffer->depth_texture.handle);
+  }
+
+  glDeleteFramebuffers(1, &framebuffer->handle);
+}
