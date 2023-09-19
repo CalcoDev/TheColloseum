@@ -15,6 +15,9 @@
 void R_RenderInit(OS_Window* window);
 void R_RenderSwapchain(OS_Window* window);
 
+void R_ClearColourBuffer(F32 r, F32 g, F32 b);
+void R_ClearDepthBuffer();
+
 // NOTE(calco): -- Resource Things --
 typedef enum R_BufferFlags
 {

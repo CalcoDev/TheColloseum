@@ -32,6 +32,14 @@ void R_RenderInit(OS_Window* window)
 
 void R_RenderSwapchain(OS_Window* window) { glfwSwapBuffers(window->handle); }
 
+void R_ClearColourBuffer(F32 r, F32 g, F32 b)
+{
+  glClear(GL_COLOR_BUFFER_BIT);
+  glClearColor(r, g, b, 1.0f);
+}
+
+void R_ClearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }
+
 // NOTE(calco): -- Helper Functions --
 // Translate the generic render.h enums and structs to backend specific things.
 GLenum conv_GetBufferType(R_BufferFlags flags)

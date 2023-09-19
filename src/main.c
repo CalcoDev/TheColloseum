@@ -9,27 +9,26 @@
 #include "base/base_include.h"
 #include "os/os.h"
 #include "os/os_window.h"
+#include "render/camera/render_camera.h"
 #include "render/render.h"
 
-// Mouse and movement
-void ProcessWindowInput(
-    GLFWwindow* window, int key, int scancode, int action, int mods
-)
-{
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-  {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
-}
-
-static F32 MoveSp      = 0.05f;
-static F32 Sensitivity = 0.01f;
+static F32 MoveSp      = 0.25f;
+static F32 Sensitivity = 0.15f;
 static F32 Yaw         = -90.f;
 static F32 Pitch       = 0.f;
 
 static Vec2F32 MousePos = {0};
 static F32 _lastX       = 0.f;
 static F32 _lastY       = 0.f;
+
+void ProcessWindowInput(OS_Window* window, U32 key, OS_WindowKeyAction action)
+{
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    OS_WindowSetOpen(window, 0);
+
+  // Should handle keys here, and would work, but for ease of use I'll just do
+  // update checking for now.
+}
 
 void CursorPositionCallback(GLFWwindow* window, F64 d_xpos, F64 d_ypos)
 {
@@ -46,10 +45,10 @@ void CursorPositionCallback(GLFWwindow* window, F64 d_xpos, F64 d_ypos)
   Yaw += xoff;
   Pitch += yoff;
 
-  if (Pitch > 85.f)
-    Pitch = 85.f;
-  else if (Pitch < -85.f)
-    Pitch = -85.f;
+  if (Pitch > 89.0f)
+    Pitch = 89.0f;
+  if (Pitch < -89.0f)
+    Pitch = -89.0f;
 }
 
 int main()
@@ -62,15 +61,16 @@ int main()
   // Set up OS
   OS_Init();
 
-  OS_Window window    = OS_WindowInit(1280, 720, Str8Lit("OS Window"));
-  window.key_callback = ProcessWindowInput;
+  OS_Window window = {0};
+  OS_WindowInit(&window, 1280, 720, Str8Lit("OS Window"));
+  OS_WindowRegisterKeyCallback(&window, ProcessWindowInput);
 
   R_RenderInit(&window);
 
-  // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // Set up key callbacks.
-  // glfwSetCursorPosCallback(window, CursorPositionCallback);
+  glfwSetCursorPosCallback(window.handle, CursorPositionCallback);
 
   // Data
   F32 vertices[] = {
@@ -176,32 +176,6 @@ int main()
   Mat4x4F32 rotation =
       QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(0.f, 0.f, 0.f));
 
-  // View Matrix / Camera
-  Mat4x4F32 view_matrix = Mat4x4_MakeValue(0.f);
-
-  Vec3F32 camera_pos = Vec3F32_Make(0.f, 0.f, -10.f);
-  // Vec3F32 camera_forward = Vec3F32_Forward;
-  Vec3F32 camera_up = Vec3F32_Up;
-
-  // Projection Matrix
-  Mat4x4F32 projection_matrix = Mat4x4_MakeValue(1.f);
-
-  F32 half_fov     = F32_DegToRad(45.f);
-  F32 aspect_ratio = (F32)window.width / (F32)window.height;
-  F32 c_near       = 0.1f;
-  F32 c_far        = 1000.f;
-
-  projection_matrix.elements[0][0] = 1.f / (F32_Tan(half_fov) * aspect_ratio);
-  projection_matrix.elements[1][1] = 1.f / (F32_Tan(half_fov));
-  projection_matrix.elements[3][2] = -1.f;
-  projection_matrix.elements[2][2] = -(c_far + c_near) / (c_far - c_near);
-  projection_matrix.elements[2][3] = -(2.f * c_far * c_near) / (c_far - c_near);
-  projection_matrix.elements[3][3] = 0.f;
-
-  // projection_matrix = Mat4x4_Transpose(projection_matrix);
-
-  // F32 rotation_radians = 0.f;
-
   Vec3F32 cube_positions[] = {
       Vec3F32_Make(0.f, 0.f, 0.f),
       Vec3F32_Make(0.f, 20.f, 15.f),
@@ -210,8 +184,7 @@ int main()
   };
 
   Mat4x4F32 cube_rotations[] = {
-      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(247.f, 128.f, 59.f)
-      ),
+      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(0.f, 0.f, 0.f)),
       QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(12.f, 106.f, 259.f)
       ),
       QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(172.f, 206.f, 82.f)
@@ -220,47 +193,20 @@ int main()
   };
 
   Vec3F32 cube_scales[] = {
-      Vec3F32_Make(1.f, 2.3f, 0.4f),
+      Vec3F32_Make(1.f, 1.f, 1.f),
       Vec3F32_Make(0.5f, 1.7f, 5.2f),
       Vec3F32_Make(2.5f, 8.f, 0.2f),
       Vec3F32_Make(1.f, 1.f, 1.f),
   };
 
-  // Framebuffer
-  //   GLuint _framebuffer = 0;
-  //   glGenFramebuffers(1, &_framebuffer);
-  //   glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-  //   R_Texture camera_texture;
-  //   R_Framebuffer camera_framebuffer;
-  //   camera_framebuffer.colour_texture = camera_texture;
-  //   R_Texture _texture;
-  //   R_TextureInit(
-  //       &_texture, 320, 180, TextureWrap_ClampToEdge,
-  //       TextureWrap_ClampToEdge, TextureFilter_Nearest,
-  //       TextureFilter_Nearest, TextureFormat_RGB, 0
-  //   );
-  //   R_Framebuffer fmbf = R_FramebufferInit()
-  //   GLuint _depth_buffer;
-  //   glGenRenderbuffers(1, &_depth_buffer);
-  //   glBindRenderbuffer(GL_RENDERBUFFER, _depth_buffer);
-  //   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 320, 180);
-  //   glFramebufferRenderbuffer(
-  //       GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depth_buffer
-  //   );
-  //   glFramebufferTexture(
-  //       GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _texture.handle, 0
-  //   );
-  //   GLenum draw_buffers[1] = {GL_COLOR_ATTACHMENT0};
-  //   glDrawBuffers(1, draw_buffers);
-
-  //   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-  //   {
-  //     LogFatal("aaaaaaaaaa", "");
-  //   }
+  R_Camera camera = R_CameraMakePerspective(
+      Vec3F32_Zero, Vec3F32_Zero, Vec3F32_Up, 90.f,
+      (F32)window.width / (F32)window.height, 0.1f, 100.f
+  );
 
   R_Framebuffer framebuffer = R_FramebufferMake(
-      16, 9, TextureWrap_ClampToEdge, TextureFilter_Nearest, TextureFormat_RGB,
-      1
+      320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
+      TextureFormat_RGB, 1
   );
 
   Log("Starting game loop.", "");
@@ -275,41 +221,59 @@ int main()
     {
       OS_WindowPollEvents();
 
-      // View Matrix
-      camera_pos.x = sin(glfwGetTime()) * 40.f;
-      camera_pos.y = -20.f;
-      camera_pos.z = cos(glfwGetTime()) * 40.f;
+      Vec3F32 inp;
+      inp.x = (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS) -
+              (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS);
+      inp.z = (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS) -
+              (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS);
+      inp.y = (glfwGetKey(window.handle, GLFW_KEY_SPACE) == GLFW_PRESS) -
+              (glfwGetKey(window.handle, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+      inp = Vec3F32_Normalize(inp);
 
-      view_matrix = Mat4x4_MakeLookAt(camera_pos, Vec3F32_Zero, camera_up);
-      view_matrix = Mat4x4_Transpose(view_matrix);
+      Vec3F32 x_axis = Vec3F32_MultScalar(
+          Vec3F32_Cross(camera.forward, camera.up), inp.x * MoveSp
+      );
+      Vec3F32 y_axis   = Vec3F32_MultScalar(camera.up, inp.y * MoveSp);
+      Vec3F32 z_axis   = Vec3F32_MultScalar(camera.forward, inp.z * MoveSp);
+      Vec3F32 movement = Vec3F32_Add(Vec3F32_Add(x_axis, y_axis), z_axis);
+      camera.position  = Vec3F32_Add(camera.position, movement);
+
+      // TODO(calco): Why do we invert these lmao
+      // TODO(calco): Can go to dumb roll and pitch. Should look nto this.
+      // QuatF32 q      = QuatF32_MakeFromEulerAngles(-Pitch, -Yaw, 0.f);
+      // camera.forward = QuatF32_RotateVector(q, Vec3F32_Forward);
+
+      Vec3F32 direction;
+      direction.x = F32_Cos(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
+      direction.y = F32_Sin(F32_DegToRad(Pitch));
+      direction.z = F32_Sin(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
+      camera.forward = Vec3F32_Normalize(direction);
+
+      R_CameraUpdateMatrices(&camera);
 
       // Render
-      //   glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-
       R_FramebufferBind(&framebuffer);
       R_FramebufferSetViewport(&framebuffer);
       glEnable(GL_DEPTH_TEST);
 
-      // glEnable(GL_CULL_FACE);
-      // glCullFace(GL_FRONT);
-      // glFrontFace(GL_CCW);
-
       glDepthMask(GL_TRUE);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+      R_ClearDepthBuffer();
+      R_ClearColourBuffer(0.2f, 0.1f, 0.3f);
 
       // R_TextureBind(&texture, 0);
       R_PipelineBind(&pipeline);
 
+      // TODO(calco): Have this in a draw class.
+      // For now manually sending camera data to shaders.
       R_ShaderPackUploadMat4(
-          pipeline.shader_pack, Str8Lit("view"), view_matrix.elements[0]
+          pipeline.shader_pack, Str8Lit("view"), camera.view_matrix.elements[0]
       );
       R_ShaderPackUploadMat4(
           pipeline.shader_pack, Str8Lit("projection"),
-          projection_matrix.elements[0]
+          camera.projection_matrix.elements[0]
       );
 
-      for (U64 i = 0; i < 4; ++i)
+      for (U64 i = 0; i < 1; ++i)
       {
         // Model Matrix
         model_matrix = Mat4x4_Mult(
@@ -331,19 +295,6 @@ int main()
       }
 
       R_FramebufferBlitToScreenBuffer(&framebuffer, &window);
-
-      // Bind the source framebuffer
-      //   glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
-      // Bind the default framebuffer (the screen)
-      //   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-      //   glBlitFramebuffer(
-      //       0, 0, 320, 180, 0, 0, 1280, 1080, GL_COLOR_BUFFER_BIT, GL_NEAREST
-      //   );
-
-      // Unbind the framebuffers (if necessary)
-      //   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-      //   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
       R_RenderSwapchain(&window);
       prev_loop_time = current_loop_time;

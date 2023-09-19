@@ -271,6 +271,8 @@ F32 Vec3F32_SqrMagnitude(Vec3F32 a)
 Vec3F32 Vec3F32_Normalize(Vec3F32 a)
 {
   F32 mag = Vec3F32_Magnitude(a);
+  if (F32_Abs(mag) < 0.00001f)
+    return Vec3F32_Zero;
   return Vec3F32_Make(a.x / mag, a.y / mag, a.z / mag);
 }
 
@@ -545,29 +547,25 @@ Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
   viewMatrix.elements[2][3] = 0;
   viewMatrix.elements[3][3] = 1.0f;
 
-  return viewMatrix;
+  return Mat4x4_Transpose(viewMatrix);
+}
 
-  // viewMatrix.elements[0][0] = right.x;
-  // viewMatrix.elements[1][0] = right.y;
-  // viewMatrix.elements[2][0] = right.z;
+Mat4x4F32
+Mat4x4_MakeProjection(F32 fov, F32 aspect_ratio, F32 c_near, F32 c_far)
+{
+  Mat4x4F32 projection_matrix = Mat4x4_MakeValue(1.f);
 
-  // viewMatrix.elements[0][1] = new_up.x;
-  // viewMatrix.elements[1][1] = new_up.y;
-  // viewMatrix.elements[2][1] = new_up.z;
+  F32 half_fov     = F32_DegToRad(fov * 0.5f);
+  F32 half_fov_tan = F32_Tan(half_fov);
 
-  // viewMatrix.elements[0][2] = -forward.x;
-  // viewMatrix.elements[1][2] = -forward.y;
-  // viewMatrix.elements[2][2] = -forward.z;
+  projection_matrix.elements[0][0] = 1.f / (half_fov_tan * aspect_ratio);
+  projection_matrix.elements[1][1] = 1.f / (half_fov_tan);
+  projection_matrix.elements[3][2] = -1.f;
+  projection_matrix.elements[2][2] = -(c_far + c_near) / (c_far - c_near);
+  projection_matrix.elements[2][3] = -(2.f * c_far * c_near) / (c_far - c_near);
+  projection_matrix.elements[3][3] = 0.f;
 
-  // viewMatrix.elements[1][3] = 0.0f;
-  // viewMatrix.elements[2][3] = 0.0f;
-  // viewMatrix.elements[0][3] = 0.0f;
-
-  // viewMatrix.elements[3][0] = -Vec3F32_Dot(right, pos);
-  // viewMatrix.elements[3][1] = -Vec3F32_Dot(new_up, pos);
-  // viewMatrix.elements[3][2] = -Vec3F32_Dot(forward, pos);
-
-  // viewMatrix.elements[3][3] = 1.0f;
+  return projection_matrix;
 }
 
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective

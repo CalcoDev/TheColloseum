@@ -187,6 +187,9 @@ Mat4x4F32 Mat4x4_MakeTranslate(Vec3F32 translate);
 Mat4x4F32 Mat4x4_MakeScale(Vec3F32 scale);
 Mat4x4F32 Mat4x4_MakeRotation(Vec3F32 axis, F32 radians);
 Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up);
+
+Mat4x4F32
+Mat4x4_MakeProjection(F32 fov, F32 aspect_ratio, F32 c_near, F32 c_far);
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective
 
 Mat4x4F32 Mat4x4_Mult(Mat4x4F32 a, Mat4x4F32 b);

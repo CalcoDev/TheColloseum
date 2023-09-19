@@ -18,6 +18,7 @@ set(sources
     "os/os.c"
     "os/os_window.c"
     "render/render.c"
+    "render/camera/rendeR_camera.c"
 )
 set(source_files_list "")
 foreach(source ${sources})
