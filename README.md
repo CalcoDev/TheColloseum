@@ -131,7 +131,7 @@ The roadmap can be seen [here](https://trello.com/b/4EGSeAVS), on Trello!
 
 ## :warning: License
 
-Distributed under the MIT License. See LICENSE.txt for more information.
+Distributed under the MIT License. See LICENSE for more information.
 
 ## :gem: Credits
 
