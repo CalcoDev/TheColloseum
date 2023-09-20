@@ -514,12 +514,6 @@ Mat4x4F32 Mat4x4_MakeRotation(Vec3F32 axis, F32 radians)
 
 Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
 {
-  // Vec3F32 forward = Vec3F32_Sub(target, pos);      // f
-  // forward         = Vec3F32_Normalize(forward);    // f
-  // Vec3F32 right   = Vec3F32_Cross(forward, up);    // s
-  // right           = Vec3F32_Normalize(right);      // s
-  // Vec3F32 new_up  = Vec3F32_Cross(forward, right); // u
-
   Vec3F32 Z = Vec3F32_Normalize(Vec3F32_Sub(pos, target));
   Vec3F32 Y = up;
   Vec3F32 X = Vec3F32_Cross(Y, Z);
@@ -550,8 +544,26 @@ Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
   return Mat4x4_Transpose(viewMatrix);
 }
 
+Mat4x4F32 Mat4x4_MakeOrthographic(
+    F32 left, F32 right, F32 bottom, F32 top, F32 c_near, F32 c_far
+)
+{
+  Mat4x4F32 ortho_matrix = Mat4x4_MakeValue(0.f);
+
+  ortho_matrix.elements[0][0] = 2.f / (right - left);
+  ortho_matrix.elements[1][1] = 2.f / (top - bottom);
+  ortho_matrix.elements[2][2] = -2.f / (c_far - c_near);
+  ortho_matrix.elements[3][3] = 1.f;
+
+  ortho_matrix.elements[3][0] = -(right + left) / (right - left);
+  ortho_matrix.elements[3][1] = -(top + bottom) / (top - bottom);
+  ortho_matrix.elements[3][2] = -(c_far + c_near) / (c_far - c_near);
+
+  return Mat4x4_Transpose(ortho_matrix);
+}
+
 Mat4x4F32
-Mat4x4_MakeProjection(F32 fov, F32 aspect_ratio, F32 c_near, F32 c_far)
+Mat4x4_MakePerspective(F32 fov, F32 aspect_ratio, F32 c_near, F32 c_far)
 {
   Mat4x4F32 projection_matrix = Mat4x4_MakeValue(1.f);
 
@@ -560,12 +572,13 @@ Mat4x4_MakeProjection(F32 fov, F32 aspect_ratio, F32 c_near, F32 c_far)
 
   projection_matrix.elements[0][0] = 1.f / (half_fov_tan * aspect_ratio);
   projection_matrix.elements[1][1] = 1.f / (half_fov_tan);
-  projection_matrix.elements[3][2] = -1.f;
   projection_matrix.elements[2][2] = -(c_far + c_near) / (c_far - c_near);
-  projection_matrix.elements[2][3] = -(2.f * c_far * c_near) / (c_far - c_near);
   projection_matrix.elements[3][3] = 0.f;
 
-  return projection_matrix;
+  projection_matrix.elements[2][3] = -1.f;
+  projection_matrix.elements[3][2] = -(2.f * c_far * c_near) / (c_far - c_near);
+
+  return Mat4x4_Transpose(projection_matrix);
 }
 
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective

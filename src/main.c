@@ -199,9 +199,15 @@ int main()
       Vec3F32_Make(1.f, 1.f, 1.f),
   };
 
-  R_Camera camera = R_CameraMakePerspective(
-      Vec3F32_Zero, Vec3F32_Zero, Vec3F32_Up, 90.f,
-      (F32)window.width / (F32)window.height, 0.1f, 100.f
+  F32 ar = (F32)window.width / (F32)window.height;
+
+  //   R_Camera camera = R_CameraMakePerspective(
+  //       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
+  //       Vec3F32_Up, 90.f, ar, 0.1f, 100.f
+  //   );
+  R_Camera camera = R_CameraMakeOrthographic(
+      Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
+      10.f, ar, 0.1f, 100.f
   );
 
   R_Framebuffer framebuffer = R_FramebufferMake(
