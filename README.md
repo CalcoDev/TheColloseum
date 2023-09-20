@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./.github/assets/icon.svg" alt="Logo" />
+  <img src="./.github/assets/icon.svg" alt="Logo" width="50" height="50" />
   <h1>The Colloseum</h1>
   <p>
     A small C codebase / game engine combo, made from scratch with 0* external 
