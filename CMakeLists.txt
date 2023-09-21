@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(colloseum_of_shadows LANGUAGES C)
+project(the_colloseum LANGUAGES C)
 
 # configure project library
 # file(
@@ -77,7 +77,7 @@ endif()
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/glad")
 target_link_libraries("${PROJECT_NAME}" glad)
 
-set_target_properties(colloseum_of_shadows PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(the_colloseum PROPERTIES LINKER_LANGUAGE C)
 
 # GLFW
 set(GLFW_BUILD_DOCS OFF)
