@@ -64,6 +64,27 @@ void OS_WindowFree(OS_Window* window)
   glfwTerminate();
 }
 
+void OS_WindowSetMouseVisibility(
+    OS_Window* window, OS_WindowMouseVisibility visibility
+)
+{
+  if (visibility == WindowMouseVisibility_Shown)
+    glfwSetInputMode(window->handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  else if (visibility == WindowMouseVisibility_Hidden)
+    glfwSetInputMode(window->handle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+  else if (visibility == WindowMouseVisibility_Disabled)
+    glfwSetInputMode(window->handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+// NOTE(calco): -- GLFW Callback Wrappers --
+void wrapper_glfwResizeCallback(GLFWwindow* glfw_window, int width, int height)
+{
+  OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
+
+  if (os_window->resize_callback != NULL)
+    os_window->resize_callback(os_window, width, height);
+}
+
 void wrapper_glfwKeyCallback(
     GLFWwindow* glfw_window, int key, int scancode, int action, int mods
 )
@@ -71,13 +92,48 @@ void wrapper_glfwKeyCallback(
   OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
 
   OS_WindowKeyAction os_action = WindowKeyAction_Null;
-  if (action == GLFW_PRESS)
-    os_action = WindowKeyAction_Pressed;
+  if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    os_action = WindowKeyAction_Down;
   else if (action == GLFW_RELEASE)
-    os_action = WindowKeyAction_Released;
+    os_action = WindowKeyAction_Up;
 
   if (os_window->key_callback != NULL)
     os_window->key_callback(os_window, (U32)key, os_action);
+}
+
+void wrapper_glfwMouseButtonCallback(
+    GLFWwindow* glfw_window, int button, int action, int mods
+)
+{
+  OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
+
+  OS_WindowKeyAction os_action = WindowKeyAction_Null;
+  if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    os_action = WindowKeyAction_Down;
+  else if (action == GLFW_RELEASE)
+    os_action = WindowKeyAction_Up;
+
+  if (os_window->mouse_button_callback != NULL)
+    os_window->mouse_button_callback(os_window, (U8)button, os_action);
+}
+
+void wrapper_glfwMousePositionCallback(
+    GLFWwindow* glfw_window, double pos_x, double pos_y
+)
+{
+  OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
+
+  if (os_window->mouse_position_callback != NULL)
+    os_window->mouse_position_callback(os_window, (F32)pos_x, (F32)pos_y);
+}
+
+// NOTE(calco): -- Window Callback Functions --
+void OS_WindowRegisterResizeCallback(
+    OS_Window* window, OS_WindowResizeCallback callback
+)
+{
+  window->resize_callback = callback;
+  glfwSetWindowSizeCallback(window->handle, wrapper_glfwResizeCallback);
 }
 
 void OS_WindowRegisterKeyCallback(
@@ -88,9 +144,18 @@ void OS_WindowRegisterKeyCallback(
   glfwSetKeyCallback(window->handle, wrapper_glfwKeyCallback);
 }
 
-void OS_WindowRegisterButtonCallback(
+void OS_WindowRegisterMouseButtonCallback(
     OS_Window* window, OS_WindowMouseButtonCallback callback
-);
-void OS_WindowRegisterResizeCallback(
-    OS_Window* window, OS_WindowResizeCallback callback
-);
+)
+{
+  window->mouse_button_callback = callback;
+  glfwSetMouseButtonCallback(window->handle, wrapper_glfwMouseButtonCallback);
+}
+
+void OS_WindowRegisterMousePositionCallback(
+    OS_Window* window, OS_WindowMousePositionCallback callback
+)
+{
+  window->mouse_position_callback = callback;
+  glfwSetCursorPosCallback(window->handle, wrapper_glfwMousePositionCallback);
+}

@@ -304,7 +304,7 @@ void R_ShaderPackInit(
 }
 
 // TODO(calco): Figure out if attached shaders should be deleted too.
-void R_ShaderPackFree(R_ShaderPack* pack) { glDeleteProgram(pack->handle); }
+void R_ShaderPackFreeGPU(R_ShaderPack* pack) { glDeleteProgram(pack->handle); }
 
 U64 get_handle_shaderpack_loc(R_ShaderPack* pack, String8 name)
 {

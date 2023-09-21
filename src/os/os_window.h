@@ -10,10 +10,17 @@ typedef struct OS_Window OS_Window;
 
 typedef enum OS_WindowKeyAction
 {
-  WindowKeyAction_Null     = 0x0,
-  WindowKeyAction_Pressed  = 0x1,
-  WindowKeyAction_Released = 0x2,
+  WindowKeyAction_Null = 0x0,
+  WindowKeyAction_Down = 0x1,
+  WindowKeyAction_Up   = 0x2,
 } OS_WindowKeyAction;
+
+typedef enum OS_WindowMouseVisibility
+{
+  WindowMouseVisibility_Shown    = 0x1,
+  WindowMouseVisibility_Hidden   = 0x2,
+  WindowMouseVisibility_Disabled = 0x3,
+} OS_WindowMouseVisibility;
 
 typedef void OS_WindowResizeCallback(OS_Window* window, U32 width, U32 height);
 
@@ -23,6 +30,9 @@ OS_WindowKeyCallback(OS_Window* window, U32 key, OS_WindowKeyAction action);
 typedef void OS_WindowMouseButtonCallback(
     OS_Window* window, U8 btn, OS_WindowKeyAction action
 );
+
+typedef void
+OS_WindowMousePositionCallback(OS_Window* window, F32 pos_x, F32 pos_y);
 
 // TODO(calco): Actually do something with the callbacks!!!!
 
@@ -39,6 +49,7 @@ typedef struct OS_Window
   OS_WindowResizeCallback* resize_callback;
   OS_WindowKeyCallback* key_callback;
   OS_WindowMouseButtonCallback* mouse_button_callback;
+  OS_WindowMousePositionCallback* mouse_position_callback;
 
   void* handle;
 } OS_window;
@@ -49,14 +60,22 @@ void OS_WindowSetOpen(OS_Window* window, B32 open);
 void OS_WindowPollEvents(void);
 void OS_WindowFree(OS_Window* window);
 
+void OS_WindowSetMouseVisibility(
+    OS_Window* window, OS_WindowMouseVisibility visibility
+);
+
+// NOTE(calco): -- Window Callback Functions --
+void OS_WindowRegisterResizeCallback(
+    OS_Window* window, OS_WindowResizeCallback callback
+);
 void OS_WindowRegisterKeyCallback(
     OS_Window* window, OS_WindowKeyCallback callback
 );
-void OS_WindowRegisterButtonCallback(
+void OS_WindowRegisterMouseButtonCallback(
     OS_Window* window, OS_WindowMouseButtonCallback callback
 );
-void OS_WindowRegisterResizeCallback(
-    OS_Window* window, OS_WindowResizeCallback callback
+void OS_WindowRegisterMousePositionCallback(
+    OS_Window* window, OS_WindowMousePositionCallback callback
 );
 
 #endif

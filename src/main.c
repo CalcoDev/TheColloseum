@@ -21,26 +21,53 @@ static Vec2F32 MousePos = {0};
 static F32 _lastX       = 0.f;
 static F32 _lastY       = 0.f;
 
+static Vec3F32 Input = {0};
+
 void ProcessWindowInput(OS_Window* window, U32 key, OS_WindowKeyAction action)
 {
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+  if (key == GLFW_KEY_ESCAPE && action == WindowKeyAction_Down)
     OS_WindowSetOpen(window, 0);
 
-  // Should handle keys here, and would work, but for ease of use I'll just do
-  // update checking for now.
+  if (action == WindowKeyAction_Down)
+  {
+    if (key == GLFW_KEY_D)
+      Input.x += 1.f;
+    else if (key == GLFW_KEY_A)
+      Input.x -= 1.f;
+    else if (key == GLFW_KEY_W)
+      Input.z += 1.f;
+    else if (key == GLFW_KEY_S)
+      Input.z -= 1.f;
+    else if (key == GLFW_KEY_SPACE)
+      Input.y += 1.f;
+    else if (key == GLFW_KEY_LEFT_SHIFT)
+      Input.y -= 1.f;
+  }
+  else if (action == WindowKeyAction_Up)
+  {
+    if (key == GLFW_KEY_D)
+      Input.x -= 1.f;
+    else if (key == GLFW_KEY_A)
+      Input.x += 1.f;
+    else if (key == GLFW_KEY_W)
+      Input.z -= 1.f;
+    else if (key == GLFW_KEY_S)
+      Input.z += 1.f;
+    else if (key == GLFW_KEY_SPACE)
+      Input.y -= 1.f;
+    else if (key == GLFW_KEY_LEFT_SHIFT)
+      Input.y += 1.f;
+  }
+  Input = Vec3F32_Normalize(Input);
 }
 
-void CursorPositionCallback(GLFWwindow* window, F64 d_xpos, F64 d_ypos)
+void CursorPositionCallback(GLFWwindow* window, F32 x, F32 y)
 {
-  F32 xpos = (F32)d_xpos;
-  F32 ypos = (F32)d_ypos;
+  F32 xoff = (x - _lastX) * Sensitivity;
+  F32 yoff = (_lastY - y) * Sensitivity;
 
-  F32 xoff = (xpos - _lastX) * Sensitivity;
-  F32 yoff = (_lastY - ypos) *
-             Sensitivity; // inverted because window coords are inverted
-
-  _lastX = xpos;
-  _lastY = ypos;
+  _lastX = x;
+  _lastY = y;
 
   Yaw += xoff;
   Pitch += yoff;
@@ -53,24 +80,32 @@ void CursorPositionCallback(GLFWwindow* window, F64 d_xpos, F64 d_ypos)
 
 int main()
 {
-  // Set up memory
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
   ArenaInit(&arena, &memory, Gigabytes(1));
 
-  // Set up OS
   OS_Init();
-
   OS_Window window = {0};
   OS_WindowInit(&window, 1280, 720, Str8Lit("OS Window"));
   OS_WindowRegisterKeyCallback(&window, ProcessWindowInput);
+  OS_WindowRegisterMousePositionCallback(&window, CursorPositionCallback);
+  OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
 
   R_RenderInit(&window);
 
-  glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // R_Camera camera = R_CameraMakePerspective(
+  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
+  //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  // );
+  R_Camera camera = R_CameraMakeOrthographic(
+      Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
+      10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  );
 
-  // Set up key callbacks.
-  glfwSetCursorPosCallback(window.handle, CursorPositionCallback);
+  R_Framebuffer framebuffer = R_FramebufferMake(
+      320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
+      TextureFormat_RGB, 1
+  );
 
   // Data
   F32 vertices[] = {
@@ -199,22 +234,6 @@ int main()
       Vec3F32_Make(1.f, 1.f, 1.f),
   };
 
-  F32 ar = (F32)window.width / (F32)window.height;
-
-  //   R_Camera camera = R_CameraMakePerspective(
-  //       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
-  //       Vec3F32_Up, 90.f, ar, 0.1f, 100.f
-  //   );
-  R_Camera camera = R_CameraMakeOrthographic(
-      Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      10.f, ar, 0.1f, 100.f
-  );
-
-  R_Framebuffer framebuffer = R_FramebufferMake(
-      320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
-      TextureFormat_RGB, 1
-  );
-
   Log("Starting game loop.", "");
   while (OS_WindowIsOpen(&window))
   {
@@ -227,27 +246,15 @@ int main()
     {
       OS_WindowPollEvents();
 
-      Vec3F32 inp;
-      inp.x = (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS) -
-              (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS);
-      inp.z = (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS) -
-              (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS);
-      inp.y = (glfwGetKey(window.handle, GLFW_KEY_SPACE) == GLFW_PRESS) -
-              (glfwGetKey(window.handle, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-      inp = Vec3F32_Normalize(inp);
+      Log("Yaw: %.2f, Pitch: %.2f", Yaw, Pitch);
 
       Vec3F32 x_axis = Vec3F32_MultScalar(
-          Vec3F32_Cross(camera.forward, camera.up), inp.x * MoveSp
+          Vec3F32_Cross(camera.forward, camera.up), Input.x * MoveSp
       );
-      Vec3F32 y_axis   = Vec3F32_MultScalar(camera.up, inp.y * MoveSp);
-      Vec3F32 z_axis   = Vec3F32_MultScalar(camera.forward, inp.z * MoveSp);
+      Vec3F32 y_axis   = Vec3F32_MultScalar(camera.up, Input.y * MoveSp);
+      Vec3F32 z_axis   = Vec3F32_MultScalar(camera.forward, Input.z * MoveSp);
       Vec3F32 movement = Vec3F32_Add(Vec3F32_Add(x_axis, y_axis), z_axis);
       camera.position  = Vec3F32_Add(camera.position, movement);
-
-      // TODO(calco): Why do we invert these lmao
-      // TODO(calco): Can go to dumb roll and pitch. Should look nto this.
-      // QuatF32 q      = QuatF32_MakeFromEulerAngles(-Pitch, -Yaw, 0.f);
-      // camera.forward = QuatF32_RotateVector(q, Vec3F32_Forward);
 
       Vec3F32 direction;
       direction.x = F32_Cos(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
@@ -313,7 +320,7 @@ int main()
 
   R_ShaderFreeGPU(&vs);
   R_ShaderFreeGPU(&fs);
-  R_ShaderPackFree(&program);
+  R_ShaderPackFreeGPU(&program);
 
   R_PipelineFreeGPU(&pipeline);
 

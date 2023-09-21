@@ -120,7 +120,7 @@ void R_ShaderPackInit(
     R_ShaderPack* pack, R_Shader** shaders, U64 shader_count, Arena* arena,
     U64 uniform_count
 );
-void R_ShaderPackFree(R_ShaderPack* pack);
+void R_ShaderPackFreeGPU(R_ShaderPack* pack);
 
 void R_ShaderPackUploadInt1(R_ShaderPack* pack, String8 name, S32 s1);
 void R_ShaderPackUploadInt2(R_ShaderPack* pack, String8 name, S32 s1, S32 s2);
