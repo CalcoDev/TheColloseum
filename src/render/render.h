@@ -102,6 +102,7 @@ void R_BufferFreeGPU(R_Buffer* buffer);
 
 // NOTE(calco): -- Shader Functions --
 void R_ShaderInit(R_Shader* shader, R_ShaderType type);
+R_Shader R_ShaderMake(Arena* arena, String8 path, R_ShaderType type);
 void R_ShaderData(R_Shader* shader, String8 data);
 void R_ShaderFreeGPU(R_Shader* shader);
 

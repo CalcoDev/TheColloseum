@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "base/base_log.h"
+#include "os/os.h"
 #include "os/os_window.h"
 #include "render_gl33.h"
 
@@ -225,6 +226,20 @@ void R_ShaderInit(R_Shader* shader, R_ShaderType type)
 {
   shader->type   = type;
   shader->handle = glCreateShader(conv_GetShaderType(type));
+}
+
+R_Shader R_ShaderMake(Arena* arena, String8 path, R_ShaderType type)
+{
+  R_Shader shader = {0};
+  R_ShaderInit(&shader, type);
+
+  // TempArena tmp = ArenaBeginTemp(arena);
+  String8 data = OS_FileRead(arena, path);
+  R_ShaderData(&shader, data);
+
+  // ArenaEndTemp(&tmp);
+
+  return shader;
 }
 
 void R_ShaderData(R_Shader* shader, String8 data)

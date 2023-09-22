@@ -93,14 +93,14 @@ int main()
 
   R_RenderInit(&window);
 
-  // R_Camera camera = R_CameraMakePerspective(
-  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
-  //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
-  // );
-  R_Camera camera = R_CameraMakeOrthographic(
+  R_Camera camera = R_CameraMakePerspective(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   );
+  // R_Camera camera = R_CameraMakeOrthographic(
+  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
+  //     Vec3F32_Up, 10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  // );
 
   R_Framebuffer framebuffer = R_FramebufferMake(
       320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
@@ -151,18 +151,12 @@ int main()
   String8 vs_path = OS_PathRelative(
       &arena, exe_path, Str8Lit("./assets/shaders/default_vert.vs")
   );
-  String8 vs_data = OS_FileRead(&arena, vs_path);
-  R_Shader vs;
-  R_ShaderInit(&vs, ShaderType_Vertex);
-  R_ShaderData(&vs, vs_data);
+  R_Shader vs = R_ShaderMake(&arena, vs_path, ShaderType_Vertex);
 
   String8 fs_path = OS_PathRelative(
       &arena, exe_path, Str8Lit("./assets/shaders/default_frag.fs")
   );
-  String8 fs_data = OS_FileRead(&arena, fs_path);
-  R_Shader fs;
-  R_ShaderInit(&fs, ShaderType_Fragment);
-  R_ShaderData(&fs, fs_data);
+  R_Shader fs = R_ShaderMake(&arena, fs_path, ShaderType_Fragment);
 
   R_Shader* shaders[2] = {&vs, &fs};
   R_ShaderPack program;
