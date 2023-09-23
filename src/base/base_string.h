@@ -20,6 +20,7 @@ typedef struct String8
 #define Str8Expand(s) ((s).data), (U64)((s).size)
 
 // Init Functions
+// TODO(calco): REFACTOR THIS TO BE STR8MAKE, AS IT RETURNS !!!
 String8 Str8Init(U8* data, U64 size);
 String8 Str8InitArenaSize(Arena* arena, U64 size);
 String8 Str8InitArena(Arena* arena, U8* data, U64 size);

@@ -12,5 +12,7 @@
 #include "base_log.h"
 //
 #include "base_hashmap.h"
+//
+#include "base_bitset.h"
 
 #endif

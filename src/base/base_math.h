@@ -14,6 +14,12 @@ static F64 F64_Pi             = 3.1415926535897;
 static F64 F64_EulersConstant = 2.7182818284590452353602874713527;
 
 // NOTE(calco): -- Base Math --
+#define DivCeil(a, b)  (((a) / (b)) + (((a) % (b)) > 0 ? 1 : 0))
+#define DivFloor(a, b) ((a) / (b))
+#define Min(a, b)      (((a) < (b)) ? (a) : (b))
+#define Max(a, b)      (((a) > (b)) ? (a) : (b))
+#define Abs(a)         (((a) < 0) ? -(a) : (a))
+
 #define F32_Floor(f)      floorf(f)
 #define F32_Ceil(f)       ceilf(f)
 #define F32_Round(f)      roundf(f)
