@@ -8,9 +8,16 @@
 
 #include "base/base_include.h"
 #include "os/os.h"
+
+#define OS_WINDOW_MAX_KEY_CALLBACK_SIZE            2
+#define OS_WINDOW_MAX_MOUSE_BUTTON_CALLBACK_SIZE   2
+#define OS_WINDOW_MAX_MOUSE_POSITION_CALLBACK_SIZE 2
 #include "os/os_window.h"
+
 #include "render/camera/render_camera.h"
 #include "render/render.h"
+
+#include "input/input.h"
 
 static F32 MoveSp      = 0.25f;
 static F32 Sensitivity = 0.15f;
@@ -27,38 +34,6 @@ void ProcessWindowInput(OS_Window* window, U32 key, OS_WindowKeyAction action)
 {
   if (key == GLFW_KEY_ESCAPE && action == WindowKeyAction_Down)
     OS_WindowSetOpen(window, 0);
-
-  if (action == WindowKeyAction_Down)
-  {
-    if (key == GLFW_KEY_D)
-      Input.x += 1.f;
-    else if (key == GLFW_KEY_A)
-      Input.x -= 1.f;
-    else if (key == GLFW_KEY_W)
-      Input.z += 1.f;
-    else if (key == GLFW_KEY_S)
-      Input.z -= 1.f;
-    else if (key == GLFW_KEY_SPACE)
-      Input.y += 1.f;
-    else if (key == GLFW_KEY_LEFT_SHIFT)
-      Input.y -= 1.f;
-  }
-  else if (action == WindowKeyAction_Up)
-  {
-    if (key == GLFW_KEY_D)
-      Input.x -= 1.f;
-    else if (key == GLFW_KEY_A)
-      Input.x += 1.f;
-    else if (key == GLFW_KEY_W)
-      Input.z -= 1.f;
-    else if (key == GLFW_KEY_S)
-      Input.z += 1.f;
-    else if (key == GLFW_KEY_SPACE)
-      Input.y -= 1.f;
-    else if (key == GLFW_KEY_LEFT_SHIFT)
-      Input.y += 1.f;
-  }
-  Input = Vec3F32_Normalize(Input);
 }
 
 void CursorPositionCallback(GLFWwindow* window, F32 x, F32 y)
@@ -90,6 +65,8 @@ int main()
   OS_WindowRegisterKeyCallback(&window, ProcessWindowInput);
   OS_WindowRegisterMousePositionCallback(&window, CursorPositionCallback);
   OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
+
+  I_InputState input_state = I_InputStateMake(&arena);
 
   R_RenderInit(&window);
 
@@ -238,7 +215,12 @@ int main()
     // 60 FPS, both render and update
     if (delta_time > 16000)
     {
+      // Swap input previous and current
+      // Clear input current
       OS_WindowPollEvents();
+      // New input is ready to go
+
+      // Update input: swap frames, redo current frame
 
       Log("Yaw: %.2f, Pitch: %.2f", Yaw, Pitch);
 
