@@ -10,6 +10,12 @@ I_InputState I_InputStateMake(Arena* arena)
   return state;
 }
 
+void wrapper_WindowKeyCallback(
+    OS_Window* window, U32 key, OS_WindowKeyAction action
+)
+{
+}
+
 I_KeyState I_InputGetKeyState(I_InputState* input_state, I_Key key)
 {
   U8 prev = BitsetGet(&input_state->previous_frame, (U64)key);

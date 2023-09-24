@@ -34,6 +34,7 @@ typedef float F32;
 typedef double F64;
 
 typedef void VoidFunction(void);
+typedef void* VoidPointer;
 
 // NOTE(calco): -- Time --
 typedef U64 PrecisionTime;

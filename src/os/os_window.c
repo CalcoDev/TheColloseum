@@ -73,7 +73,9 @@ void glfwErrorCallback(int code, const char* msg)
 }
 
 // NOTE(calco): -- Window Functions --
-void OS_WindowInit(OS_Window* window, U32 width, U32 height, String8 title)
+void OS_WindowInit(
+    Arena* arena, OS_Window* window, U32 width, U32 height, String8 title
+)
 {
   Log("Initialising GLFW window.", "");
 
@@ -106,6 +108,8 @@ void OS_WindowInit(OS_Window* window, U32 width, U32 height, String8 title)
   window->height = height;
   window->title  = title;
   window->handle = glfw_win;
+
+  window->input = BitsetMakeArenaSize(arena, Key_MAX);
 
   glfwSetWindowSizeCallback(window->handle, wrapper_glfwResizeCallback);
   glfwSetKeyCallback(window->handle, wrapper_glfwKeyCallback);
