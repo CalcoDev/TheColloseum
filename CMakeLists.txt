@@ -17,11 +17,11 @@ set(sources
     "base/base_math.c" 
     "base/base_bitset.c"
     "os/os.c"
+    "os/input/os_input.c"
     "os/os_window.c"
     "render/render.c"
     "render/camera/render_camera.c"
     "draw/draw.c"
-    "input/input.c"
 )
 set(source_files_list "")
 foreach(source ${sources})

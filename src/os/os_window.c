@@ -1,7 +1,8 @@
-#include "os_window.h"
-#include "base/base_log.h"
-
 #include <glfw/glfw3.h>
+
+#include "base/base_log.h"
+#include "input/os_input.h"
+#include "os_window.h"
 
 // NOTE(calco): -- GLFW Callback Wrappers --
 void wrapper_glfwResizeCallback(GLFWwindow* glfw_window, int width, int height)
@@ -19,6 +20,10 @@ void wrapper_glfwKeyCallback(
     GLFWwindow* glfw_window, int key, int scancode, int action, int mods
 )
 {
+  __OS_InputKeyCallback(
+      __OS_InputTranslateGLFW_Key(key), __OS_InputTranslateGLFW_Actions(action)
+  );
+
   OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
 
   OS_WindowKeyAction os_action = WindowKeyAction_Null;
@@ -38,6 +43,11 @@ void wrapper_glfwMouseButtonCallback(
     GLFWwindow* glfw_window, int button, int action, int mods
 )
 {
+  __OS_InputButtonCallback(
+      __OS_InputTranslateGLFW_Mouse(button),
+      __OS_InputTranslateGLFW_Actions(action)
+  );
+
   OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
 
   OS_WindowKeyAction os_action = WindowKeyAction_Null;
@@ -57,6 +67,8 @@ void wrapper_glfwMousePositionCallback(
     GLFWwindow* glfw_window, double pos_x, double pos_y
 )
 {
+  __OS_InputCursorPosCallback(pos_x, pos_y);
+
   OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
 
   for (U64 i = 0; i < OS_WINDOW_MAX_MOUSE_POSITION_CALLBACK_SIZE; ++i)
@@ -66,6 +78,15 @@ void wrapper_glfwMousePositionCallback(
   }
 }
 
+void wrapper_glfwMouseScrollCallback(
+    GLFWwindow* glfw_window, double off_x, double off_y
+)
+{
+  __OS_InputScrollCallback(off_x, off_y);
+
+  // TODO(calco): window scroll callback
+}
+
 // TODO(calco): Allow custom error callback.
 void glfwErrorCallback(int code, const char* msg)
 {
@@ -73,9 +94,7 @@ void glfwErrorCallback(int code, const char* msg)
 }
 
 // NOTE(calco): -- Window Functions --
-void OS_WindowInit(
-    Arena* arena, OS_Window* window, U32 width, U32 height, String8 title
-)
+void OS_WindowInit(OS_Window* window, U32 width, U32 height, String8 title)
 {
   Log("Initialising GLFW window.", "");
 
@@ -109,8 +128,6 @@ void OS_WindowInit(
   window->title  = title;
   window->handle = glfw_win;
 
-  window->input = BitsetMakeArenaSize(arena, Key_MAX);
-
   glfwSetWindowSizeCallback(window->handle, wrapper_glfwResizeCallback);
   glfwSetKeyCallback(window->handle, wrapper_glfwKeyCallback);
   glfwSetMouseButtonCallback(window->handle, wrapper_glfwMouseButtonCallback);
@@ -127,7 +144,11 @@ void OS_WindowSetOpen(OS_Window* window, B32 open)
   glfwSetWindowShouldClose(window->handle, !open);
 }
 
-void OS_WindowPollEvents(void) { glfwPollEvents(); }
+void OS_WindowPollEvents(void)
+{
+  __OS_InputReset();
+  glfwPollEvents();
+}
 
 void OS_WindowFree(OS_Window* window)
 {

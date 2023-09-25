@@ -17,7 +17,7 @@
 #include "render/camera/render_camera.h"
 #include "render/render.h"
 
-#include "input/input.h"
+#include "os/input/os_input.h"
 
 static F32 MoveSp      = 0.25f;
 static F32 Sensitivity = 0.15f;
@@ -62,22 +62,23 @@ int main()
   OS_Init();
   OS_Window window = {0};
   OS_WindowInit(&window, 1280, 720, Str8Lit("OS Window"));
+
   OS_WindowRegisterKeyCallback(&window, ProcessWindowInput);
   OS_WindowRegisterMousePositionCallback(&window, CursorPositionCallback);
   OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
 
-  I_InputState input_state = I_InputStateMake(&arena);
-
   R_RenderInit(&window);
+
+  printf("AAAAAAAAAAAAAAAAA");
 
   R_Camera camera = R_CameraMakePerspective(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
       90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   );
-  // R_Camera camera = R_CameraMakeOrthographic(
-  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
-  //     Vec3F32_Up, 10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
-  // );
+  //   R_Camera camera = R_CameraMakeOrthographic(
+  //       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
+  //       Vec3F32_Up, 10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  //   );
 
   R_Framebuffer framebuffer = R_FramebufferMake(
       320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
@@ -215,14 +216,12 @@ int main()
     // 60 FPS, both render and update
     if (delta_time > 16000)
     {
-      // Swap input previous and current
-      // Clear input current
       OS_WindowPollEvents();
-      // New input is ready to go
 
-      // Update input: swap frames, redo current frame
-
-      Log("Yaw: %.2f, Pitch: %.2f", Yaw, Pitch);
+      Input.x = OS_InputKey('D') - OS_InputKey('A');
+      Input.y = OS_InputKey(' ') - OS_InputKey(OS_Input_KeyLeftShift);
+      Input.z = OS_InputKey('W') - OS_InputKey('S');
+      Input   = Vec3F32_Normalize(Input);
 
       Vec3F32 x_axis = Vec3F32_MultScalar(
           Vec3F32_Cross(camera.forward, camera.up), Input.x * MoveSp
