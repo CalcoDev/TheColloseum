@@ -36,7 +36,7 @@ void ProcessWindowInput(OS_Window* window, U32 key, OS_WindowKeyAction action)
     OS_WindowSetOpen(window, 0);
 }
 
-void CursorPositionCallback(GLFWwindow* window, F32 x, F32 y)
+void CursorPositionCallback(OS_Window* window, F32 x, F32 y)
 {
   F32 xoff = (x - _lastX) * Sensitivity;
   F32 yoff = (_lastY - y) * Sensitivity;
@@ -53,6 +53,11 @@ void CursorPositionCallback(GLFWwindow* window, F32 x, F32 y)
     Pitch = -89.0f;
 }
 
+void ScrollCallback(OS_Window* window, F32 x, F32 y)
+{
+  Log("Scrolled: (%.2f, %.2f)", x, y);
+}
+
 int main()
 {
   M_BaseMemory memory = OS_BaseMemory();
@@ -65,6 +70,7 @@ int main()
 
   OS_WindowRegisterKeyCallback(&window, ProcessWindowInput);
   OS_WindowRegisterMousePositionCallback(&window, CursorPositionCallback);
+  OS_WindowRegisterScrollCallback(&window, ScrollCallback);
   OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
 
   R_RenderInit(&window);

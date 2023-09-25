@@ -78,13 +78,19 @@ void wrapper_glfwMousePositionCallback(
   }
 }
 
-void wrapper_glfwMouseScrollCallback(
+void wrapper_glfwScrollCallback(
     GLFWwindow* glfw_window, double off_x, double off_y
 )
 {
   __OS_InputScrollCallback(off_x, off_y);
 
-  // TODO(calco): window scroll callback
+  OS_Window* os_window = (OS_Window*)glfwGetWindowUserPointer(glfw_window);
+
+  for (U64 i = 0; i < OS_WINDOW_MAX_SCROLL_CALLBACK_SIZE; ++i)
+  {
+    if (os_window->scroll_callbacks[i] != NULL)
+      os_window->scroll_callbacks[i](os_window, (F32)off_x, (F32)off_y);
+  }
 }
 
 // TODO(calco): Allow custom error callback.
@@ -132,6 +138,7 @@ void OS_WindowInit(OS_Window* window, U32 width, U32 height, String8 title)
   glfwSetKeyCallback(window->handle, wrapper_glfwKeyCallback);
   glfwSetMouseButtonCallback(window->handle, wrapper_glfwMouseButtonCallback);
   glfwSetCursorPosCallback(window->handle, wrapper_glfwMousePositionCallback);
+  glfwSetScrollCallback(window->handle, wrapper_glfwScrollCallback);
 }
 
 B32 OS_WindowIsOpen(OS_Window* window)
@@ -223,6 +230,20 @@ void OS_WindowRegisterMousePositionCallback(
       continue;
 
     window->mouse_position_callbacks[i] = callback;
+    break;
+  }
+}
+
+void OS_WindowRegisterScrollCallback(
+    OS_Window* window, OS_WindowScrollCallback callback
+)
+{
+  for (U64 i = 0; i < OS_WINDOW_MAX_SCROLL_CALLBACK_SIZE; ++i)
+  {
+    if (window->scroll_callbacks[i] != NULL)
+      continue;
+
+    window->scroll_callbacks[i] = callback;
     break;
   }
 }

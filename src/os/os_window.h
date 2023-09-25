@@ -31,10 +31,14 @@ typedef void OS_WindowMouseButtonCallback(
 typedef void
 OS_WindowMousePositionCallback(OS_Window* window, F32 pos_x, F32 pos_y);
 
+typedef void
+OS_WindowScrollCallback(OS_Window* window, F32 scroll_x, F32 scroll_y);
+
 #define OS_WINDOW_MAX_RESIZE_CALLBACK_SIZE         1
 #define OS_WINDOW_MAX_KEY_CALLBACK_SIZE            1
 #define OS_WINDOW_MAX_MOUSE_BUTTON_CALLBACK_SIZE   1
 #define OS_WINDOW_MAX_MOUSE_POSITION_CALLBACK_SIZE 1
+#define OS_WINDOW_MAX_SCROLL_CALLBACK_SIZE         1
 
 /**
  * @brief Basic window class. For now represents a window opened via GLFW, but
@@ -54,6 +58,7 @@ typedef struct OS_Window
       mouse_button_callbacks[OS_WINDOW_MAX_MOUSE_BUTTON_CALLBACK_SIZE];
   OS_WindowMousePositionCallback*
       mouse_position_callbacks[OS_WINDOW_MAX_MOUSE_POSITION_CALLBACK_SIZE];
+  OS_WindowScrollCallback* scroll_callbacks[OS_WINDOW_MAX_SCROLL_CALLBACK_SIZE];
 
   void* handle;
 } OS_window;
@@ -80,6 +85,9 @@ void OS_WindowRegisterMouseButtonCallback(
 );
 void OS_WindowRegisterMousePositionCallback(
     OS_Window* window, OS_WindowMousePositionCallback callback
+);
+void OS_WindowRegisterScrollCallback(
+    OS_Window* window, OS_WindowScrollCallback callback
 );
 
 #endif
