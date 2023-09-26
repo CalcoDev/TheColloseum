@@ -12,7 +12,7 @@ String8 Str8Init(U8* data, U64 size)
 
 String8 Str8InitArenaSize(Arena* arena, U64 size)
 {
-  U8* ptr = (U8*)ArenaPush(arena, size + 1);
+  U8* ptr   = (U8*)ArenaPush(arena, size + 1);
   ptr[size] = '\0';
   return Str8Init(ptr, size);
 }
@@ -47,13 +47,13 @@ String8 Str16ToStr8(Arena* arena, U16* buffer, U64 size)
   String8 str = Str8InitArenaSize(arena, size);
 
   U16* ptr_16 = buffer;
-  U8* ptr_8 = str.data;
+  U8* ptr_8   = str.data;
 
   U16* limit = (buffer + size);
   while (ptr_16 < limit)
   {
     U16 val = (*ptr_16);
-    U8 low = val & 0xFF;
+    U8 low  = val & 0xFF;
     U8 high = (val >> 8) & 0xFF;
 
     *(ptr_8) = low;
@@ -82,7 +82,7 @@ String8 Str8Postfix(String8 string, U64 size)
 
 String8 Str8ReplaceChar(String8 string, const U8 prev, const U8 current)
 {
-  U8* ptr = string.data;
+  U8* ptr   = string.data;
   U8* limit = string.data + string.size;
   while (ptr < limit)
   {

@@ -19,6 +19,20 @@
 
 #include "os/input/os_input.h"
 
+#include "expat.h"
+
+int main()
+{
+  XML_Parser parser = XML_ParserCreate(NULL);
+  if (!parser)
+  {
+    fprintf(stderr, "Failed to create XML parser\n");
+    exit(1);
+  }
+
+  return 0;
+}
+
 static F32 MoveSp      = 0.25f;
 static F32 Sensitivity = 0.15f;
 static F32 Yaw         = -90.f;
@@ -58,7 +72,7 @@ void ScrollCallback(OS_Window* window, F32 x, F32 y)
   Log("Scrolled: (%.2f, %.2f)", x, y);
 }
 
-int main()
+int _main()
 {
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
@@ -74,8 +88,6 @@ int main()
   OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
 
   R_RenderInit(&window);
-
-  printf("AAAAAAAAAAAAAAAAA");
 
   R_Camera camera = R_CameraMakePerspective(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,

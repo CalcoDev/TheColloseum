@@ -91,5 +91,20 @@ set(GLFW_INSTALL OFF)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/GLFW")
 target_link_libraries("${PROJECT_NAME}" glfw)
 
-# move assets folder
-# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/assets" DESTINATION "${CMAKE_BINARY_DIR}/Debug")
+# expat
+set(EXPAT_BUILD_DOCS OFF)
+set(EXPAT_BUILD_EXAMPLES OFF)
+set(EXPAT_BUILD_FUZZERS OFF)
+set(EXPAT_BUILD_PKGCONFIG OFF)
+set(EXPAT_BUILD_TESTS OFF)
+set(EXPAT_BUILD_TOOLS OFF)
+set(EXPAT_CHAR_TYPE "char")
+set(EXPAT_ENABLE_INSTALL OFF)
+set(EXPAT_OSSFUZZ_BUILD OFF)
+set(EXPAT_SHARED_LIBS OFF)
+
+# for multithreading purposes, but we don't do that yet lol
+set(EXPAT_MSVC_STATIC_CRT OFF)
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/libexpat/expat")
+target_link_libraries("${PROJECT_NAME}" expat)
