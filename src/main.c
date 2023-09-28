@@ -19,16 +19,34 @@
 
 #include "os/input/os_input.h"
 
-#include "expat.h"
+#include "tomlc99/toml.h"
 
 int main()
 {
-  XML_Parser parser = XML_ParserCreate(NULL);
-  if (!parser)
-  {
-    fprintf(stderr, "Failed to create XML parser\n");
-    exit(1);
-  }
+  FILE* fp;
+  char errbuf[200];
+
+  M_BaseMemory memory = OS_BaseMemory();
+  Arena arena;
+  ArenaInit(&arena, &memory, Gigabytes(1));
+
+  String8 path = OS_PathRelative(
+      &arena, OS_PathExecutableDir(&arena), Str8Lit("./assets/data/sample.toml")
+  );
+
+  fp = fopen(path.data, "r");
+  if (!fp)
+    LogFatal("Error opening file.", "");
+
+  toml_table_t* conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
+  fclose(fp);
+
+  toml_datum_t data = toml_string_in(conf, "title");
+  if (!data.ok)
+    LogFatal("Error reading title", "");
+
+  Log("Title: %s", data.u.s);
+  free(data.u.s);
 
   return 0;
 }

@@ -1,0 +1,28 @@
+title = "TOML EXAMPLE"
+
+[input_map]
+name = "Default Input Map"
+id = "input_map_default"
+
+[[contexts]]
+name = "Default Context"
+
+[[actions]]
+name = "Shoot"
+key = "LMB"
+modifier = "Held"
+
+[[actions]]
+name = "Grapple"
+key = "RMB"
+modifier = "Pressed"
+
+[[ranges]]
+name = "Horizontal"
+positive_keys = ["D", "Right Arrow"]
+negative_keys = ["A", "Left Arrow"]
+
+[[ranges]]
+name = "Vertical"
+positive_keys = ["W", "Up Arrow"]
+negative_keys = ["S", "Down Arrow"]
