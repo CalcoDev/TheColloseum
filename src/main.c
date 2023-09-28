@@ -38,15 +38,74 @@ int main()
   if (!fp)
     LogFatal("Error opening file.", "");
 
-  toml_table_t* conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
+  toml_table_t* root = toml_parse_file(fp, errbuf, sizeof(errbuf));
   fclose(fp);
 
-  toml_datum_t data = toml_string_in(conf, "title");
-  if (!data.ok)
-    LogFatal("Error reading title", "");
+  toml_datum_t title = toml_string_in(root, "title");
+  Log("Title: %s", title.u.s);
 
-  Log("Title: %s", data.u.s);
-  free(data.u.s);
+  toml_table_t* input_map = toml_table_in(root, "input_map");
+  if (!input_map)
+    LogFatal("Missing Input Map!", "");
+
+  Log("Input Map:", "");
+  toml_array_t* contexts = toml_array_in(input_map, "contexts");
+  S32 context_count      = toml_array_nelem(contexts);
+  Log("\tContexts (%i):", context_count);
+  for (S32 i = 0; i < context_count; ++i)
+  {
+    toml_table_t* context = toml_table_at(contexts, i);
+    Log("\t\tContext (%i):", i);
+
+    toml_array_t* actions = toml_array_in(context, "actions");
+    S32 actions_count     = toml_array_nelem(actions);
+    Log("\t\t\tActions (%i):", actions_count);
+
+    for (S32 action_idx = 0; action_idx < actions_count; ++action_idx)
+    {
+      toml_table_t* action = toml_table_at(actions, action_idx);
+      Log("\t\t\t\tAction (%i):", action_idx);
+
+      toml_datum_t action_name     = toml_string_in(action, "name");
+      toml_datum_t action_key      = toml_string_in(action, "key");
+      toml_datum_t action_modifier = toml_string_in(action, "modifier");
+
+      Log("\t\t\t\t\tName: %s", action_name.u.s);
+      Log("\t\t\t\t\tKey: %s", action_key.u.s);
+      Log("\t\t\t\t\tMod: %s", action_modifier.u.s);
+    }
+
+    toml_array_t* ranges = toml_array_in(context, "ranges");
+    S32 ranges_count     = toml_array_nelem(ranges);
+    Log("\t\t\tRanges (%i):", ranges_count);
+
+    for (S32 range_idx = 0; range_idx < ranges_count; ++range_idx)
+    {
+      toml_table_t* range = toml_table_at(ranges, range_idx);
+      Log("\t\t\t\tRange (%i):", range_idx);
+
+      toml_datum_t range_name = toml_string_in(range, "name");
+      Log("\t\t\t\t\tName: %s", range_name.u.s);
+
+      toml_array_t* rpka = toml_array_in(range, "positive_keys");
+      S32 rpka_n         = toml_array_nelem(rpka);
+      Log("\t\t\t\t\tPositive Keys:", "");
+      for (S32 rpka_i = 0; rpka_i < rpka_n; ++rpka_i)
+      {
+        toml_datum_t rpka_k = toml_string_at(rpka, rpka_i);
+        Log("\t\t\t\t\t\t%i: %s", rpka_i, rpka_k.u.s);
+      }
+
+      toml_array_t* rnka = toml_array_in(range, "negative_keys");
+      S32 rnka_n         = toml_array_nelem(rnka);
+      Log("\t\t\t\t\tNegative Keys:", "");
+      for (S32 rnka_i = 0; rnka_i < rnka_n; ++rnka_i)
+      {
+        toml_datum_t rnka_k = toml_string_at(rnka, rnka_i);
+        Log("\t\t\t\t\t\t%i: %s", rnka_i, rnka_k.u.s);
+      }
+    }
+  }
 
   return 0;
 }
