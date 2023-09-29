@@ -10,6 +10,8 @@
 #define I_INPUTMAP_MAX_CONTEXT_ACTIONS          10
 #define I_INPUTMAP_MAX_CONTEXT_ACTIONS_CONTROLS 10
 
+HashmapCreatePrototype(CharPointer, U8);
+
 typedef struct I_InputMapScheme
 {
   String8 name;
@@ -33,7 +35,7 @@ typedef enum I_InputMapContextActionControlModifier
 
 typedef struct I_InputMapContextActionControl
 {
-  I_InputMapScheme* scheme;
+  U8 schemes[I_INPUTMAP_MAX_SCHEMES];
 
   union
   {
@@ -47,7 +49,7 @@ typedef struct I_InputMapContextActionControl
     {
       U32 positive_key;
       U32 negative_key;
-    }
+    };
 
     struct
     {
@@ -55,7 +57,7 @@ typedef struct I_InputMapContextActionControl
       U32 down_key;
       U32 left_key;
       U32 right_key;
-    }
+    };
   };
 } I_InputMapContextActionControl;
 
@@ -72,8 +74,6 @@ typedef struct I_InputMapContext
 {
   String8 name;
   I_InputMapContextAction actions[I_INPUTMAP_MAX_CONTEXT_ACTIONS];
-
-  // Hashmap(char*, U64) __actionsIdMapper;
 } I_InputMapContext;
 
 // TODO(calco): Do away with the strings and instead use IDs under the hood.
@@ -85,6 +85,9 @@ typedef struct I_InputMap
 
   U8 active_scheme;
   U8 active_contexts[I_INPUTMAP_MAX_CONTEXTS];
+
+  Hashmap(CharPointer, U8) __scheme_id_mapper;
+  Hashmap(CharPointer, U8) __context_id_mapper;
 } I_InputMap;
 
 void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path);

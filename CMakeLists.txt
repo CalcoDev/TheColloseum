@@ -19,6 +19,7 @@ set(sources
     "os/os.c"
     "os/input/os_input.c"
     "os/os_window.c"
+    "input/input.c"
     "render/render.c"
     "render/camera/render_camera.c"
     "draw/draw.c"
