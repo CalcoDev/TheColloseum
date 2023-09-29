@@ -15,24 +15,28 @@ name = "ingame"
 # Game Actions
 [[input_map.contexts.actions]]
 name = "fire"
+type = "button"
 
 [[input_map.contexts.actions.controls]]
-type = "button"
 key = "LMB"
 scheme = ["mouse_keyboard"]
 # modifiers = ["pressed", "released"]
 
 [[input_map.contexts.actions.controls]]
-type = "button"
 key = "Z"
 modifiers = ["held"]
 scheme = ["mouse_keyboard"]
 
 [[input_map.contexts.actions]]
 name = "move_horizontal"
+type = "axis_1"
 
 [[input_map.contexts.actions.controls]]
-type = "axis_1"
-positive_keys = ["D", "Right Arrow"]
-negative_keys = ["A", "Left Arrow"]
+positive_keys = "D"
+negative_keys = "A"
+scheme = ["mouse_keyboard"]
+
+[[input_map.contexts.actions.controls]]
+positive_keys = "Right Arrow"
+negative_keys = "Left Arrow"
 scheme = ["mouse_keyboard"]
