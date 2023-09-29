@@ -1,28 +1,38 @@
-title = "TOML EXAMPLE"
-
 [input_map]
-name = "Default Input Map"
-id = "input_map_default"
+name = "global_input_map"
 
+# Input Schemes for different devices
+[[input_map.schemes]]
+name = "mouse_keyboard"
+
+[[input_map.schemes]]
+name = "controller"
+
+# Contexts correspond to action maps.
 [[input_map.contexts]]
-name = "Default Context"
+name = "ingame"
 
+# Game Actions
 [[input_map.contexts.actions]]
-name = "Shoot"
+name = "fire"
+
+[[input_map.contexts.actions.controls]]
+type = "button"
 key = "LMB"
-modifier = "Held"
+scheme = ["mouse_keyboard"]
+# modifiers = ["pressed", "released"]
+
+[[input_map.contexts.actions.controls]]
+type = "button"
+key = "Z"
+modifiers = ["held"]
+scheme = ["mouse_keyboard"]
 
 [[input_map.contexts.actions]]
-name = "Grapple"
-key = "RMB"
-modifier = "Pressed"
+name = "move_horizontal"
 
-[[input_map.contexts.ranges]]
-name = "Horizontal"
+[[input_map.contexts.actions.controls]]
+type = "axis_1"
 positive_keys = ["D", "Right Arrow"]
 negative_keys = ["A", "Left Arrow"]
-
-[[input_map.contexts.ranges]]
-name = "Vertical"
-positive_keys = ["W", "Up Arrow"]
-negative_keys = ["S", "Down Arrow"]
+scheme = ["mouse_keyboard"]
