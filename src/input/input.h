@@ -2,7 +2,13 @@
 #define INPUT_H
 
 #include "base/base_hashmap.h"
+#include "base/base_memory.h"
 #include "base/base_string.h"
+
+#define I_INPUTMAP_MAX_SCHEMES                  10
+#define I_INPUTMAP_MAX_CONTEXTS                 10
+#define I_INPUTMAP_MAX_CONTEXT_ACTIONS          10
+#define I_INPUTMAP_MAX_CONTEXT_ACTIONS_CONTROLS 10
 
 typedef struct I_InputMapScheme
 {
@@ -58,13 +64,14 @@ typedef struct I_InputMapContextAction
   String8 name;
   I_InputMapContextActionControlType type;
 
-  I_InputMapContextActionControl* controls;
+  I_InputMapContextActionControl
+      controls[I_INPUTMAP_MAX_CONTEXT_ACTIONS_CONTROLS];
 } I_InputMapContextAction;
 
 typedef struct I_InputMapContext
 {
   String8 name;
-  I_InputMapContextAction* actions;
+  I_InputMapContextAction actions[I_INPUTMAP_MAX_CONTEXT_ACTIONS];
 
   // Hashmap(char*, U64) __actionsIdMapper;
 } I_InputMapContext;
@@ -73,14 +80,13 @@ typedef struct I_InputMapContext
 typedef struct I_InputMap
 {
   String8 name;
-  I_InputMapScheme* schemes;
-  I_InputMapContext* contexts;
+  I_InputMapScheme schemes[I_INPUTMAP_MAX_SCHEMES];
+  I_InputMapContext contexts[I_INPUTMAP_MAX_CONTEXTS];
 
-  I_InputMapScheme* active_scheme;
-  I_InputMapContext* active_contexts;
-
-  // Hashmap(char*, U64) __schemesIdMapper;
-  // Hashmap(char*, U64) __contextsIdMapper;
+  U8 active_scheme;
+  U8 active_contexts[I_INPUTMAP_MAX_CONTEXTS];
 } I_InputMap;
+
+void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path);
 
 #endif
