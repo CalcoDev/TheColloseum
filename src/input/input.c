@@ -78,6 +78,11 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
       I_INPUTMAP_MAX_SCHEMES * 4, str_hash, str_null
   );
 
+  HashmapInit(
+      CharPointer, U8, arena, &input_map->__context_id_mapper,
+      I_INPUTMAP_MAX_CONTEXTS * 4, str_hash, str_null
+  );
+
   char err_buf[256];
 
   String8 file_contents = OS_FileRead(arena, config_path);
@@ -109,8 +114,9 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
     );
   }
 
-  toml_array_t* ctxs = toml_array_in(input_map_t, "contexts");
-  U32 ctxs_l         = toml_array_nelem(ctxs);
+  toml_array_t* ctxs       = toml_array_in(input_map_t, "contexts");
+  U32 ctxs_l               = toml_array_nelem(ctxs);
+  input_map->context_count = ctxs_l;
   for (U64 ctxs_i = 0; ctxs_i < ctxs_l; ++ctxs_i)
   {
     toml_table_t* ctx = toml_table_at(ctxs, ctxs_i);
@@ -176,9 +182,11 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
       }
     }
 
-    // TODO(calco): Add context to ID mapper.
+    HashmapAdd(
+        CharPointer, U8, &input_map->__context_id_mapper,
+        input_map->contexts[ctxs_i].name.data, ctxs_i
+    );
   }
-  input_map->context_count = ctxs_l;
 
   // FINISHED PARSING LOL
   toml_free(root);

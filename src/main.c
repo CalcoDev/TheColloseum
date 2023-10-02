@@ -89,6 +89,7 @@ int main()
     }
   }
 
+  ArenaRelease(&arena);
   return 0;
 }
 
