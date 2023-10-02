@@ -19,13 +19,18 @@ type = "button"
 
 [[input_map.contexts.actions.controls]]
 key = "LMB"
-scheme = ["mouse_keyboard"]
+schemes = ["mouse_keyboard"]
 # modifiers = ["pressed", "released"]
 
 [[input_map.contexts.actions.controls]]
 key = "Z"
 modifiers = ["held"]
-scheme = ["mouse_keyboard"]
+schemes = ["mouse_keyboard"]
+
+[[input_map.contexts.actions.controls]]
+key = "Controller Button"
+modifiers = ["pressed"]
+schemes = ["controller"]
 
 [[input_map.contexts.actions]]
 name = "move_horizontal"
@@ -34,9 +39,9 @@ type = "axis_1"
 [[input_map.contexts.actions.controls]]
 positive_keys = "D"
 negative_keys = "A"
-scheme = ["mouse_keyboard"]
+schemes = ["mouse_keyboard"]
 
 [[input_map.contexts.actions.controls]]
 positive_keys = "Right Arrow"
 negative_keys = "Left Arrow"
-scheme = ["mouse_keyboard"]
+schemes = ["mouse_keyboard"]

@@ -36,6 +36,7 @@ typedef enum I_InputMapContextActionControlModifier
 typedef struct I_InputMapContextActionControl
 {
   U8 schemes[I_INPUTMAP_MAX_SCHEMES];
+  U8 scheme_count;
 
   union
   {
@@ -68,12 +69,15 @@ typedef struct I_InputMapContextAction
 
   I_InputMapContextActionControl
       controls[I_INPUTMAP_MAX_CONTEXT_ACTIONS_CONTROLS];
+
+  U8 control_count;
 } I_InputMapContextAction;
 
 typedef struct I_InputMapContext
 {
   String8 name;
   I_InputMapContextAction actions[I_INPUTMAP_MAX_CONTEXT_ACTIONS];
+  U8 action_count;
 } I_InputMapContext;
 
 // TODO(calco): Do away with the strings and instead use IDs under the hood.
@@ -82,6 +86,9 @@ typedef struct I_InputMap
   String8 name;
   I_InputMapScheme schemes[I_INPUTMAP_MAX_SCHEMES];
   I_InputMapContext contexts[I_INPUTMAP_MAX_CONTEXTS];
+
+  U8 scheme_count;
+  U8 context_count;
 
   U8 active_scheme;
   U8 active_contexts[I_INPUTMAP_MAX_CONTEXTS];
