@@ -72,21 +72,16 @@ B32 str_null(HashmapEntry(CharPointer, U8) entry)
 // TODO(calco): Add error handling
 void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
 {
-  // TODO(calco): Use toml_parse with file contents read from OS_FileRead.
-  // String8 file_contents = OS_FileRead(arena, config_path);
-  // toml_table_t* root = toml_parse(file_contents.data, err_buf,
-  // sizeof(err_buf));
-
   // INITI THE INPUT MAP
   HashmapInit(
       CharPointer, U8, arena, &input_map->__scheme_id_mapper,
       I_INPUTMAP_MAX_SCHEMES * 4, str_hash, str_null
   );
 
-  FILE* f = fopen(config_path.data, "r");
   char err_buf[256];
-  toml_table_t* root = toml_parse_file(f, err_buf, sizeof(err_buf));
-  fclose(f);
+
+  String8 file_contents = OS_FileRead(arena, config_path);
+  toml_table_t* root = toml_parse(file_contents.data, err_buf, sizeof(err_buf));
 
   toml_table_t* input_map_t = toml_table_in(root, "input_map");
   {
