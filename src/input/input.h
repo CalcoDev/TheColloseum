@@ -97,6 +97,7 @@ typedef struct I_InputMap
   Hashmap(CharPointer, U8) __context_id_mapper;
 } I_InputMap;
 
+U8 I_InputParseKey(char* data);
 void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path);
 
 #endif

@@ -37,142 +37,155 @@ B32 str_null(HashmapEntry(CharPointer, U8) entry)
   return 0;
 }
 
-void init_key_mapper(Arena* arena, Hashmap(CharPointer, U8) * key_mapper)
+static Hashmap(CharPointer, U8) key_mapper;
+void init_key_mapper(Arena* arena)
 {
-  HashmapInit(CharPointer, U8, arena, key_mapper, 400, str_hash, str_null);
+  HashmapInit(CharPointer, U8, arena, &key_mapper, 400, str_hash, str_null);
 
   HashmapAdd(
-      CharPointer, U8, key_mapper, "MouseLeft", OS_Input_MouseButton_Left
+      CharPointer, U8, &key_mapper, "MouseLeft", OS_Input_MouseButton_Left
   );
   HashmapAdd(
-      CharPointer, U8, key_mapper, "MouseMiddle", OS_Input_MouseButton_Middle
+      CharPointer, U8, &key_mapper, "MouseMiddle", OS_Input_MouseButton_Middle
   );
   HashmapAdd(
-      CharPointer, U8, key_mapper, "MouseRight", OS_Input_MouseButton_Right
+      CharPointer, U8, &key_mapper, "MouseRight", OS_Input_MouseButton_Right
   );
-  HashmapAdd(CharPointer, U8, key_mapper, "LeftArrow", OS_Input_KeyLeftArrow);
-  HashmapAdd(CharPointer, U8, key_mapper, "UpArrow", OS_Input_KeyUpArrow);
-  HashmapAdd(CharPointer, U8, key_mapper, "RightArrow", OS_Input_KeyRightArrow);
-  HashmapAdd(CharPointer, U8, key_mapper, "DownArrow", OS_Input_KeyDownArrow);
-  HashmapAdd(CharPointer, U8, key_mapper, "Minus", OS_Input_KeyMinus);
-  HashmapAdd(CharPointer, U8, key_mapper, "Equals", OS_Input_KeyEquals);
-  HashmapAdd(CharPointer, U8, key_mapper, "Backspace", OS_Input_KeyBackspace);
-  HashmapAdd(CharPointer, U8, key_mapper, "0", OS_Input_Key0);
-  HashmapAdd(CharPointer, U8, key_mapper, "1", OS_Input_Key1);
-  HashmapAdd(CharPointer, U8, key_mapper, "2", OS_Input_Key2);
-  HashmapAdd(CharPointer, U8, key_mapper, "3", OS_Input_Key3);
-  HashmapAdd(CharPointer, U8, key_mapper, "4", OS_Input_Key4);
-  HashmapAdd(CharPointer, U8, key_mapper, "5", OS_Input_Key5);
-  HashmapAdd(CharPointer, U8, key_mapper, "6", OS_Input_Key6);
-  HashmapAdd(CharPointer, U8, key_mapper, "7", OS_Input_Key7);
-  HashmapAdd(CharPointer, U8, key_mapper, "8", OS_Input_Key8);
-  HashmapAdd(CharPointer, U8, key_mapper, "9", OS_Input_Key9);
-  HashmapAdd(CharPointer, U8, key_mapper, "A", OS_Input_KeyA);
-  HashmapAdd(CharPointer, U8, key_mapper, "B", OS_Input_KeyB);
-  HashmapAdd(CharPointer, U8, key_mapper, "C", OS_Input_KeyC);
-  HashmapAdd(CharPointer, U8, key_mapper, "D", OS_Input_KeyD);
-  HashmapAdd(CharPointer, U8, key_mapper, "E", OS_Input_KeyE);
-  HashmapAdd(CharPointer, U8, key_mapper, "F", OS_Input_KeyF);
-  HashmapAdd(CharPointer, U8, key_mapper, "G", OS_Input_KeyG);
-  HashmapAdd(CharPointer, U8, key_mapper, "H", OS_Input_KeyH);
-  HashmapAdd(CharPointer, U8, key_mapper, "I", OS_Input_KeyI);
-  HashmapAdd(CharPointer, U8, key_mapper, "J", OS_Input_KeyJ);
-  HashmapAdd(CharPointer, U8, key_mapper, "K", OS_Input_KeyK);
-  HashmapAdd(CharPointer, U8, key_mapper, "L", OS_Input_KeyL);
-  HashmapAdd(CharPointer, U8, key_mapper, "M", OS_Input_KeyM);
-  HashmapAdd(CharPointer, U8, key_mapper, "N", OS_Input_KeyN);
-  HashmapAdd(CharPointer, U8, key_mapper, "O", OS_Input_KeyO);
-  HashmapAdd(CharPointer, U8, key_mapper, "P", OS_Input_KeyP);
-  HashmapAdd(CharPointer, U8, key_mapper, "Q", OS_Input_KeyQ);
-  HashmapAdd(CharPointer, U8, key_mapper, "R", OS_Input_KeyR);
-  HashmapAdd(CharPointer, U8, key_mapper, "S", OS_Input_KeyS);
-  HashmapAdd(CharPointer, U8, key_mapper, "T", OS_Input_KeyT);
-  HashmapAdd(CharPointer, U8, key_mapper, "U", OS_Input_KeyU);
-  HashmapAdd(CharPointer, U8, key_mapper, "V", OS_Input_KeyV);
-  HashmapAdd(CharPointer, U8, key_mapper, "W", OS_Input_KeyW);
-  HashmapAdd(CharPointer, U8, key_mapper, "X", OS_Input_KeyX);
-  HashmapAdd(CharPointer, U8, key_mapper, "Y", OS_Input_KeyY);
-  HashmapAdd(CharPointer, U8, key_mapper, "Z", OS_Input_KeyZ);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad0", OS_Input_KeyNumpad0);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad1", OS_Input_KeyNumpad1);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad2", OS_Input_KeyNumpad2);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad3", OS_Input_KeyNumpad3);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad4", OS_Input_KeyNumpad4);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad5", OS_Input_KeyNumpad5);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad6", OS_Input_KeyNumpad6);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad7", OS_Input_KeyNumpad7);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad8", OS_Input_KeyNumpad8);
-  HashmapAdd(CharPointer, U8, key_mapper, "Numpad9", OS_Input_KeyNumpad9);
-  HashmapAdd(CharPointer, U8, key_mapper, "NumpadPlus", OS_Input_KeyNumpadPlus);
+  HashmapAdd(CharPointer, U8, &key_mapper, "LeftArrow", OS_Input_KeyLeftArrow);
+  HashmapAdd(CharPointer, U8, &key_mapper, "UpArrow", OS_Input_KeyUpArrow);
   HashmapAdd(
-      CharPointer, U8, key_mapper, "NumpadMinus", OS_Input_KeyNumpadMinus
+      CharPointer, U8, &key_mapper, "RightArrow", OS_Input_KeyRightArrow
   );
-  HashmapAdd(CharPointer, U8, key_mapper, "NumpadStar", OS_Input_KeyNumpadStar);
+  HashmapAdd(CharPointer, U8, &key_mapper, "DownArrow", OS_Input_KeyDownArrow);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Minus", OS_Input_KeyMinus);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Equals", OS_Input_KeyEquals);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Backspace", OS_Input_KeyBackspace);
+  HashmapAdd(CharPointer, U8, &key_mapper, "0", OS_Input_Key0);
+  HashmapAdd(CharPointer, U8, &key_mapper, "1", OS_Input_Key1);
+  HashmapAdd(CharPointer, U8, &key_mapper, "2", OS_Input_Key2);
+  HashmapAdd(CharPointer, U8, &key_mapper, "3", OS_Input_Key3);
+  HashmapAdd(CharPointer, U8, &key_mapper, "4", OS_Input_Key4);
+  HashmapAdd(CharPointer, U8, &key_mapper, "5", OS_Input_Key5);
+  HashmapAdd(CharPointer, U8, &key_mapper, "6", OS_Input_Key6);
+  HashmapAdd(CharPointer, U8, &key_mapper, "7", OS_Input_Key7);
+  HashmapAdd(CharPointer, U8, &key_mapper, "8", OS_Input_Key8);
+  HashmapAdd(CharPointer, U8, &key_mapper, "9", OS_Input_Key9);
+  HashmapAdd(CharPointer, U8, &key_mapper, "A", OS_Input_KeyA);
+  HashmapAdd(CharPointer, U8, &key_mapper, "B", OS_Input_KeyB);
+  HashmapAdd(CharPointer, U8, &key_mapper, "C", OS_Input_KeyC);
+  HashmapAdd(CharPointer, U8, &key_mapper, "D", OS_Input_KeyD);
+  HashmapAdd(CharPointer, U8, &key_mapper, "E", OS_Input_KeyE);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F", OS_Input_KeyF);
+  HashmapAdd(CharPointer, U8, &key_mapper, "G", OS_Input_KeyG);
+  HashmapAdd(CharPointer, U8, &key_mapper, "H", OS_Input_KeyH);
+  HashmapAdd(CharPointer, U8, &key_mapper, "I", OS_Input_KeyI);
+  HashmapAdd(CharPointer, U8, &key_mapper, "J", OS_Input_KeyJ);
+  HashmapAdd(CharPointer, U8, &key_mapper, "K", OS_Input_KeyK);
+  HashmapAdd(CharPointer, U8, &key_mapper, "L", OS_Input_KeyL);
+  HashmapAdd(CharPointer, U8, &key_mapper, "M", OS_Input_KeyM);
+  HashmapAdd(CharPointer, U8, &key_mapper, "N", OS_Input_KeyN);
+  HashmapAdd(CharPointer, U8, &key_mapper, "O", OS_Input_KeyO);
+  HashmapAdd(CharPointer, U8, &key_mapper, "P", OS_Input_KeyP);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Q", OS_Input_KeyQ);
+  HashmapAdd(CharPointer, U8, &key_mapper, "R", OS_Input_KeyR);
+  HashmapAdd(CharPointer, U8, &key_mapper, "S", OS_Input_KeyS);
+  HashmapAdd(CharPointer, U8, &key_mapper, "T", OS_Input_KeyT);
+  HashmapAdd(CharPointer, U8, &key_mapper, "U", OS_Input_KeyU);
+  HashmapAdd(CharPointer, U8, &key_mapper, "V", OS_Input_KeyV);
+  HashmapAdd(CharPointer, U8, &key_mapper, "W", OS_Input_KeyW);
+  HashmapAdd(CharPointer, U8, &key_mapper, "X", OS_Input_KeyX);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Y", OS_Input_KeyY);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Z", OS_Input_KeyZ);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad0", OS_Input_KeyNumpad0);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad1", OS_Input_KeyNumpad1);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad2", OS_Input_KeyNumpad2);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad3", OS_Input_KeyNumpad3);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad4", OS_Input_KeyNumpad4);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad5", OS_Input_KeyNumpad5);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad6", OS_Input_KeyNumpad6);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad7", OS_Input_KeyNumpad7);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad8", OS_Input_KeyNumpad8);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Numpad9", OS_Input_KeyNumpad9);
   HashmapAdd(
-      CharPointer, U8, key_mapper, "NumpadSlash", OS_Input_KeyNumpadSlash
+      CharPointer, U8, &key_mapper, "NumpadPlus", OS_Input_KeyNumpadPlus
   );
   HashmapAdd(
-      CharPointer, U8, key_mapper, "NumpadPeriod", OS_Input_KeyNumpadPeriod
-  );
-  HashmapAdd(CharPointer, U8, key_mapper, "LeftShift", OS_Input_KeyLeftShift);
-  HashmapAdd(CharPointer, U8, key_mapper, "RightShift", OS_Input_KeyRightShift);
-  HashmapAdd(
-      CharPointer, U8, key_mapper, "LeftControl", OS_Input_KeyLeftControl
+      CharPointer, U8, &key_mapper, "NumpadMinus", OS_Input_KeyNumpadMinus
   );
   HashmapAdd(
-      CharPointer, U8, key_mapper, "RightControl", OS_Input_KeyRightControl
-  );
-  HashmapAdd(CharPointer, U8, key_mapper, "LeftAlt", OS_Input_KeyLeftAlt);
-  HashmapAdd(CharPointer, U8, key_mapper, "RightAlt", OS_Input_KeyRightAlt);
-  HashmapAdd(CharPointer, U8, key_mapper, "CapsLock", OS_Input_KeyCapsLock);
-  HashmapAdd(CharPointer, U8, key_mapper, "ScrollLock", OS_Input_KeyScrollLock);
-  HashmapAdd(CharPointer, U8, key_mapper, "NumLock", OS_Input_KeyNumLock);
-  HashmapAdd(CharPointer, U8, key_mapper, "Grave", OS_Input_KeyGrave);
-  HashmapAdd(CharPointer, U8, key_mapper, "Enter", OS_Input_KeyEnter);
-  HashmapAdd(CharPointer, U8, key_mapper, "Period", OS_Input_KeyPeriod);
-  HashmapAdd(CharPointer, U8, key_mapper, "Comma", OS_Input_KeyComma);
-  HashmapAdd(
-      CharPointer, U8, key_mapper, "ForwardSlash", OS_Input_KeyForwardSlash
-  );
-  HashmapAdd(CharPointer, U8, key_mapper, "BackSlash", OS_Input_KeyBackSlash);
-  HashmapAdd(CharPointer, U8, key_mapper, "Semicolon", OS_Input_KeySemicolon);
-  HashmapAdd(CharPointer, U8, key_mapper, "Apostrophe", OS_Input_KeyApostrophe);
-  HashmapAdd(
-      CharPointer, U8, key_mapper, "OpenBracket", OS_Input_KeyOpenBracket
+      CharPointer, U8, &key_mapper, "NumpadStar", OS_Input_KeyNumpadStar
   );
   HashmapAdd(
-      CharPointer, U8, key_mapper, "CloseBracket", OS_Input_KeyCloseBracket
+      CharPointer, U8, &key_mapper, "NumpadSlash", OS_Input_KeyNumpadSlash
   );
-  HashmapAdd(CharPointer, U8, key_mapper, "Escape", OS_Input_KeyEscape);
-  HashmapAdd(CharPointer, U8, key_mapper, "Pause", OS_Input_KeyPause);
-  HashmapAdd(CharPointer, U8, key_mapper, "F1", OS_Input_KeyF1);
-  HashmapAdd(CharPointer, U8, key_mapper, "F2", OS_Input_KeyF2);
-  HashmapAdd(CharPointer, U8, key_mapper, "F3", OS_Input_KeyF3);
-  HashmapAdd(CharPointer, U8, key_mapper, "F4", OS_Input_KeyF4);
-  HashmapAdd(CharPointer, U8, key_mapper, "F5", OS_Input_KeyF5);
-  HashmapAdd(CharPointer, U8, key_mapper, "F6", OS_Input_KeyF6);
-  HashmapAdd(CharPointer, U8, key_mapper, "F7", OS_Input_KeyF7);
-  HashmapAdd(CharPointer, U8, key_mapper, "F8", OS_Input_KeyF8);
-  HashmapAdd(CharPointer, U8, key_mapper, "F9", OS_Input_KeyF9);
-  HashmapAdd(CharPointer, U8, key_mapper, "F10", OS_Input_KeyF10);
-  HashmapAdd(CharPointer, U8, key_mapper, "F11", OS_Input_KeyF11);
-  HashmapAdd(CharPointer, U8, key_mapper, "F12", OS_Input_KeyF12);
-  HashmapAdd(CharPointer, U8, key_mapper, "PageUp", OS_Input_KeyPageUp);
-  HashmapAdd(CharPointer, U8, key_mapper, "PageDown", OS_Input_KeyPageDown);
-  HashmapAdd(CharPointer, U8, key_mapper, "End", OS_Input_KeyEnd);
-  HashmapAdd(CharPointer, U8, key_mapper, "Home", OS_Input_KeyHome);
-  HashmapAdd(CharPointer, U8, key_mapper, "Insert", OS_Input_KeyInsert);
-  HashmapAdd(CharPointer, U8, key_mapper, "Delete", OS_Input_KeyDelete);
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "NumpadPeriod", OS_Input_KeyNumpadPeriod
+  );
+  HashmapAdd(CharPointer, U8, &key_mapper, "LeftShift", OS_Input_KeyLeftShift);
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "RightShift", OS_Input_KeyRightShift
+  );
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "LeftControl", OS_Input_KeyLeftControl
+  );
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "RightControl", OS_Input_KeyRightControl
+  );
+  HashmapAdd(CharPointer, U8, &key_mapper, "LeftAlt", OS_Input_KeyLeftAlt);
+  HashmapAdd(CharPointer, U8, &key_mapper, "RightAlt", OS_Input_KeyRightAlt);
+  HashmapAdd(CharPointer, U8, &key_mapper, "CapsLock", OS_Input_KeyCapsLock);
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "ScrollLock", OS_Input_KeyScrollLock
+  );
+  HashmapAdd(CharPointer, U8, &key_mapper, "NumLock", OS_Input_KeyNumLock);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Grave", OS_Input_KeyGrave);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Enter", OS_Input_KeyEnter);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Period", OS_Input_KeyPeriod);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Comma", OS_Input_KeyComma);
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "ForwardSlash", OS_Input_KeyForwardSlash
+  );
+  HashmapAdd(CharPointer, U8, &key_mapper, "BackSlash", OS_Input_KeyBackSlash);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Semicolon", OS_Input_KeySemicolon);
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "Apostrophe", OS_Input_KeyApostrophe
+  );
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "OpenBracket", OS_Input_KeyOpenBracket
+  );
+  HashmapAdd(
+      CharPointer, U8, &key_mapper, "CloseBracket", OS_Input_KeyCloseBracket
+  );
+  HashmapAdd(CharPointer, U8, &key_mapper, "Escape", OS_Input_KeyEscape);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Pause", OS_Input_KeyPause);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F1", OS_Input_KeyF1);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F2", OS_Input_KeyF2);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F3", OS_Input_KeyF3);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F4", OS_Input_KeyF4);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F5", OS_Input_KeyF5);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F6", OS_Input_KeyF6);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F7", OS_Input_KeyF7);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F8", OS_Input_KeyF8);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F9", OS_Input_KeyF9);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F10", OS_Input_KeyF10);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F11", OS_Input_KeyF11);
+  HashmapAdd(CharPointer, U8, &key_mapper, "F12", OS_Input_KeyF12);
+  HashmapAdd(CharPointer, U8, &key_mapper, "PageUp", OS_Input_KeyPageUp);
+  HashmapAdd(CharPointer, U8, &key_mapper, "PageDown", OS_Input_KeyPageDown);
+  HashmapAdd(CharPointer, U8, &key_mapper, "End", OS_Input_KeyEnd);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Home", OS_Input_KeyHome);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Insert", OS_Input_KeyInsert);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Delete", OS_Input_KeyDelete);
 }
 
-U8 parse_keycode(char* data, Hashmap(CharPointer, U8) * key_mapper)
+U8 I_InputParseKey(char* data)
 {
   U8 index;
-  if (HashmapTryGet(CharPointer, U8, key_mapper, data, &index))
+  if (HashmapTryGet(CharPointer, U8, &key_mapper, data, &index))
     return index;
 
   LogFatal(
-      "parse_keycode received an unknown keycode / could not find its "
+      "I_InputParseKey received an unknown keycode / could not find its "
       "corresponding index.",
       ""
   );
@@ -215,8 +228,7 @@ U8 parse_context_action_scheme(I_InputMap* input_map, char* data)
 
 void parse_context_action_control(
     I_InputMapContextActionControlType type,
-    I_InputMapContextActionControl* control, toml_table_t* control_t,
-    Hashmap(CharPointer, U8) * km
+    I_InputMapContextActionControl* control, toml_table_t* control_t
 )
 {
   switch (type)
@@ -224,7 +236,7 @@ void parse_context_action_control(
     case InputMapContextActionControlType_Button:
     {
       toml_datum_t key    = toml_string_in(control_t, "key");
-      control->button.key = parse_keycode(key.u.s, km);
+      control->button.key = I_InputParseKey(key.u.s);
       free(key.u.s);
 
       toml_array_t* modifiers = toml_array_in(control_t, "modifiers");
@@ -250,8 +262,8 @@ void parse_context_action_control(
     {
       toml_datum_t positive_key = toml_string_in(control_t, "positive_key");
       toml_datum_t negative_key = toml_string_in(control_t, "negative_key");
-      control->range_1d.positive_key = parse_keycode(positive_key.u.s, km);
-      control->range_1d.negative_key = parse_keycode(negative_key.u.s, km);
+      control->range_1d.positive_key = I_InputParseKey(positive_key.u.s);
+      control->range_1d.negative_key = I_InputParseKey(negative_key.u.s);
       free(positive_key.u.s);
       free(negative_key.u.s);
       break;
@@ -262,10 +274,10 @@ void parse_context_action_control(
       toml_datum_t up             = toml_string_in(control_t, "up_key");
       toml_datum_t left           = toml_string_in(control_t, "left_key");
       toml_datum_t down           = toml_string_in(control_t, "down_key");
-      control->range_2d.right_key = parse_keycode(right.u.s, km);
-      control->range_2d.up_key    = parse_keycode(up.u.s, km);
-      control->range_2d.left_key  = parse_keycode(left.u.s, km);
-      control->range_2d.down_key  = parse_keycode(down.u.s, km);
+      control->range_2d.right_key = I_InputParseKey(right.u.s);
+      control->range_2d.up_key    = I_InputParseKey(up.u.s);
+      control->range_2d.left_key  = I_InputParseKey(left.u.s);
+      control->range_2d.down_key  = I_InputParseKey(down.u.s);
       free(right.u.s);
       free(up.u.s);
       free(left.u.s);
@@ -299,8 +311,12 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
 
   char err_buf[256];
 
+  TempArena _temp_arena = ArenaBeginTemp(arena);
   String8 file_contents = OS_FileRead(arena, config_path);
   toml_table_t* root = toml_parse(file_contents.data, err_buf, sizeof(err_buf));
+  ArenaEndTemp(&_temp_arena);
+
+  init_key_mapper(arena);
 
   toml_table_t* input_map_t = toml_table_in(root, "input_map");
   {
@@ -391,20 +407,13 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
             }
           }
 
-          // TODO(calco): Parse control based on action type
-
-          // TODO(calco): Figure out if this entire function can be a temp arena
-          TempArena temp = ArenaBeginTemp(arena);
-          Hashmap(CharPointer, U8) key_mapper;
-          init_key_mapper(arena, &key_mapper);
           parse_context_action_control(
               input_map->contexts[ctxs_i].actions[actions_i].type,
               &input_map->contexts[ctxs_i]
                    .actions[actions_i]
                    .controls[controls_i],
-              control, &key_mapper
+              control
           );
-          ArenaEndTemp(&temp);
         }
       }
     }
