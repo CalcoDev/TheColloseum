@@ -76,13 +76,13 @@ typedef struct I_InputMapContextActionValue
 
     struct _value_range1d
     {
-      U8 value;
+      F32 value;
     } range_1d;
 
     struct _value_range2d
     {
-      U8 x;
-      U8 y;
+      F32 x;
+      F32 y;
     } range_2d;
   };
 } I_InputMapContextActionValue;

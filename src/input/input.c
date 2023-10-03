@@ -55,7 +55,7 @@ B32 str_null(HashmapEntry(CharPointer, U8) entry)
 static Hashmap(CharPointer, U8) key_mapper;
 void init_key_mapper(Arena* arena)
 {
-  HashmapInit(CharPointer, U8, arena, &key_mapper, 521, str_hash, str_null);
+  HashmapInit(CharPointer, U8, arena, &key_mapper, 607, str_hash, str_null);
 
   HashmapAdd(
       CharPointer, U8, &key_mapper, "MouseLeft", OS_Input_MouseButton_Left
@@ -508,12 +508,56 @@ void I_InputMapUpdate(I_InputMap* input_map)
         }
         case InputMapContextActionControlType_Range1D:
         {
-          // TODO(calco): range 1d input handle
+          F32 value = 0.f;
+
+          for (U64 ctrl_i = 0; ctrl_i < act->control_count; ++ctrl_i)
+          {
+            I_InputMapContextActionControl* ctrl = &act->controls[ctrl_i];
+
+            B8 valid = 0;
+            for (U64 sch_i = 0; sch_i < ctrl->scheme_count; ++sch_i)
+            {
+              valid |= (input_map->active_scheme == ctrl->schemes[sch_i]);
+              if (valid)
+                break;
+            }
+
+            if (!valid)
+              continue;
+
+            value += (F32)OS_InputKey(ctrl->range_1d.positive_key) -
+                     (F32)OS_InputKey(ctrl->range_1d.negative_key);
+          }
+          act->value.range_1d.value = value;
           break;
         }
         case InputMapContextActionControlType_Range2D:
         {
-          // TODO(calco): range 2d input hanndle
+          F32 x_value = 0.f;
+          F32 y_value = 0.f;
+
+          for (U64 ctrl_i = 0; ctrl_i < act->control_count; ++ctrl_i)
+          {
+            I_InputMapContextActionControl* ctrl = &act->controls[ctrl_i];
+
+            B8 valid = 0;
+            for (U64 sch_i = 0; sch_i < ctrl->scheme_count; ++sch_i)
+            {
+              valid |= (input_map->active_scheme == ctrl->schemes[sch_i]);
+              if (valid)
+                break;
+            }
+
+            if (!valid)
+              continue;
+
+            x_value += (F32)OS_InputKey(ctrl->range_2d.right_key) -
+                       (F32)OS_InputKey(ctrl->range_2d.left_key);
+            y_value += (F32)OS_InputKey(ctrl->range_2d.up_key) -
+                       (F32)OS_InputKey(ctrl->range_2d.down_key);
+          }
+          act->value.range_2d.x = x_value;
+          act->value.range_2d.y = y_value;
           break;
         }
         default:

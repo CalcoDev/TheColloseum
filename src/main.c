@@ -254,16 +254,17 @@ int main()
       OS_WindowPollEvents();
       I_InputMapUpdate(&input_map);
 
-      I_InputMapContextAction* fire_action;
-      if (I_InputMapActionTryGet(&input_map, "ingame", "fire", &fire_action))
-      {
-        if (fire_action->value.button.value)
-          Log("Fire!", "");
+      // I_InputMapContextAction* fire_action;
+      // if (I_InputMapActionTryGet(&input_map, "ingame", "fire", &fire_action))
+      // {
+      //   if (fire_action->value.button.value)
+      //     Log("Fire!", "");
+      // }
 
-        // if (fire_action->value.button.pressed)
-        //   Log("Pressed fire!", "");
-        // if (fire_action->value.button.released)
-        //   Log("Released fire!", "");
+      I_InputMapContextAction* m;
+      if (I_InputMapActionTryGet(&input_map, "ingame", "move_horizontal", &m))
+      {
+        Log("Horizontal Value: %f", m->value.range_1d.value);
       }
 
       Input.x = OS_InputKey('D') - OS_InputKey('A');

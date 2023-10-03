@@ -37,8 +37,8 @@ name = "move_horizontal"
 type = "range_1d"
 
 [[input_map.contexts.actions.controls]]
-positive_key = "D"
-negative_key = "A"
+positive_key = "A"
+negative_key = "D"
 schemes = ["mouse_keyboard"]
 
 [[input_map.contexts.actions.controls]]
