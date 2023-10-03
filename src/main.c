@@ -61,33 +61,35 @@ int main()
   I_InputMap input_map = {0};
   I_InputMapInit(&input_map, &arena, path);
 
-  for (int i = 0; i < input_map.scheme_count; ++i)
-  {
-    Log("Scheme %i: %s", i, input_map.schemes[i].name.data);
-  }
+  // for (int i = 0; i < input_map.scheme_count; ++i)
+  // {
+  //   Log("Scheme %i: %s", i, input_map.schemes[i].name.data);
+  // }
 
-  for (int i = 0; i < input_map.context_count; ++i)
-  {
-    Log("Context %i: %s", i, input_map.contexts[i].name.data);
+  // for (int i = 0; i < input_map.context_count; ++i)
+  // {
+  //   Log("Context %i: %s", i, input_map.contexts[i].name.data);
 
-    for (int j = 0; j < input_map.contexts[i].action_count; ++j)
-    {
-      Log("\tAction %i: %s", j, input_map.contexts[i].actions[j].name.data);
+  //   for (int j = 0; j < input_map.contexts[i].action_count; ++j)
+  //   {
+  //     Log("\tAction %i: %s", j, input_map.contexts[i].actions[j].name.data);
 
-      for (int k = 0; k < input_map.contexts[i].actions[j].control_count; ++k)
-      {
-        for (int l = 0;
-             l < input_map.contexts[i].actions[j].controls[k].scheme_count; ++l)
-        {
-          Log("\t\tControl %i: %s", k,
-              input_map
-                  .schemes
-                      [input_map.contexts[i].actions[j].controls[k].schemes[l]]
-                  .name.data);
-        }
-      }
-    }
-  }
+  //     for (int k = 0; k < input_map.contexts[i].actions[j].control_count;
+  //     ++k)
+  //     {
+  //       for (int l = 0;
+  //            l < input_map.contexts[i].actions[j].controls[k].scheme_count;
+  //            ++l)
+  //       {
+  //         Log("\t\tControl %i: %s", k,
+  //             input_map
+  //                 .schemes
+  //                     [input_map.contexts[i].actions[j].controls[k].schemes[l]]
+  //                 .name.data);
+  //       }
+  //     }
+  //   }
+  // }
 
   ArenaRelease(&arena);
   return 0;

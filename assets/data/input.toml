@@ -18,9 +18,9 @@ name = "fire"
 type = "button"
 
 [[input_map.contexts.actions.controls]]
-key = "LMB"
+key = "MouseLeft"
 schemes = ["mouse_keyboard"]
-# modifiers = ["pressed", "released"]
+modifiers = ["pressed", "released"]
 
 [[input_map.contexts.actions.controls]]
 key = "Z"
@@ -28,20 +28,20 @@ modifiers = ["held"]
 schemes = ["mouse_keyboard"]
 
 [[input_map.contexts.actions.controls]]
-key = "Controller Button"
+key = "Delete"
 modifiers = ["pressed"]
 schemes = ["controller"]
 
 [[input_map.contexts.actions]]
 name = "move_horizontal"
-type = "axis_1"
+type = "range_1d"
 
 [[input_map.contexts.actions.controls]]
-positive_keys = "D"
-negative_keys = "A"
+positive_key = "D"
+negative_key = "A"
 schemes = ["mouse_keyboard"]
 
 [[input_map.contexts.actions.controls]]
-positive_keys = "Right Arrow"
-negative_keys = "Left Arrow"
+positive_key = "RightArrow"
+negative_key = "LeftArrow"
 schemes = ["mouse_keyboard"]

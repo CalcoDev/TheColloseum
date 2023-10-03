@@ -19,6 +19,44 @@
 #define OS_Input_KeyEquals    187
 #define OS_Input_KeyBackspace 8
 
+#define OS_Input_Key0 48
+#define OS_Input_Key1 49
+#define OS_Input_Key2 50
+#define OS_Input_Key3 51
+#define OS_Input_Key4 52
+#define OS_Input_Key5 53
+#define OS_Input_Key6 54
+#define OS_Input_Key7 55
+#define OS_Input_Key8 56
+#define OS_Input_Key9 57
+
+#define OS_Input_KeyA 65
+#define OS_Input_KeyB 66
+#define OS_Input_KeyC 67
+#define OS_Input_KeyD 68
+#define OS_Input_KeyE 69
+#define OS_Input_KeyF 70
+#define OS_Input_KeyG 71
+#define OS_Input_KeyH 72
+#define OS_Input_KeyI 73
+#define OS_Input_KeyJ 74
+#define OS_Input_KeyK 75
+#define OS_Input_KeyL 76
+#define OS_Input_KeyM 77
+#define OS_Input_KeyN 78
+#define OS_Input_KeyO 79
+#define OS_Input_KeyP 80
+#define OS_Input_KeyQ 81
+#define OS_Input_KeyR 82
+#define OS_Input_KeyS 83
+#define OS_Input_KeyT 84
+#define OS_Input_KeyU 85
+#define OS_Input_KeyV 86
+#define OS_Input_KeyW 87
+#define OS_Input_KeyX 88
+#define OS_Input_KeyY 89
+#define OS_Input_KeyZ 90
+
 #define OS_Input_KeyNumpad0      45
 #define OS_Input_KeyNumpad1      35
 #define OS_Input_KeyNumpad2      40

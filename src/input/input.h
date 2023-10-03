@@ -40,25 +40,25 @@ typedef struct I_InputMapContextActionControl
 
   union
   {
-    struct
+    struct _button
     {
-      U32 key;
+      U8 key;
       I_InputMapContextActionControlModifier modifier;
-    };
+    } button;
 
-    struct
+    struct _range1d
     {
-      U32 positive_key;
-      U32 negative_key;
-    };
+      U8 positive_key;
+      U8 negative_key;
+    } range_1d;
 
-    struct
+    struct _range2d
     {
-      U32 up_key;
-      U32 down_key;
-      U32 left_key;
-      U32 right_key;
-    };
+      U8 up_key;
+      U8 down_key;
+      U8 left_key;
+      U8 right_key;
+    } range_2d;
   };
 } I_InputMapContextActionControl;
 
