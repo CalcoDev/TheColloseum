@@ -5,28 +5,43 @@
 #include <tomlc99/toml.h>
 
 #include "base/base_log.h"
+#include "os/input/os_input.h"
 #include "os/input/os_input_keycodes.h"
 #include "os/os.h"
 
 HashmapImplement(CharPointer, U8);
 
 // NOTE(calco): -- HASHMAP KEYS --
-// TODO(calco): Conver to String8 instead of charpointer
+// TODO(calco): USE BETTER STRING HASHING FUNCTIONS LMAO
 U64 str_hash(CharPointer key, U64 table_size)
 {
-  U64 hash   = 5381;
-  U64 offset = 0;
-  U8 c;
+  U64 fnv_prime = 0x811C9DC5;
+  U64 hash      = 0;
+  U64 i         = 0;
 
-  U64 size = strlen(key);
-  while (offset < size)
+  U64 length = strlen(key);
+  char* str  = key;
+  for (i = 0; i < length; str++, i++)
   {
-    c      = *(key + offset);
-    hash   = ((hash << 5) + hash) + c;
-    offset = offset + 1;
+    hash *= fnv_prime;
+    hash ^= (*str);
   }
 
   return hash % table_size;
+
+  // U64 hash   = 5381;
+  // U64 offset = 0;
+  // U8 c;
+
+  // U64 size = strlen(key);
+  // while (offset < size)
+  // {
+  //   c      = *(key + offset);
+  //   hash   = ((hash << 5) + hash) + c;
+  //   offset = offset + 1;
+  // }
+
+  // return hash % table_size;
 }
 
 B32 str_null(HashmapEntry(CharPointer, U8) entry)
@@ -40,7 +55,7 @@ B32 str_null(HashmapEntry(CharPointer, U8) entry)
 static Hashmap(CharPointer, U8) key_mapper;
 void init_key_mapper(Arena* arena)
 {
-  HashmapInit(CharPointer, U8, arena, &key_mapper, 400, str_hash, str_null);
+  HashmapInit(CharPointer, U8, arena, &key_mapper, 521, str_hash, str_null);
 
   HashmapAdd(
       CharPointer, U8, &key_mapper, "MouseLeft", OS_Input_MouseButton_Left
@@ -245,14 +260,14 @@ void parse_context_action_control(
       {
         toml_datum_t modifier = toml_string_at(modifiers, modifiers_i);
 
-        I_InputMapContextActionControlModifier mod;
+        I_InputMapContextActionControlModifier mod = 0;
         if (strcmp(modifier.u.s, "pressed") == 0)
-          mod |= InputMapContextActionControlModifier_Pressed;
+          mod = InputMapContextActionControlModifier_Pressed;
         else if (strcmp(modifier.u.s, "released") == 0)
-          mod |= InputMapContextActionControlModifier_Released;
+          mod = InputMapContextActionControlModifier_Released;
         else if (strcmp(modifier.u.s, "held") == 0)
-          mod |= InputMapContextActionControlModifier_Held;
-        control->button.modifier = mod;
+          mod = InputMapContextActionControlModifier_Held;
+        control->button.modifier |= mod;
 
         free(modifier.u.s);
       }
@@ -300,13 +315,13 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
 {
   // INITI THE INPUT MAP
   HashmapInit(
-      CharPointer, U8, arena, &input_map->__scheme_id_mapper,
-      I_INPUTMAP_MAX_SCHEMES * 4, str_hash, str_null
+      CharPointer, U8, arena, &input_map->__scheme_id_mapper, 103, str_hash,
+      str_null
   );
 
   HashmapInit(
-      CharPointer, U8, arena, &input_map->__context_id_mapper,
-      I_INPUTMAP_MAX_CONTEXTS * 4, str_hash, str_null
+      CharPointer, U8, arena, &input_map->__context_id_mapper, 103, str_hash,
+      str_null
   );
 
   char err_buf[256];
@@ -360,6 +375,10 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
     toml_array_t* actions                    = toml_array_in(ctx, "actions");
     U32 actions_l                            = toml_array_nelem(actions);
     input_map->contexts[ctxs_i].action_count = actions_l;
+    HashmapInit(
+        CharPointer, U8, arena, &input_map->contexts[ctxs_i].__action_id_mapper,
+        103, str_hash, str_null
+    );
     for (U64 actions_i = 0; actions_i < actions_l; ++actions_i)
     {
       toml_table_t* action = toml_table_at(actions, actions_i);
@@ -384,7 +403,6 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
       {
         toml_table_t* control = toml_table_at(controls, controls_i);
         {
-          // TODO(calco): Parse schemes based on scheme array
           {
             toml_array_t* ct_schemes = toml_array_in(control, "schemes");
             U32 ct_schemes_l         = toml_array_nelem(ct_schemes);
@@ -416,6 +434,11 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
           );
         }
       }
+
+      HashmapAdd(
+          CharPointer, U8, &input_map->contexts[ctxs_i].__action_id_mapper,
+          input_map->contexts[ctxs_i].actions[actions_i].name.data, actions_i
+      );
     }
 
     HashmapAdd(
@@ -440,14 +463,57 @@ void I_InputMapUpdate(I_InputMap* input_map)
       {
         case InputMapContextActionControlType_Button:
         {
+          U8 value = 0;
+          U8 p = 0, r = 0, h = 0;
+
+          for (U64 ctrl_i = 0; ctrl_i < act->control_count; ++ctrl_i)
+          {
+            I_InputMapContextActionControl* ctrl = &act->controls[ctrl_i];
+
+            B8 valid = 0;
+            for (U64 sch_i = 0; sch_i < ctrl->scheme_count; ++sch_i)
+            {
+              valid |= (input_map->active_scheme == ctrl->schemes[sch_i]);
+              if (valid)
+                break;
+            }
+
+            if (!valid)
+              continue;
+
+            B8 is_mouse = ctrl->button.key < 5;
+            B8 pressed  = is_mouse ? OS_InputButtonPressed(ctrl->button.key)
+                                   : OS_InputKeyPressed(ctrl->button.key);
+            B8 released = is_mouse ? OS_InputButtonReleased(ctrl->button.key)
+                                   : OS_InputKeyReleased(ctrl->button.key);
+            B8 held     = is_mouse ? OS_InputButton(ctrl->button.key)
+                                   : OS_InputKey(ctrl->button.key);
+            p |= pressed;
+            r |= released;
+            h |= held;
+            I_InputMapContextActionControlModifier mod = ctrl->button.modifier;
+            if (mod & InputMapContextActionControlModifier_Pressed)
+              value |= pressed;
+            if (mod & InputMapContextActionControlModifier_Released)
+              value |= released;
+            if (mod & InputMapContextActionControlModifier_Held)
+              value |= held;
+          }
+
+          act->value.button.value    = value;
+          act->value.button.pressed  = p;
+          act->value.button.released = r;
+          act->value.button.held     = h;
           break;
         }
         case InputMapContextActionControlType_Range1D:
         {
+          // TODO(calco): range 1d input handle
           break;
         }
         case InputMapContextActionControlType_Range2D:
         {
+          // TODO(calco): range 2d input hanndle
           break;
         }
         default:
@@ -504,4 +570,28 @@ B8 I_InputMapContextDectivate(I_InputMap* input_map, char* name)
   }
 
   return 0;
+}
+
+B8 I_InputMapActionTryGet(
+    I_InputMap* input_map, char* ctx_name, char* name,
+    I_InputMapContextAction** out
+)
+{
+  U8 ctx_id;
+  B8 ctx_found = HashmapTryGet(
+      CharPointer, U8, &input_map->__context_id_mapper, ctx_name, &ctx_id
+  );
+  if (!ctx_found)
+    return 0;
+
+  U8 act_id;
+  B8 act_found = HashmapTryGet(
+      CharPointer, U8, &input_map->contexts[ctx_id].__action_id_mapper, name,
+      &act_id
+  );
+  if (!act_found)
+    return 0;
+
+  *out = &input_map->contexts[ctx_id].actions[act_id];
+  return 1;
 }

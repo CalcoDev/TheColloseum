@@ -100,9 +100,9 @@ int main()
   I_InputMap input_map = {0};
   I_InputMapInit(&input_map, &arena, path);
   if (!I_InputMapSchemeSetActive(&input_map, "mouse_keyboard"))
-    LogError("Failed setting active input scheme!");
+    LogError("Failed setting active input scheme!", "");
   if (!I_InputMapContextActivate(&input_map, "ingame"))
-    LogError("Failed setting active input context!");
+    LogError("Failed setting active input context!", "");
 
   R_RenderInit(&window);
 
@@ -253,6 +253,18 @@ int main()
     {
       OS_WindowPollEvents();
       I_InputMapUpdate(&input_map);
+
+      I_InputMapContextAction* fire_action;
+      if (I_InputMapActionTryGet(&input_map, "ingame", "fire", &fire_action))
+      {
+        if (fire_action->value.button.value)
+          Log("Fire!", "");
+
+        // if (fire_action->value.button.pressed)
+        //   Log("Pressed fire!", "");
+        // if (fire_action->value.button.released)
+        //   Log("Released fire!", "");
+      }
 
       Input.x = OS_InputKey('D') - OS_InputKey('A');
       Input.y = OS_InputKey(' ') - OS_InputKey(OS_Input_KeyLeftShift);

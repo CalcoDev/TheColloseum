@@ -6,9 +6,9 @@
 #define OS_Input_Release 2
 #define OS_Input_Repeat  3
 
-#define OS_Input_MouseButton_Left   0
-#define OS_Input_MouseButton_Middle 1
-#define OS_Input_MouseButton_Right  2
+#define OS_Input_MouseButton_Left   1
+#define OS_Input_MouseButton_Middle 2
+#define OS_Input_MouseButton_Right  4
 
 #define OS_Input_KeyLeftArrow  37
 #define OS_Input_KeyUpArrow    38

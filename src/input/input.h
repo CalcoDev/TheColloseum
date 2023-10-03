@@ -107,7 +107,7 @@ typedef struct I_InputMapContext
   I_InputMapContextAction actions[I_INPUTMAP_MAX_CONTEXT_ACTIONS];
   U8 action_count;
 
-  // TODO(calco): Add a mapper to this lmao.
+  Hashmap(CharPointer, U8) __action_id_mapper;
 } I_InputMapContext;
 
 // TODO(calco): Do away with the strings and instead use IDs under the hood.
@@ -157,5 +157,10 @@ B8 I_InputMapSchemeSetActive(I_InputMap* input_map, char* name);
 
 B8 I_InputMapContextActivate(I_InputMap* input_map, char* name);
 B8 I_InputMapContextDectivate(I_InputMap* input_map, char* name);
+
+B8 I_InputMapActionTryGet(
+    I_InputMap* input_map, char* ctx_name, char* name,
+    I_InputMapContextAction** out
+);
 
 #endif
