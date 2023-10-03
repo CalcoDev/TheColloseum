@@ -427,3 +427,81 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
   // FINISHED PARSING LOL
   toml_free(root);
 }
+
+void I_InputMapUpdate(I_InputMap* input_map)
+{
+  for (U64 ctx_i = 0; ctx_i < input_map->context_count; ++ctx_i)
+  {
+    I_InputMapContext* ctx = &input_map->contexts[ctx_i];
+    for (U64 act_i = 0; act_i < ctx->action_count; ++act_i)
+    {
+      I_InputMapContextAction* act = &ctx->actions[act_i];
+      switch (act->type)
+      {
+        case InputMapContextActionControlType_Button:
+        {
+          break;
+        }
+        case InputMapContextActionControlType_Range1D:
+        {
+          break;
+        }
+        case InputMapContextActionControlType_Range2D:
+        {
+          break;
+        }
+        default:
+          break;
+      }
+    }
+  }
+}
+
+I_InputMapScheme* I_InputMapSchemeGetActive(I_InputMap* input_map)
+{
+  return &(input_map->schemes[input_map->active_scheme]);
+}
+
+B8 I_InputMapSchemeSetActive(I_InputMap* input_map, char* name)
+{
+  U8 id;
+  if (HashmapTryGet(CharPointer, U8, &input_map->__scheme_id_mapper, name, &id))
+  {
+    input_map->active_scheme = id;
+    return 1;
+  }
+
+  return 0;
+}
+
+B8 I_InputMapContextActivate(I_InputMap* input_map, char* name)
+{
+  U8 id;
+  B8 found = HashmapTryGet(
+      CharPointer, U8, &input_map->__context_id_mapper, name, &id
+  );
+
+  if (found)
+  {
+    input_map->contexts[id].active = 1;
+    return 1;
+  }
+
+  return 0;
+}
+
+B8 I_InputMapContextDectivate(I_InputMap* input_map, char* name)
+{
+  U8 id;
+  B8 found = HashmapTryGet(
+      CharPointer, U8, &input_map->__context_id_mapper, name, &id
+  );
+
+  if (found)
+  {
+    input_map->contexts[id].active = 0;
+    return 1;
+  }
+
+  return 0;
+}

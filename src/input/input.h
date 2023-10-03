@@ -40,19 +40,19 @@ typedef struct I_InputMapContextActionControl
 
   union
   {
-    struct _button
+    struct _control_button
     {
       U8 key;
       I_InputMapContextActionControlModifier modifier;
     } button;
 
-    struct _range1d
+    struct _control_range1d
     {
       U8 positive_key;
       U8 negative_key;
     } range_1d;
 
-    struct _range2d
+    struct _control_range2d
     {
       U8 up_key;
       U8 down_key;
@@ -62,10 +62,36 @@ typedef struct I_InputMapContextActionControl
   };
 } I_InputMapContextActionControl;
 
+typedef struct I_InputMapContextActionValue
+{
+  union
+  {
+    struct _value_button
+    {
+      U8 value;
+      U8 pressed;
+      U8 held;
+      U8 released;
+    } button;
+
+    struct _value_range1d
+    {
+      U8 value;
+    } range_1d;
+
+    struct _value_range2d
+    {
+      U8 x;
+      U8 y;
+    } range_2d;
+  };
+} I_InputMapContextActionValue;
+
 typedef struct I_InputMapContextAction
 {
   String8 name;
   I_InputMapContextActionControlType type;
+  I_InputMapContextActionValue value;
 
   I_InputMapContextActionControl
       controls[I_INPUTMAP_MAX_CONTEXT_ACTIONS_CONTROLS];
@@ -76,8 +102,12 @@ typedef struct I_InputMapContextAction
 typedef struct I_InputMapContext
 {
   String8 name;
+  B8 active;
+
   I_InputMapContextAction actions[I_INPUTMAP_MAX_CONTEXT_ACTIONS];
   U8 action_count;
+
+  // TODO(calco): Add a mapper to this lmao.
 } I_InputMapContext;
 
 // TODO(calco): Do away with the strings and instead use IDs under the hood.
@@ -91,7 +121,6 @@ typedef struct I_InputMap
   U8 context_count;
 
   U8 active_scheme;
-  U8 active_contexts[I_INPUTMAP_MAX_CONTEXTS];
 
   Hashmap(CharPointer, U8) __scheme_id_mapper;
   Hashmap(CharPointer, U8) __context_id_mapper;
@@ -99,5 +128,34 @@ typedef struct I_InputMap
 
 U8 I_InputParseKey(char* data);
 void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path);
+
+void I_InputMapUpdate(I_InputMap* input_map);
+
+/*
+General input workflow:
+input_map = I_InputMapMake("filepath");
+
+2 ways of interacting:
+  a. declare callbacks somehow
+  b. get info about something
+
+a. callbacks => a map between action to a callback
+  callback_type = (triggered_control) => void;
+    where triggered_control contains all control info:
+      scheme, type, key, modifiers (flags), positive_keys, negative_keys, up,
+down, left, right keys
+
+b. info =>
+  => active scheme (get, set)
+  => active contexts (get, set, add, remove)
+  => action info (get)
+  => action control info (get)
+*/
+
+I_InputMapScheme* I_InputMapSchemeGetActive(I_InputMap* input_map);
+B8 I_InputMapSchemeSetActive(I_InputMap* input_map, char* name);
+
+B8 I_InputMapContextActivate(I_InputMap* input_map, char* name);
+B8 I_InputMapContextDectivate(I_InputMap* input_map, char* name);
 
 #endif

@@ -21,47 +21,21 @@
 
 #include "input/input.h"
 
-int main()
+int _main()
 {
-  /*
+  // M_BaseMemory memory = OS_BaseMemory();
+  // Arena arena;
+  // ArenaInit(&arena, &memory, Gigabytes(1));
 
-  General input workflow:
-  input_map = I_InputMapMake("filepath");
+  // String8 path = OS_PathRelative(
+  //     &arena, OS_PathExecutableDir(&arena),
+  //     Str8Lit("./assets/data/input.toml")
+  // );
 
-  2 ways of interacting:
-    a. declare callbacks somehow
-    b. get info about something
+  // I_InputMap input_map = {0};
+  // I_InputMapInit(&input_map, &arena, path);
 
-  a. callbacks => a map between action to a callback
-    callback_type = (triggered_control) => void;
-      where triggered_control contains all control info:
-        scheme, type, key, modifiers (flags), positive_keys, negative_keys, up,
-  down, left, right keys
-
-  b. info =>
-    => active scheme (get, set)
-    => active contexts (get, set, add, remove)
-    => action info (get)
-    => action control info (get)
-
-  */
-
-  // char* a                = "Hello World!";
-  // String8 a_str          = Str8Init(a, strlen(a) + 1);
-  // a_str.data[a_str.size] = '\0';
-
-  M_BaseMemory memory = OS_BaseMemory();
-  Arena arena;
-  ArenaInit(&arena, &memory, Gigabytes(1));
-
-  String8 path = OS_PathRelative(
-      &arena, OS_PathExecutableDir(&arena), Str8Lit("./assets/data/input.toml")
-  );
-
-  I_InputMap input_map = {0};
-  I_InputMapInit(&input_map, &arena, path);
-
-  ArenaRelease(&arena);
+  // ArenaRelease(&arena);
   return 0;
 }
 
@@ -104,7 +78,7 @@ void ScrollCallback(OS_Window* window, F32 x, F32 y)
   Log("Scrolled: (%.2f, %.2f)", x, y);
 }
 
-int _main()
+int main()
 {
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
@@ -118,6 +92,17 @@ int _main()
   OS_WindowRegisterMousePositionCallback(&window, CursorPositionCallback);
   OS_WindowRegisterScrollCallback(&window, ScrollCallback);
   OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
+
+  String8 path = OS_PathRelative(
+      &arena, OS_PathExecutableDir(&arena), Str8Lit("./assets/data/input.toml")
+  );
+
+  I_InputMap input_map = {0};
+  I_InputMapInit(&input_map, &arena, path);
+  if (!I_InputMapSchemeSetActive(&input_map, "mouse_keyboard"))
+    LogError("Failed setting active input scheme!");
+  if (!I_InputMapContextActivate(&input_map, "ingame"))
+    LogError("Failed setting active input context!");
 
   R_RenderInit(&window);
 
@@ -267,6 +252,7 @@ int _main()
     if (delta_time > 16000)
     {
       OS_WindowPollEvents();
+      I_InputMapUpdate(&input_map);
 
       Input.x = OS_InputKey('D') - OS_InputKey('A');
       Input.y = OS_InputKey(' ') - OS_InputKey(OS_Input_KeyLeftShift);
