@@ -35,7 +35,7 @@
 - [How to Use](#grey_question-how-to-use)
   - [Building](#building)
   - [Code Docs](#code-docs)
-- [Roadmap](#roadmap)
+- [Roadmap](#compass-roadmap)
 - [License](#warning-license)
 - [Credits](#gem-credits)
 
@@ -58,6 +58,13 @@ nothing, with **minimal libraries and tools**.
 The plan is to support any rendering framework and any operating systems,
 however, for now, rendering features are implemented mostly for Windows and
 OpenGL.
+
+While I want to keep library usage to a minimimum, there are some thing I just
+won't code myself. This includes:
+
+- [GLFW](https://www.glfw.org/)
+- [Glad](https://glad.dav1d.de/)
+- [tomlc99](https://github.com/cktan/tomlc99/tree/master)
 
 ### Features
 
@@ -87,6 +94,8 @@ OpenGL.
     - Perspective Camera
     - Ortographic Camera
   - ... more rendering things, mostly specific to OpenGL for now.
+- **Input Layer**
+  - Check out the [input layer readme](src/input/README.md).
 - **Draw Layer**
   - TOOD(calco): Start draw layer abstractions.
 
@@ -97,6 +106,9 @@ would recommend **making your own codebase**, and maybe use this as inspiration 
 help whenever you need it.
 
 ### Building
+
+Addendum: A rudimentary `build.sh` was added, following the exact steps
+described in this document. You can just run and use that for now.
 
 #### Prerequisites
 
@@ -131,7 +143,7 @@ The roadmap can be seen [here](https://trello.com/b/4EGSeAVS), on Trello!
 
 ## :warning: License
 
-Distributed under the MIT License. See LICENSE for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ## :gem: Credits
 
@@ -146,3 +158,5 @@ Alongside them, other great codebases which were used as inspiration and help in
 - Mr. 4th Programming's [Youtube Videos](https://www.youtube.com/@Mr4thProgramming/videos)
 - Randy's [Resources Page](https://github.com/bigrando420/resources/wiki)
 - All of Ryan Fleury's [blog posts](https://www.rfleury.com/), can't link them all but they are highly valuable.
+
+All libraries linked in [tech stack](#tech-stack)!

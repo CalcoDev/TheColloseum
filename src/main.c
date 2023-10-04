@@ -280,7 +280,6 @@ int main()
         Input.y = m->value.range_1d.value;
       if (I_InputMapActionTryGet(&input_map, "ingame", "move_z", &m))
         Input.z = m->value.range_1d.value;
-
       Input = Vec3F32_Normalize(Input);
 
       Vec3F32 x_axis = Vec3F32_MultScalar(

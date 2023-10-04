@@ -131,27 +131,6 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path);
 
 void I_InputMapUpdate(I_InputMap* input_map);
 
-/*
-General input workflow:
-input_map = I_InputMapMake("filepath");
-
-2 ways of interacting:
-  a. declare callbacks somehow
-  b. get info about something
-
-a. callbacks => a map between action to a callback
-  callback_type = (triggered_control) => void;
-    where triggered_control contains all control info:
-      scheme, type, key, modifiers (flags), positive_keys, negative_keys, up,
-down, left, right keys
-
-b. info =>
-  => active scheme (get, set)
-  => active contexts (get, set, add, remove)
-  => action info (get)
-  => action control info (get)
-*/
-
 I_InputMapScheme* I_InputMapSchemeGetActive(I_InputMap* input_map);
 B8 I_InputMapSchemeSetActive(I_InputMap* input_map, char* name);
 
