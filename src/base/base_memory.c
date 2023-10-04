@@ -16,10 +16,10 @@ M_BaseMemory M_MallocBaseMemory(void)
   static M_BaseMemory memory;
   if (memory.reserve == 0)
   {
-    memory.reserve = m_malloc_reserve;
-    memory.commit = m_malloc_commit;
+    memory.reserve  = m_malloc_reserve;
+    memory.commit   = m_malloc_commit;
     memory.decommit = m_malloc_decommit;
-    memory.release = m_malloc_release;
+    memory.release  = m_malloc_release;
   }
 
   return memory;
@@ -28,12 +28,12 @@ M_BaseMemory M_MallocBaseMemory(void)
 // NOTE(calco): -- Linear Allocator
 void ArenaInit(Arena* arena, M_BaseMemory* memory, U64 size)
 {
-  arena->size = size;
+  arena->size   = size;
   arena->memory = memory;
 
-  void* mem = memory->reserve(memory->ctx, size);
-  arena->start = mem;
-  arena->push_offset = 0;
+  void* mem            = memory->reserve(memory->ctx, size);
+  arena->start         = mem;
+  arena->push_offset   = 0;
   arena->commit_offset = 0;
 }
 
@@ -102,9 +102,9 @@ void ArenaRelease(Arena* arena)
 {
   arena->memory->release(arena->memory->ctx, arena->start, arena->size);
 
-  arena->size = 0;
-  arena->memory = 0;
-  arena->push_offset = 0;
+  arena->size          = 0;
+  arena->memory        = 0;
+  arena->push_offset   = 0;
   arena->commit_offset = 0;
 }
 
@@ -113,7 +113,7 @@ TempArena ArenaBeginTemp(Arena* arena)
   TempArena temp;
   temp.arena = arena;
 
-  temp.prev_push_offset = arena->push_offset;
+  temp.prev_push_offset   = arena->push_offset;
   temp.prev_commit_offset = arena->commit_offset;
 
   return temp;
@@ -122,4 +122,13 @@ TempArena ArenaBeginTemp(Arena* arena)
 void ArenaEndTemp(TempArena* temp_arena)
 {
   ArenaPopTo(temp_arena->arena, temp_arena->prev_push_offset);
+}
+
+void ArenaEndTempSetZero(TempArena* temp_arena)
+{
+  memset(
+      temp_arena->arena->start + temp_arena->prev_push_offset, 0,
+      temp_arena->arena->push_offset - temp_arena->prev_push_offset
+  );
+  ArenaEndTemp(temp_arena);
 }

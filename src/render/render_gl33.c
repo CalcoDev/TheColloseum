@@ -289,6 +289,15 @@ B32 hash_elem_eq(
     HashmapEntryPointer(String8, U64) e1, HashmapEntryPointer(String8, U64) e2
 )
 {
+  B32 both_null = (e1->key.data == '\0' && e2->key.data == '\0');
+  B32 one_null  = (e1->key.data == '\0' && e2->key.data != '\0') ||
+                 (e2->key.data == '\0' && e1->key.data != '\0');
+
+  if (both_null)
+    return 1;
+  if (one_null)
+    return 0;
+
   return strcmp(e1->key.data, e2->key.data) == 0;
 }
 
@@ -299,6 +308,9 @@ void R_ShaderPackInit(
 )
 {
   // TODO(calco): uniform count should be a prime number, but enforced.
+
+  // TODO(calco) IMPORTANT: Currently pasing uniform_count as exp. If it high,
+  // it bad. Fix this to get the closest / nearest value.
   HashmapInit(
       String8, U64, arena, &pack->uniforms, uniform_count, string8_hash,
       hash_elem_null, hash_elem_eq

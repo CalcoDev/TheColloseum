@@ -9,87 +9,93 @@
 #include "os/input/os_input_keycodes.h"
 #include "os/os.h"
 
-HashmapImplement(CharPointer, U8);
-// void HashmapCharPointerToU8Init(
-//     Arena* arena, HashmapCharPointerToU8* hashmap, U64 exponent,
-//     HashmapCharPointerToU8Function hashfunction,
-//     HashmapCharPointerToU8NullElementFunction nullelemfunction,
-//     HashmapCharPointerToU8EqualElementFunction equalelemfunction
-// )
-// {
-//   hashmap->exponent                = exponent;
-//   hashmap->bucketcount             = 1 << exponent;
-//   hashmap->used_buckets            = 0;
-//   HashmapCharPointerToU8Entry* mem = ArenaPush(
-//       arena, hashmap->bucketcount * sizeof(HashmapCharPointerToU8Entry)
-//   );
-//   hashmap->entries           = mem;
-//   hashmap->hashfunction      = hashfunction;
-//   hashmap->nullelemfunction  = nullelemfunction;
-//   hashmap->equalelemfunction = equalelemfunction;
-// }
-// void HashmapCharPointerToU8Add(
-//     HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key,
-//     HashmapCharPointerToU8Value value
-// )
-// {
-//   U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
-//   HashmapCharPointerToU8Entry entry = {0};
-//   entry.value                       = value;
-//   entry.key                         = key;
-//   U64 i                             = hash;
-//   while (1)
-//   {
-//     i = __HashmapLookup(hash, hashmap->exponent, i);
-//     if (hashmap->nullelemfunction(hashmap->entries + i))
-//     {
-//       if ((U64)hashmap->used_buckets + 1 >= (U64)hashmap->bucketcount)
-//         return;
-//       hashmap->used_buckets += 1;
-//       *(hashmap->entries + i) = entry;
-//       return;
-//     }
-//     else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
-//     {
-//       return;
-//     }
-//   }
-// }
-// HashmapCharPointerToU8Value HashmapCharPointerToU8Get(
-//     HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key
-// )
-// {
-//   HashmapCharPointerToU8Entry entry = {0};
-//   entry.key                         = key;
-//   U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
-//   U64 i    = hash;
-//   while (1)
-//   {
-//     i = __HashmapLookup(hash, hashmap->exponent, i);
-//     if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
-//     {
-//       return (hashmap->entries + i)->value;
-//     }
-//   }
-// }
-// B32 HashmapCharPointerToU8TryGet(
-//     HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key,
-//     HashmapCharPointerToU8Value* outvalue
-// )
-// {
-//   if (hashmap->bucketcount == 0)
-//     return 0;
-//   U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
-//   if (hashmap->bucketcount <= hash)
-//     return 0;
-//   HashmapCharPointerToU8Entry* entry = hashmap->entries + hash;
-//   if (!hashmap->nullelemfunction(entry))
-//   {
-//     *outvalue = entry->value;
-//     return 1;
-//   }
-//   return 0;
-// }
+// HashmapImplement(CharPointer, U8);
+void HashmapCharPointerToU8Init(
+    Arena* arena, HashmapCharPointerToU8* hashmap, U64 exponent,
+    HashmapCharPointerToU8Function hashfunction,
+    HashmapCharPointerToU8NullElementFunction nullelemfunction,
+    HashmapCharPointerToU8EqualElementFunction equalelemfunction
+)
+{
+  hashmap->exponent                = exponent;
+  hashmap->bucketcount             = 1 << exponent;
+  hashmap->used_buckets            = 0;
+  HashmapCharPointerToU8Entry* mem = ArenaPush(
+      arena, hashmap->bucketcount * sizeof(HashmapCharPointerToU8Entry)
+  );
+  hashmap->entries           = mem;
+  hashmap->hashfunction      = hashfunction;
+  hashmap->nullelemfunction  = nullelemfunction;
+  hashmap->equalelemfunction = equalelemfunction;
+}
+void HashmapCharPointerToU8Add(
+    HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key,
+    HashmapCharPointerToU8Value value
+)
+{
+  U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+  HashmapCharPointerToU8Entry entry = {0};
+  entry.value                       = value;
+  entry.key                         = key;
+  U64 i                             = hash;
+  while (1)
+  {
+    i = __HashmapLookup(hash, hashmap->exponent, i);
+    if (hashmap->nullelemfunction(hashmap->entries + i))
+    {
+      if ((U64)hashmap->used_buckets + 1 >= (U64)hashmap->bucketcount)
+        return;
+      hashmap->used_buckets += 1;
+      *(hashmap->entries + i) = entry;
+      return;
+    }
+    else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
+    {
+      return;
+    }
+  }
+}
+HashmapCharPointerToU8Value HashmapCharPointerToU8Get(
+    HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key
+)
+{
+  HashmapCharPointerToU8Entry entry = {0};
+  entry.key                         = key;
+  U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+  U64 i    = hash;
+  while (1)
+  {
+    i = __HashmapLookup(hash, hashmap->exponent, i);
+    if (hashmap->nullelemfunction(hashmap->entries + i) ||
+        hashmap->equalelemfunction(&entry, hashmap->entries + i))
+    {
+      return (hashmap->entries + i)->value;
+    }
+  }
+}
+B32 HashmapCharPointerToU8TryGet(
+    HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key,
+    HashmapCharPointerToU8Value* outvalue
+)
+{
+  HashmapCharPointerToU8Entry entry = {0};
+  entry.key                         = key;
+  U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+  U64 i    = hash;
+  while (1)
+  {
+    i = __HashmapLookup(hash, hashmap->exponent, i);
+    if (hashmap->nullelemfunction(hashmap->entries + i))
+    {
+      return 0;
+    }
+    else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
+    {
+      *outvalue = (hashmap->entries + i)->value;
+      return 1;
+    }
+  }
+}
 
 // NOTE(calco): -- HASHMAP KEYS --
 // TODO(calco): USE BETTER STRING HASHING FUNCTIONS LMAO
@@ -118,6 +124,15 @@ B32 str_elem(
     HashmapEntryPointer(CharPointer, U8) e2
 )
 {
+  B32 both_null = (e1->key == '\0' && e2->key == '\0');
+  B32 one_null  = (e1->key == '\0' && e2->key != '\0') ||
+                 (e2->key == '\0' && e1->key != '\0');
+
+  if (both_null)
+    return 1;
+  if (one_null)
+    return 0;
+
   return strcmp(e1->key, e2->key) == 0;
 }
 
@@ -400,7 +415,7 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
   TempArena _temp_arena = ArenaBeginTemp(arena);
   String8 file_contents = OS_FileRead(arena, config_path);
   toml_table_t* root = toml_parse(file_contents.data, err_buf, sizeof(err_buf));
-  ArenaEndTemp(&_temp_arena);
+  ArenaEndTempSetZero(&_temp_arena);
 
   init_key_mapper(arena);
 

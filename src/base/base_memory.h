@@ -55,4 +55,6 @@ typedef struct TempArena
 TempArena ArenaBeginTemp(Arena* arena);
 void ArenaEndTemp(TempArena* temp_arena);
 
+void ArenaEndTempSetZero(TempArena* temp_arena);
+
 #endif
