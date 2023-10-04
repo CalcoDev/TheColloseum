@@ -10,52 +10,123 @@
 #include "os/os.h"
 
 HashmapImplement(CharPointer, U8);
+// void HashmapCharPointerToU8Init(
+//     Arena* arena, HashmapCharPointerToU8* hashmap, U64 exponent,
+//     HashmapCharPointerToU8Function hashfunction,
+//     HashmapCharPointerToU8NullElementFunction nullelemfunction,
+//     HashmapCharPointerToU8EqualElementFunction equalelemfunction
+// )
+// {
+//   hashmap->exponent                = exponent;
+//   hashmap->bucketcount             = 1 << exponent;
+//   hashmap->used_buckets            = 0;
+//   HashmapCharPointerToU8Entry* mem = ArenaPush(
+//       arena, hashmap->bucketcount * sizeof(HashmapCharPointerToU8Entry)
+//   );
+//   hashmap->entries           = mem;
+//   hashmap->hashfunction      = hashfunction;
+//   hashmap->nullelemfunction  = nullelemfunction;
+//   hashmap->equalelemfunction = equalelemfunction;
+// }
+// void HashmapCharPointerToU8Add(
+//     HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key,
+//     HashmapCharPointerToU8Value value
+// )
+// {
+//   U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+//   HashmapCharPointerToU8Entry entry = {0};
+//   entry.value                       = value;
+//   entry.key                         = key;
+//   U64 i                             = hash;
+//   while (1)
+//   {
+//     i = __HashmapLookup(hash, hashmap->exponent, i);
+//     if (hashmap->nullelemfunction(hashmap->entries + i))
+//     {
+//       if ((U64)hashmap->used_buckets + 1 >= (U64)hashmap->bucketcount)
+//         return;
+//       hashmap->used_buckets += 1;
+//       *(hashmap->entries + i) = entry;
+//       return;
+//     }
+//     else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
+//     {
+//       return;
+//     }
+//   }
+// }
+// HashmapCharPointerToU8Value HashmapCharPointerToU8Get(
+//     HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key
+// )
+// {
+//   HashmapCharPointerToU8Entry entry = {0};
+//   entry.key                         = key;
+//   U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+//   U64 i    = hash;
+//   while (1)
+//   {
+//     i = __HashmapLookup(hash, hashmap->exponent, i);
+//     if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
+//     {
+//       return (hashmap->entries + i)->value;
+//     }
+//   }
+// }
+// B32 HashmapCharPointerToU8TryGet(
+//     HashmapCharPointerToU8* hashmap, HashmapCharPointerToU8Key key,
+//     HashmapCharPointerToU8Value* outvalue
+// )
+// {
+//   if (hashmap->bucketcount == 0)
+//     return 0;
+//   U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+//   if (hashmap->bucketcount <= hash)
+//     return 0;
+//   HashmapCharPointerToU8Entry* entry = hashmap->entries + hash;
+//   if (!hashmap->nullelemfunction(entry))
+//   {
+//     *outvalue = entry->value;
+//     return 1;
+//   }
+//   return 0;
+// }
 
 // NOTE(calco): -- HASHMAP KEYS --
 // TODO(calco): USE BETTER STRING HASHING FUNCTIONS LMAO
 U64 str_hash(CharPointer key, U64 table_size)
 {
-  U64 fnv_prime = 0x811C9DC5;
-  U64 hash      = 0;
-  U64 i         = 0;
-
-  U64 length = strlen(key);
-  char* str  = key;
-  for (i = 0; i < length; str++, i++)
+  uint64_t h  = 0x100;
+  int32_t len = strlen(key);
+  for (int32_t i = 0; i < len; i++)
   {
-    hash *= fnv_prime;
-    hash ^= (*str);
+    h ^= key[i] & 255;
+    h *= 1111111111111111111;
   }
-
-  return hash % table_size;
-
-  // U64 hash   = 5381;
-  // U64 offset = 0;
-  // U8 c;
-
-  // U64 size = strlen(key);
-  // while (offset < size)
-  // {
-  //   c      = *(key + offset);
-  //   hash   = ((hash << 5) + hash) + c;
-  //   offset = offset + 1;
-  // }
-
-  // return hash % table_size;
+  return h ^ h >> 32;
 }
 
-B32 str_null(HashmapEntry(CharPointer, U8) entry)
+B32 str_null(HashmapEntryPointer(CharPointer, U8) entry)
 {
-  if (entry.key == '\0' || strlen(entry.key) == 0)
+  if (entry->key == '\0' || strlen(entry->key) == 0)
     return 1;
 
   return 0;
 }
 
+B32 str_elem(
+    HashmapEntryPointer(CharPointer, U8) e1,
+    HashmapEntryPointer(CharPointer, U8) e2
+)
+{
+  return strcmp(e1->key, e2->key) == 0;
+}
+
 static Hashmap(CharPointer, U8) key_mapper;
 void init_key_mapper(Arena* arena)
 {
-  HashmapInit(CharPointer, U8, arena, &key_mapper, 607, str_hash, str_null);
+  HashmapInit(
+      CharPointer, U8, arena, &key_mapper, 9, str_hash, str_null, str_elem
+  );
 
   HashmapAdd(
       CharPointer, U8, &key_mapper, "MouseLeft", OS_Input_MouseButton_Left
@@ -315,13 +386,13 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
 {
   // INITI THE INPUT MAP
   HashmapInit(
-      CharPointer, U8, arena, &input_map->__scheme_id_mapper, 103, str_hash,
-      str_null
+      CharPointer, U8, arena, &input_map->__scheme_id_mapper, 7, str_hash,
+      str_null, str_elem
   );
 
   HashmapInit(
-      CharPointer, U8, arena, &input_map->__context_id_mapper, 103, str_hash,
-      str_null
+      CharPointer, U8, arena, &input_map->__context_id_mapper, 7, str_hash,
+      str_null, str_elem
   );
 
   char err_buf[256];
@@ -377,7 +448,7 @@ void I_InputMapInit(I_InputMap* input_map, Arena* arena, String8 config_path)
     input_map->contexts[ctxs_i].action_count = actions_l;
     HashmapInit(
         CharPointer, U8, arena, &input_map->contexts[ctxs_i].__action_id_mapper,
-        103, str_hash, str_null
+        7, str_hash, str_null, str_elem
     );
     for (U64 actions_i = 0; actions_i < actions_l; ++actions_i)
     {

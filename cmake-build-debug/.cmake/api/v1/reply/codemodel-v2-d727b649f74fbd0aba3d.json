@@ -1,0 +1,199 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						4
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "libs/glad",
+					"jsonFile" : "directory-libs.glad-Debug-ff30ddc875070e13dead.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "libs/glad",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "libs/glfw",
+					"childIndexes" : 
+					[
+						3
+					],
+					"jsonFile" : "directory-libs.glfw-Debug-3723632b532fa2784268.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "libs/glfw"
+				},
+				{
+					"build" : "libs/glfw/src",
+					"jsonFile" : "directory-libs.glfw.src-Debug-01727dfa9a27e8e9c9f4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 2,
+					"source" : "libs/glfw/src",
+					"targetIndexes" : 
+					[
+						1,
+						4
+					]
+				},
+				{
+					"build" : "libs/tomlc99",
+					"jsonFile" : "directory-libs.tomlc99-Debug-8ea3085a80b88b5f6133.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 3,
+					"source" : "libs/tomlc99",
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "the_colloseum",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "glad",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2,
+						3
+					],
+					"name" : "GLFW",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4
+					],
+					"name" : "tomlc99",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "glad::@394eb3637a8e70cb7dd5",
+					"jsonFile" : "target-glad-Debug-cd638a03363389ab7002.json",
+					"name" : "glad",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "glfw::@9d94ad66e13f8aab41f7",
+					"jsonFile" : "target-glfw-Debug-d9e226d4cc81c7168b4a.json",
+					"name" : "glfw",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "the_colloseum::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-the_colloseum-Debug-a76c2cf515f3b3bf6aee.json",
+					"name" : "the_colloseum",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "tomlc99::@35953ed7227f229c8804",
+					"jsonFile" : "target-tomlc99-Debug-6ef084be2491227eb07d.json",
+					"name" : "tomlc99",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "update_mappings::@9d94ad66e13f8aab41f7",
+					"jsonFile" : "target-update_mappings-Debug-3c66867cc03ae6bdc127.json",
+					"name" : "update_mappings",
+					"projectIndex" : 2
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/calco/Documents/Calcopod/Development/OpenGL/colloseum_of_shadows/cmake-build-debug",
+		"source" : "C:/Users/calco/Documents/Calcopod/Development/OpenGL/colloseum_of_shadows"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

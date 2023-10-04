@@ -16,6 +16,7 @@ set(sources
     "base/base_string.c" 
     "base/base_math.c" 
     "base/base_bitset.c"
+    "base/base_hashmap.c"
     "os/os.c"
     "os/input/os_input.c"
     "os/os_window.c"

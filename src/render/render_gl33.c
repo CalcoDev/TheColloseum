@@ -277,12 +277,19 @@ U64 string8_hash(String8 key, U64 table_size)
   return hash % table_size;
 }
 
-B32 hash_elem_null(HashmapEntry(String8, U64) entry)
+B32 hash_elem_null(HashmapEntryPointer(String8, U64) entry)
 {
-  if (entry.key.size == 0)
+  if (entry->key.size == 0)
     return 1;
 
   return 0;
+}
+
+B32 hash_elem_eq(
+    HashmapEntryPointer(String8, U64) e1, HashmapEntryPointer(String8, U64) e2
+)
+{
+  return strcmp(e1->key.data, e2->key.data) == 0;
 }
 
 // NOTE(calco): -- Shader Pack Functions --
@@ -294,7 +301,7 @@ void R_ShaderPackInit(
   // TODO(calco): uniform count should be a prime number, but enforced.
   HashmapInit(
       String8, U64, arena, &pack->uniforms, uniform_count, string8_hash,
-      hash_elem_null
+      hash_elem_null, hash_elem_eq
   );
 
   pack->handle = glCreateProgram();

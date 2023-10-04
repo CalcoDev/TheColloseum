@@ -23,27 +23,61 @@
 
 U64 str_hash_t(CharPointer key, U64 table_size)
 {
-  U64 fnv_prime = 0x811C9DC5;
-  U64 hash      = 0;
-  U64 i         = 0;
-
-  U64 length = strlen(key);
-  char* str  = key;
-  for (i = 0; i < length; str++, i++)
+  uint64_t h  = 0x100;
+  int32_t len = strlen(key);
+  for (int32_t i = 0; i < len; i++)
   {
-    hash *= fnv_prime;
-    hash ^= (*str);
+    h ^= key[i] & 255;
+    h *= 1111111111111111111;
   }
-
-  return hash % table_size;
+  return h ^ h >> 32;
 }
 
-B32 str_null_t(HashmapEntry(CharPointer, U8) entry)
+B32 str_null_t(HashmapEntryPointer(CharPointer, U8) entry)
 {
-  if (entry.key == '\0' || strlen(entry.key) == 0)
+  if (entry->key == '\0' || strlen(entry->key) == 0)
     return 1;
 
   return 0;
+}
+
+B32 str_elem_eq(
+    HashmapEntryPointer(CharPointer, U8) e1,
+    HashmapEntryPointer(CharPointer, U8) e2
+)
+{
+  B32 both_null = (e1->key == '\0' && e2->key == '\0');
+  B32 one_null  = (e1->key == '\0' && e2->key != '\0') ||
+                 (e2->key == '\0' && e1->key != '\0');
+
+  if (both_null)
+    return 1;
+  if (one_null)
+    return 0;
+
+  return strcmp(e1->key, e2->key) == 0;
+}
+
+#define EXP 9
+
+int ___main()
+{
+  M_BaseMemory memory = OS_BaseMemory();
+  Arena arena;
+  ArenaInit(&arena, &memory, Gigabytes(1));
+
+  Hashmap(CharPointer, U8) map;
+  HashmapInit(
+      CharPointer, U8, &arena, &map, 9, str_hash_t, str_null_t, str_elem_eq
+  );
+
+  HashmapAdd(CharPointer, U8, &map, "sample", 12);
+  Log("Added something to hashmap.", "");
+
+  U8 e = HashmapGet(CharPointer, U8, &map, "sample");
+  Log("Got value from hashmap: %u", e);
+
+  ArenaRelease(&arena);
 }
 
 int main()
@@ -56,7 +90,8 @@ int main()
   // INITIALIZING ALL ELEMENTS
   {
     HashmapInit(
-        CharPointer, U8, &arena, &key_mapper, 607, str_hash_t, str_null_t
+        CharPointer, U8, &arena, &key_mapper, 9, str_hash_t, str_null_t,
+        str_elem_eq
     );
 
     HashmapAdd(
@@ -618,7 +653,7 @@ void ScrollCallback(OS_Window* window, F32 x, F32 y)
   Log("Scrolled: (%.2f, %.2f)", x, y);
 }
 
-int _main()
+int __main()
 {
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
