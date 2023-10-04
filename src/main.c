@@ -60,7 +60,7 @@ B32 str_elem_eq(
 
 #define EXP 9
 
-int ___main()
+int main()
 {
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;
@@ -77,10 +77,23 @@ int ___main()
   U8 e = HashmapGet(CharPointer, U8, &map, "sample");
   Log("Got value from hashmap: %u", e);
 
+  U8 e1 = HashmapGet(CharPointer, U8, &map, "nonexistent");
+  Log("Nonexistent value what go on: %u", e1);
+
+  if (HashmapTryGet(CharPointer, U8, &map, "sample", &e))
+    Log("Found e: %u", e);
+  else
+    Log("Couldn't find e.", "");
+
+  if (HashmapTryGet(CharPointer, U8, &map, "noexist", &e1))
+    Log("Found e: %u", e1);
+  else
+    Log("Couldn't find e1.", "");
+
   ArenaRelease(&arena);
 }
 
-int main()
+int ___main()
 {
   M_BaseMemory memory = OS_BaseMemory();
   Arena arena;

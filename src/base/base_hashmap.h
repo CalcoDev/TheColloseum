@@ -161,7 +161,8 @@ U64 __HashmapLookup(U64 hash, S32 exp, S32 idx);
     while (1)                                                                  \
     {                                                                          \
       i = __HashmapLookup(hash, hashmap->exponent, i);                         \
-      if (hashmap->equalelemfunction(&entry, hashmap->entries + i))            \
+      if (hashmap->nullelemfunction(hashmap->entries + i) ||                   \
+          hashmap->equalelemfunction(&entry, hashmap->entries + i))            \
       {                                                                        \
         return (hashmap->entries + i)->value;                                  \
       }                                                                        \
@@ -174,21 +175,24 @@ U64 __HashmapLookup(U64 hash, S32 exp, S32 idx);
       Hashmap##keytype##To##valuetype##Value* outvalue                         \
   )                                                                            \
   {                                                                            \
-    if (hashmap->bucketcount == 0)                                             \
-      return 0;                                                                \
+    Hashmap##keytype##To##valuetype##Entry entry = {0};                        \
+    entry.key                                    = key;                        \
                                                                                \
     U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);               \
-    if (hashmap->bucketcount <= hash)                                          \
-      return 0;                                                                \
-                                                                               \
-    Hashmap##keytype##To##valuetype##Entry* entry = hashmap->entries + hash;   \
-                                                                               \
-    if (!hashmap->nullelemfunction(entry))                                     \
+    U64 i    = hash;                                                           \
+    while (1)                                                                  \
     {                                                                          \
-      *outvalue = entry->value;                                                \
-      return 1;                                                                \
+      i = __HashmapLookup(hash, hashmap->exponent, i);                         \
+      if (hashmap->nullelemfunction(hashmap->entries + i))                     \
+      {                                                                        \
+        return 0;                                                              \
+      }                                                                        \
+      else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))       \
+      {                                                                        \
+        *outvalue = (hashmap->entries + i)->value;                             \
+        return 1;                                                              \
+      }                                                                        \
     }                                                                          \
-    return 0;                                                                  \
   }
 
 #endif
