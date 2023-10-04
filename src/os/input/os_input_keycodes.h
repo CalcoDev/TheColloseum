@@ -18,6 +18,7 @@
 #define OS_Input_KeyMinus     189
 #define OS_Input_KeyEquals    187
 #define OS_Input_KeyBackspace 8
+#define OS_Input_KeySpace     32
 
 #define OS_Input_Key0 48
 #define OS_Input_Key1 49

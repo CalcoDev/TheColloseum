@@ -161,6 +161,7 @@ void init_key_mapper(Arena* arena)
   HashmapAdd(CharPointer, U8, &key_mapper, "Minus", OS_Input_KeyMinus);
   HashmapAdd(CharPointer, U8, &key_mapper, "Equals", OS_Input_KeyEquals);
   HashmapAdd(CharPointer, U8, &key_mapper, "Backspace", OS_Input_KeyBackspace);
+  HashmapAdd(CharPointer, U8, &key_mapper, "Space", OS_Input_KeySpace);
   HashmapAdd(CharPointer, U8, &key_mapper, "0", OS_Input_Key0);
   HashmapAdd(CharPointer, U8, &key_mapper, "1", OS_Input_Key1);
   HashmapAdd(CharPointer, U8, &key_mapper, "2", OS_Input_Key2);
@@ -287,8 +288,8 @@ U8 I_InputParseKey(char* data)
 
   LogFatal(
       "I_InputParseKey received an unknown keycode / could not find its "
-      "corresponding index.",
-      ""
+      "corresponding index: %s",
+      data
   );
   return -1;
 }

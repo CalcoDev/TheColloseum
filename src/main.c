@@ -273,23 +273,15 @@ int main()
       OS_WindowPollEvents();
       I_InputMapUpdate(&input_map);
 
-      // I_InputMapContextAction* fire_action;
-      // if (I_InputMapActionTryGet(&input_map, "ingame", "fire", &fire_action))
-      // {
-      //   if (fire_action->value.button.value)
-      //     Log("Fire!", "");
-      // }
-
       I_InputMapContextAction* m;
-      if (I_InputMapActionTryGet(&input_map, "ingame", "move_horizontal", &m))
-      {
-        Log("Horizontal Value: %f", m->value.range_1d.value);
-      }
+      if (I_InputMapActionTryGet(&input_map, "ingame", "move_x", &m))
+        Input.x = m->value.range_1d.value;
+      if (I_InputMapActionTryGet(&input_map, "ingame", "move_y", &m))
+        Input.y = m->value.range_1d.value;
+      if (I_InputMapActionTryGet(&input_map, "ingame", "move_z", &m))
+        Input.z = m->value.range_1d.value;
 
-      Input.x = OS_InputKey('D') - OS_InputKey('A');
-      Input.y = OS_InputKey(' ') - OS_InputKey(OS_Input_KeyLeftShift);
-      Input.z = OS_InputKey('W') - OS_InputKey('S');
-      Input   = Vec3F32_Normalize(Input);
+      Input = Vec3F32_Normalize(Input);
 
       Vec3F32 x_axis = Vec3F32_MultScalar(
           Vec3F32_Cross(camera.forward, camera.up), Input.x * MoveSp

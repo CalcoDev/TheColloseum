@@ -33,15 +33,38 @@ modifiers = ["pressed"]
 schemes = ["controller"]
 
 [[input_map.contexts.actions]]
-name = "move_horizontal"
+name = "move_x"
 type = "range_1d"
 
 [[input_map.contexts.actions.controls]]
-positive_key = "A"
-negative_key = "D"
+positive_key = "D"
+negative_key = "A"
 schemes = ["mouse_keyboard"]
 
 [[input_map.contexts.actions.controls]]
 positive_key = "RightArrow"
 negative_key = "LeftArrow"
+schemes = ["mouse_keyboard"]
+
+[[input_map.contexts.actions]]
+name = "move_z"
+type = "range_1d"
+
+[[input_map.contexts.actions.controls]]
+positive_key = "W"
+negative_key = "S"
+schemes = ["mouse_keyboard"]
+
+[[input_map.contexts.actions.controls]]
+positive_key = "UpArrow"
+negative_key = "DownArrow"
+schemes = ["mouse_keyboard"]
+
+[[input_map.contexts.actions]]
+name = "move_y"
+type = "range_1d"
+
+[[input_map.contexts.actions.controls]]
+positive_key = "Space"
+negative_key = "LeftShift"
 schemes = ["mouse_keyboard"]
