@@ -8,11 +8,14 @@
 #include "render/camera/render_camera.h"
 #include "render/render.h"
 
+#define D_RENDERER_MAX_VERTICES_COUNT 1024
+#define D_RENDERER_MAX_INDICES_COUNT  1024
+
 typedef struct D_Vertex2D
 {
   Vec2F32 position;
   Vec2F32 texture_coordinates;
-  S32 texture_index;
+  F32 texture_index;
 } D_Vertex2D;
 
 typedef struct D_Renderer
@@ -27,12 +30,22 @@ typedef struct D_Renderer
 
   R_Buffer vertex_buffer;
   R_Buffer index_buffer;
+
+  D_Vertex2D vertices[D_RENDERER_MAX_VERTICES_COUNT];
+  U32 indices[D_RENDERER_MAX_INDICES_COUNT];
+
+  U32 vertex_count;
+  U32 index_count;
+  R_Texture* texture;
 } D_Renderer;
 
 void D_RendererInit(D_Renderer* renderer, Arena* arena);
 void D_RendererFree(D_Renderer* renderer);
 
 void D_DrawBegin(D_Renderer* renderer);
+
+void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale);
+
 void D_DrawEnd(D_Renderer* renderer, R_Camera* camera);
 
 #endif

@@ -126,10 +126,15 @@ int main()
     Log("Failed setting active input context!", "");
 
   R_RenderInit(&window);
-  R_Camera camera = R_CameraMakeOrthographic(
+  // R_Camera camera = R_CameraMakeOrthographic(
+  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
+  //     Vec3F32_Up, 10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  // );
+  R_Camera camera = R_CameraMakePerspective(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   );
+
   R_Framebuffer framebuffer = R_FramebufferMake(
       320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
       TextureFormat_RGB, 1
@@ -143,6 +148,16 @@ int main()
   PrecisionTime prev_loop_time    = 0;
   PrecisionTime current_loop_time = 0;
   PrecisionTime delta_time        = 0;
+
+  // TODO(calco): PLACEHOLDER WHILE TEXTURE
+  U8 white_data[] = {255, 255, 255};
+  R_Texture white;
+  R_TextureInit(
+      &white, 1, 1, TextureWrap_Repeat, TextureWrap_Repeat,
+      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB,
+      white_data
+  );
+  renderer.texture = &white;
 
   Log("Starting game loop.", "");
   while (OS_WindowIsOpen(&window))
@@ -197,6 +212,19 @@ int main()
         R_ClearColourBuffer(0.2f, 0.1f, 0.3f);
 
         D_DrawBegin(&renderer);
+
+        D_DrawQuad(
+            &renderer, Vec3F32_Zero, 0.f, Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+        );
+
+        D_DrawQuad(
+            &renderer, Vec3F32_Make(2.f, 0.f, 0.f), 0.f,
+            Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+        );
+        D_DrawQuad(
+            &renderer, Vec3F32_Make(0.f, 2.f, 0.f), 0.f,
+            Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+        );
 
         D_DrawEnd(&renderer, &camera);
       }

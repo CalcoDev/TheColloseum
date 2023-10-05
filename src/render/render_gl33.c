@@ -8,7 +8,92 @@
 #include "os/os_window.h"
 #include "render_gl33.h"
 
-HashmapImplement(String8, U64);
+// HashmapImplement(String8, U64);
+
+void HashmapString8ToU64Init(
+    Arena* arena, HashmapString8ToU64* hashmap, U64 exponent,
+    HashmapString8ToU64Function hashfunction,
+    HashmapString8ToU64NullElementFunction nullelemfunction,
+    HashmapString8ToU64EqualElementFunction equalelemfunction
+)
+{
+  hashmap->exponent     = exponent;
+  hashmap->bucketcount  = 1 << exponent;
+  hashmap->used_buckets = 0;
+  HashmapString8ToU64Entry* mem =
+      ArenaPush(arena, hashmap->bucketcount * sizeof(HashmapString8ToU64Entry));
+  hashmap->entries           = mem;
+  hashmap->hashfunction      = hashfunction;
+  hashmap->nullelemfunction  = nullelemfunction;
+  hashmap->equalelemfunction = equalelemfunction;
+}
+void HashmapString8ToU64Add(
+    HashmapString8ToU64* hashmap, HashmapString8ToU64Key key,
+    HashmapString8ToU64Value value
+)
+{
+  U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+  HashmapString8ToU64Entry entry = {0};
+  entry.value                    = value;
+  entry.key                      = key;
+  U64 i                          = hash;
+  while (1)
+  {
+    i = __HashmapLookup(hash, hashmap->exponent, i);
+    if (hashmap->nullelemfunction(hashmap->entries + i))
+    {
+      if ((U64)hashmap->used_buckets + 1 >= (U64)hashmap->bucketcount)
+        return;
+      hashmap->used_buckets += 1;
+      *(hashmap->entries + i) = entry;
+      return;
+    }
+    else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
+    {
+      return;
+    }
+  }
+}
+HashmapString8ToU64Value
+HashmapString8ToU64Get(HashmapString8ToU64* hashmap, HashmapString8ToU64Key key)
+{
+  HashmapString8ToU64Entry entry = {0};
+  entry.key                      = key;
+  U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+  U64 i    = hash;
+  while (1)
+  {
+    i = __HashmapLookup(hash, hashmap->exponent, i);
+    if (hashmap->nullelemfunction(hashmap->entries + i) ||
+        hashmap->equalelemfunction(&entry, hashmap->entries + i))
+    {
+      return (hashmap->entries + i)->value;
+    }
+  }
+}
+B32 HashmapString8ToU64TryGet(
+    HashmapString8ToU64* hashmap, HashmapString8ToU64Key key,
+    HashmapString8ToU64Value* outvalue
+)
+{
+  HashmapString8ToU64Entry entry = {0};
+  entry.key                      = key;
+  U64 hash = hashmap->hashfunction(key, hashmap->bucketcount);
+  U64 i    = hash;
+  while (1)
+  {
+    i = __HashmapLookup(hash, hashmap->exponent, i);
+    if (hashmap->nullelemfunction(hashmap->entries + i))
+    {
+      return 0;
+    }
+    else if (hashmap->equalelemfunction(&entry, hashmap->entries + i))
+    {
+      *outvalue = (hashmap->entries + i)->value;
+      return 1;
+    }
+  }
+}
 
 // NOTE(calco): -- Renderer Things --
 void R_RenderInit(OS_Window* window)
@@ -262,18 +347,14 @@ void R_ShaderFreeGPU(R_Shader* shader) { glDeleteShader(shader->handle); }
 
 U64 string8_hash(String8 key, U64 table_size)
 {
-  U64 hash   = 5381;
-  U64 offset = 0;
-  U8 c;
-
-  while (offset < key.size)
+  uint64_t h  = 0x100;
+  int32_t len = key.size;
+  for (int32_t i = 0; i < len; i++)
   {
-    c      = *(key.data + offset);
-    hash   = ((hash << 5) + hash) + c;
-    offset = offset + 1;
+    h ^= key.data[i] & 255;
+    h *= 1111111111111111111;
   }
-
-  return hash % table_size;
+  return h ^ h >> 32;
 }
 
 B32 hash_elem_null(HashmapEntryPointer(String8, U64) entry)
