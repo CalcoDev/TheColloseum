@@ -1,3 +1,89 @@
+String8 texture_path =
+      OS_PathRelative(&arena, exe_path, Str8Lit("./assets/sprites/player.jpg"));
+  S32 x, y, channels;
+  stbi_set_flip_vertically_on_load(1);
+  char* data = stbi_load((const char*)texture_path.data, &x, &y, &channels, 0);
+  R_Texture texture;
+  R_TextureInit(
+      &texture, x, y, TextureWrap_ClampToEdge, TextureWrap_ClampToEdge,
+      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB, NULL
+  );
+  R_TextureData(&texture, (void*)data);
+  stbi_image_free(data);
+
+
+// Create a vertex buffer
+  // R_BufferData(&vertex_buffer, vertices, sizeof(vertices));
+  // R_BufferData(&index_buffer, indices, sizeof(indices));
+
+
+  // Model Matrix (local to world)
+  Mat4x4F32 model_matrix = Mat4x4_MakeValue(0.f);
+
+  Vec3F32 translate = Vec3F32_Make(0.f, 0.f, 0.f);
+  Vec3F32 scale     = Vec3F32_Make(1.f, 1.f, 1.f);
+  Mat4x4F32 rotation =
+      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(0.f, 0.f, 0.f));
+
+  Vec3F32 cube_positions[] = {
+      Vec3F32_Make(0.f, 0.f, 0.f),
+      Vec3F32_Make(0.f, 20.f, 15.f),
+      Vec3F32_Make(32.f, -27.f, 0.f),
+      Vec3F32_Make(-36.f, 0.f, -29.f),
+  };
+
+  Mat4x4F32 cube_rotations[] = {
+      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(0.f, 0.f, 0.f)),
+      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(12.f, 106.f, 259.f)
+      ),
+      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(172.f, 206.f, 82.f)
+      ),
+      QuatF32_Mat4x4FromQuatF32(QuatF32_MakeFromEulerAngles(84.f, 29.f, 169.f)),
+  };
+
+  Vec3F32 cube_scales[] = {
+      Vec3F32_Make(1.f, 1.f, 1.f),
+      Vec3F32_Make(0.5f, 1.7f, 5.2f),
+      Vec3F32_Make(2.5f, 8.f, 0.2f),
+      Vec3F32_Make(1.f, 1.f, 1.f),
+  };
+
+
+//
+
+  F32 vertices[] = {
+      -1.0f, -1.0f, -1.0f, // 0
+      1.0f,  0.0f,  0.0f,  // Red
+      1.0f,  -1.0f, -1.0f, // 1
+      0.0f,  1.0f,  0.0f,  // Green
+      1.0f,  1.0f,  -1.0f, // 2
+      0.0f,  0.0f,  1.0f,  // Blue
+      -1.0f, 1.0f,  -1.0f, // 3
+      1.0f,  1.0f,  0.0f,  // Yellow
+      -1.0f, -1.0f, 1.0f,  // 4
+      1.0f,  0.0f,  1.0f,  // Magenta
+      1.0f,  -1.0f, 1.0f,  // 5
+      0.0f,  1.0f,  1.0f,  // Cyan
+      1.0f,  1.0f,  1.0f,  // 6
+      1.0f,  1.0f,  1.0f,  // White
+      -1.0f, 1.0f,  1.0f,  // 7
+      0.0f,  0.0f,  0.0f   // Black
+  };
+  U32 indices[] = {
+      0, 1, 2, 2, 3, 0, // Front
+      4, 5, 6, 6, 7, 4, // Back
+      1, 5, 6, 6, 2, 1, // Right
+      0, 4, 7, 7, 3, 0, // Left
+      3, 2, 6, 6, 7, 3, // Top
+      0, 1, 5, 5, 4, 0  // Bottom
+  };
+
+///
+
+
+
+
+
 int main()
 {
   M_BaseMemory memory = OS_BaseMemory();

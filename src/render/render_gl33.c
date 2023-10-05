@@ -222,6 +222,8 @@ void R_BufferData(R_Buffer* buffer, void* data, U64 size)
 void R_BufferFreeGPU(R_Buffer* buffer) { glDeleteBuffers(1, &buffer->handle); }
 
 // NOTE(calco): -- Shader Functions --
+
+// TODO(calco): This should also take a path and do stuff
 void R_ShaderInit(R_Shader* shader, R_ShaderType type)
 {
   shader->type   = type;
@@ -233,11 +235,8 @@ R_Shader R_ShaderMake(Arena* arena, String8 path, R_ShaderType type)
   R_Shader shader = {0};
   R_ShaderInit(&shader, type);
 
-  // TempArena tmp = ArenaBeginTemp(arena);
   String8 data = OS_FileRead(arena, path);
   R_ShaderData(&shader, data);
-
-  // ArenaEndTemp(&tmp);
 
   return shader;
 }
