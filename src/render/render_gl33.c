@@ -498,7 +498,7 @@ void R_ShaderPackUploadFloat4(
 void R_ShaderPackUploadMat4(R_ShaderPack* pack, String8 name, F32** elements)
 {
   U64 loc = get_handle_shaderpack_loc(pack, name);
-  glUniformMatrix4fv(loc, 1, GL_TRUE, elements);
+  glUniformMatrix4fv(loc, 1, GL_FALSE, elements);
 }
 
 // NOTE(calco): -- Pipeline Functions --

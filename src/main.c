@@ -126,14 +126,14 @@ int main()
     Log("Failed setting active input context!", "");
 
   R_RenderInit(&window);
-  // R_Camera camera = R_CameraMakeOrthographic(
-  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
-  //     Vec3F32_Up, 10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
-  // );
-  R_Camera camera = R_CameraMakePerspective(
+  R_Camera camera = R_CameraMakeOrthographic(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+      10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   );
+  // R_Camera camera = R_CameraMakePerspective(
+  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
+  //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  // );
 
   R_Framebuffer framebuffer = R_FramebufferMake(
       320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,

@@ -541,7 +541,7 @@ Mat4x4F32 Mat4x4_MakeLookAt(Vec3F32 pos, Vec3F32 target, Vec3F32 up)
   viewMatrix.elements[2][3] = 0;
   viewMatrix.elements[3][3] = 1.0f;
 
-  return Mat4x4_Transpose(viewMatrix);
+  return viewMatrix;
 }
 
 Mat4x4F32 Mat4x4_MakeOrthographic(
@@ -559,7 +559,7 @@ Mat4x4F32 Mat4x4_MakeOrthographic(
   ortho_matrix.elements[3][1] = -(top + bottom) / (top - bottom);
   ortho_matrix.elements[3][2] = -(c_far + c_near) / (c_far - c_near);
 
-  return Mat4x4_Transpose(ortho_matrix);
+  return ortho_matrix;
 }
 
 Mat4x4F32
@@ -578,7 +578,7 @@ Mat4x4_MakePerspective(F32 fov, F32 aspect_ratio, F32 c_near, F32 c_far)
   projection_matrix.elements[2][3] = -1.f;
   projection_matrix.elements[3][2] = -(2.f * c_far * c_near) / (c_far - c_near);
 
-  return Mat4x4_Transpose(projection_matrix);
+  return projection_matrix;
 }
 
 // TODO(calco): Add some functions to create a 4x4 ortographic / perspective
