@@ -38,7 +38,7 @@ void D_RendererInit(D_Renderer* renderer, Arena* arena)
   // Set up the rendering pipeline
   R_Attribute attribs[3];
   attribs[0].name = Str8Lit("pos");
-  attribs[0].type = AttributeType_F2;
+  attribs[0].type = AttributeType_F3;
   attribs[1].name = Str8Lit("tex_coords");
   attribs[1].type = AttributeType_F2;
   attribs[2].name = Str8Lit("tex_idx");
@@ -66,7 +66,7 @@ void D_DrawBegin(D_Renderer* renderer)
 {
   for (U32 i = 0; i < renderer->vertex_count; ++i)
   {
-    renderer->vertices[i].position            = Vec2F32_Zero;
+    renderer->vertices[i].position            = Vec3F32_Zero;
     renderer->vertices[i].texture_coordinates = Vec2F32_Zero;
     renderer->vertices[i].texture_index       = 0;
   }
@@ -95,7 +95,7 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
   x = (-half_x) * cos - (+half_y) * sin;
   y = (-half_x) * sin + (+half_y) * cos;
 
-  tl.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  tl.position = Vec3F32_Make(x + pos.x, y + pos.y, pos.z);
   // tl.texture_coordinates = Vec2F32_Make(0.f, 1.f);
   // tl.texture_index       = 1.f;
 
@@ -103,7 +103,7 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
   x = (+half_x) * cos - (+half_y) * sin;
   y = (+half_x) * sin + (+half_y) * cos;
 
-  tr.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  tr.position = Vec3F32_Make(x + pos.x, y + pos.y, pos.z);
   // tr.texture_coordinates = Vec2F32_Make(1.f, 1.f);
   // tr.texture_index       = 1.f;
 
@@ -111,7 +111,7 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
   x = (-half_x) * cos - (-half_y) * sin;
   y = (-half_x) * sin + (-half_y) * cos;
 
-  bl.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  bl.position = Vec3F32_Make(x + pos.x, y + pos.y, pos.z);
   // bl.texture_coordinates = Vec2F32_Make(0.f, 0.f);
   // bl.texture_index       = 1.f;
 
@@ -119,7 +119,7 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
   x = (+half_x) * cos - (-half_y) * sin;
   y = (+half_x) * sin + (-half_y) * cos;
 
-  br.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  br.position = Vec3F32_Make(x + pos.x, y + pos.y, pos.z);
   // br.texture_coordinates = Vec2F32_Make(1.f, 0.f);
   // br.texture_index       = 1.f;
 

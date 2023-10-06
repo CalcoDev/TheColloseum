@@ -57,7 +57,7 @@ B32 str_elem_eq(
   return strcmp(e1->key, e2->key) == 0;
 }
 
-static F32 MoveSp      = 0.1f;
+static F32 MoveSp      = 1.f;
 static F32 Sensitivity = 0.15f;
 static F32 Yaw         = -90.f;
 static F32 Pitch       = 0.f;
@@ -133,16 +133,16 @@ int main()
   R_RenderInit(&window);
   D_Renderer renderer;
   D_RendererInit(&renderer, &arena);
-  R_Camera camera = R_CameraMakeOrthographic(
-      Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
-  );
-  // R_Camera camera = R_CameraMakePerspective(
+  // R_Camera camera = R_CameraMakeOrthographic(
   //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
   //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   // );
+  R_Camera camera = R_CameraMakePerspective(
+      Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
+      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+  );
   R_Framebuffer framebuffer = R_FramebufferMake(
-      160, 90, TextureWrap_ClampToEdge, TextureFilter_Nearest,
+      160.f, 90.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
       TextureFormat_RGB, 1
   );
 
@@ -189,12 +189,11 @@ int main()
         Vec3F32 movement = Vec3F32_Add(Vec3F32_Add(x_axis, y_axis), z_axis);
         camera.position  = Vec3F32_Add(camera.position, movement);
 
-        // Vec3F32 direction;
-        // direction.x = F32_Cos(F32_DegToRad(Yaw)) *
-        // F32_Cos(F32_DegToRad(Pitch)); direction.y =
-        // F32_Sin(F32_DegToRad(Pitch)); direction.z =
-        // F32_Sin(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
-        // camera.forward = Vec3F32_Normalize(direction);
+        Vec3F32 direction;
+        direction.x = F32_Cos(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
+        direction.y = F32_Sin(F32_DegToRad(Pitch));
+        direction.z = F32_Sin(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
+        camera.forward = Vec3F32_Normalize(direction);
 
         R_CameraUpdateMatrices(&camera);
       }
@@ -215,9 +214,14 @@ int main()
         D_DrawBegin(&renderer);
 
         D_DrawTexturedQuad(
-            &renderer, Vec3F32_Zero, 0.f,
-            Vec2F32_DivScalar(Vec2F32_Make(160.f, 90.f), 1.f), &atlas,
+            &renderer, Vec3F32_Zero, 0.f, Vec2F32_Make(32.f, 18.f), &atlas,
             RectF32_Make(0.f, 16.f, 32.f, 18.f)
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, Vec3F32_Make(0.f, 0.f, -10.f), 0.f,
+            Vec2F32_Make(16.f, 16.f), &atlas,
+            RectF32_Make(16.f, 0.f, 16.f, 16.f)
         );
 
         D_DrawEnd(&renderer, &camera);

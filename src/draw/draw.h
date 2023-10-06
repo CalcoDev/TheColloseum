@@ -13,7 +13,7 @@
 
 typedef struct D_Vertex2D
 {
-  Vec2F32 position;
+  Vec3F32 position;
   Vec2F32 texture_coordinates;
   F32 texture_index;
 } D_Vertex2D;
