@@ -150,7 +150,7 @@ int main()
   PrecisionTime delta_time        = 0;
 
   // TODO(calco): PLACEHOLDER WHILE TEXTURE
-  U8 white_data[] = {255, 255, 255};
+  U8 white_data[] = {12, 163, 86};
   R_Texture white;
   R_TextureInit(
       &white, 1, 1, TextureWrap_Repeat, TextureWrap_Repeat,
@@ -213,19 +213,20 @@ int main()
 
         D_DrawBegin(&renderer);
 
-        D_DrawQuad(
+        D_DrawTexturedQuad(
             &renderer, Vec3F32_Zero, F32_DegToRad(45),
-            Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+            Vec2F32_MultScalar(Vec2F32_One, 0.5f), &white,
+            RectF32_Make(0.f, 0.f, 1.f, 1.f)
         );
 
-        D_DrawQuad(
-            &renderer, Vec3F32_Make(2.f, 0.f, 0.f), F32_DegToRad(67),
-            Vec2F32_MultScalar(Vec2F32_One, 0.5f)
-        );
-        D_DrawQuad(
-            &renderer, Vec3F32_Make(0.f, 2.f, 0.f), F32_DegToRad(123),
-            Vec2F32_MultScalar(Vec2F32_One, 0.5f)
-        );
+        // D_DrawQuad(
+        //     &renderer, Vec3F32_Make(2.f, 0.f, 0.f), F32_DegToRad(67),
+        //     Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+        // );
+        // D_DrawQuad(
+        //     &renderer, Vec3F32_Make(0.f, 2.f, 0.f), F32_DegToRad(123),
+        //     Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+        // );
 
         D_DrawEnd(&renderer, &camera);
       }

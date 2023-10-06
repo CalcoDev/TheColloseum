@@ -89,37 +89,39 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
   F32 half_x = scale.x * 0.5f;
   F32 half_y = scale.y * 0.5f;
 
+  // TODO(calco): Set up default texcoords and texture indices
+
   //
   x = (-half_x) * cos - (+half_y) * sin;
   y = (-half_x) * sin + (+half_y) * cos;
 
-  tl.position            = Vec2F32_Make(x + pos.x, y + pos.y);
-  tl.texture_coordinates = Vec2F32_Make(0.f, 1.f);
-  tl.texture_index       = 1.f;
+  tl.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  // tl.texture_coordinates = Vec2F32_Make(0.f, 1.f);
+  // tl.texture_index       = 1.f;
 
   //
   x = (+half_x) * cos - (+half_y) * sin;
   y = (+half_x) * sin + (+half_y) * cos;
 
-  tr.position            = Vec2F32_Make(x + pos.x, y + pos.y);
-  tr.texture_coordinates = Vec2F32_Make(1.f, 1.f);
-  tr.texture_index       = 1.f;
+  tr.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  // tr.texture_coordinates = Vec2F32_Make(1.f, 1.f);
+  // tr.texture_index       = 1.f;
 
   //
   x = (-half_x) * cos - (-half_y) * sin;
   y = (-half_x) * sin + (-half_y) * cos;
 
-  bl.position            = Vec2F32_Make(x + pos.x, y + pos.y);
-  bl.texture_coordinates = Vec2F32_Make(0.f, 0.f);
-  bl.texture_index       = 1.f;
+  bl.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  // bl.texture_coordinates = Vec2F32_Make(0.f, 0.f);
+  // bl.texture_index       = 1.f;
 
   //
   x = (+half_x) * cos - (-half_y) * sin;
   y = (+half_x) * sin + (-half_y) * cos;
 
-  br.position            = Vec2F32_Make(x + pos.x, y + pos.y);
-  br.texture_coordinates = Vec2F32_Make(1.f, 0.f);
-  br.texture_index       = 1.f;
+  br.position = Vec2F32_Make(x + pos.x, y + pos.y);
+  // br.texture_coordinates = Vec2F32_Make(1.f, 0.f);
+  // br.texture_index       = 1.f;
 
   // Add them to the vertex buffer
   U32 vc = renderer->vertex_count;
@@ -142,6 +144,31 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
   renderer->index_count   = ic;
 }
 
+void D_DrawTexturedQuad(
+    D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale,
+    R_Texture* texture, RectF32 uv
+)
+{
+  D_DrawQuad(renderer, pos, rotation, scale);
+
+  // TODO(calco): Check if texture should be added to an array, etc etc.
+  renderer->texture = texture;
+
+  U32 vc                                   = renderer->vertex_count;
+  renderer->vertices[vc - 4].texture_index = 0.f;
+  renderer->vertices[vc - 3].texture_index = 0.f;
+  renderer->vertices[vc - 2].texture_index = 0.f;
+  renderer->vertices[vc - 1].texture_index = 0.f;
+
+  renderer->vertices[vc - 4].texture_coordinates = Vec2F32_Make(uv.x, uv.y);
+  renderer->vertices[vc - 3].texture_coordinates =
+      Vec2F32_Make(uv.x + uv.w, uv.y);
+  renderer->vertices[vc - 2].texture_coordinates =
+      Vec2F32_Make(uv.x, uv.y + uv.h);
+  renderer->vertices[vc - 1].texture_coordinates =
+      Vec2F32_Make(uv.x + uv.w, uv.y + uv.h);
+}
+
 void D_DrawEnd(D_Renderer* renderer, R_Camera* camera)
 {
   // TODO(calco): Look into setting the data with sub buffer something.
@@ -156,6 +183,8 @@ void D_DrawEnd(D_Renderer* renderer, R_Camera* camera)
       renderer->pipeline.shader_pack, Str8Lit("projection"),
       camera->projection_matrix.elements[0]
   );
+
+  R_TextureBind(renderer->texture, 0);
 
   // Move the D_Vertex array to vertex buffer
   R_BufferData(

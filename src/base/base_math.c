@@ -388,6 +388,80 @@ Vec3S32 Vec3S32_Lerp(Vec3S32 a, Vec3S32 b, F32 t)
   );
 }
 
+// NOTE(calco): -- Rect Helper Functions --
+RectF32 RectF32_Make(F32 x, F32 y, F32 w, F32 h)
+{
+  RectF32 r;
+  r.x = x;
+  r.y = y;
+  r.w = w;
+  r.h = h;
+  return r;
+}
+
+B8 RectF32_ContainsPoint(RectF32 rect, Vec2F32 point)
+{
+  return rect.x <= point.x && rect.y <= point.y && rect.x + rect.w >= point.x &&
+         rect.y + rect.h >= point.y;
+}
+
+B8 RectF32_Overlaps(RectF32 a, RectF32 b)
+{
+  B8 x = (a.x >= b.x && a.x <= b.x + b.w) ||
+         (a.x + a.w >= b.x && a.x + a.w <= b.x + b.w) ||
+         (a.x <= b.x && a.x + a.w >= b.x + b.w);
+  B8 y = (a.y >= b.y && a.y <= b.y + b.h) ||
+         (a.y + a.h >= b.y && a.y + a.h <= b.y + b.h) ||
+         (a.y <= b.y && a.y + a.h >= b.y + b.h);
+
+  return x && y;
+}
+
+B8 RectF32_ContainsRect(RectF32 a, RectF32 b)
+{
+  RectF32 tmp = a;
+  a           = b;
+  b           = tmp;
+
+  B8 x = (a.x >= b.x && a.x <= b.x + b.w) &&
+         (a.x + a.w >= b.x && a.x + a.w <= b.x + b.w);
+  B8 y = (a.y >= b.y && a.y <= b.y + b.h) &&
+         (a.y + a.h >= b.y && a.y + a.h <= b.y + b.h);
+
+  return x && y;
+}
+
+RectF32 RectF32_GetOverlap(RectF32 a, RectF32 b)
+{
+  Vec2F32 min = Vec2F32_Make(Max(a.x, b.x), Max(a.y, b.y));
+  Vec2F32 max = Vec2F32_Make((a.x + a.w, b.x + b.w), Min(a.y + a.h, b.y + b.h));
+
+  return RectF32_Make(min.x, min.y, max.x - min.x, max.y - min.y);
+}
+
+RectF32 RectF32_CullUV(RectF32 quad, RectF32 uv, RectF32 cull_quad)
+{
+  if (!RectF32_Overlaps(quad, cull_quad) ||
+      RectF32_ContainsRect(cull_quad, quad))
+  {
+    return uv;
+  }
+
+  B8 x_shift_constant =
+      !(quad.x >= cull_quad.x && quad.x <= cull_quad.x + cull_quad.w);
+  B8 y_shift_constant =
+      !(quad.y >= cull_quad.y && quad.y <= cull_quad.y + cull_quad.h);
+
+  F32 uv_xratio   = uv.w / quad.w;
+  F32 uv_yratio   = uv.h / quad.h;
+  RectF32 overlap = RectF32_GetOverlap(quad, cull_quad);
+  F32 culled_x    = uv.x + (quad.w - overlap.w) * uv_xratio * x_shift_constant;
+  F32 culled_y    = uv.y + (quad.h - overlap.h) * uv_yratio * y_shift_constant;
+  F32 culled_w    = overlap.w * uv_xratio;
+  F32 culled_h    = overlap.h * uv_yratio;
+  return RectF32_Make(culled_x, culled_y, culled_w, culled_h);
+}
+
 // NOTE(calco): -- Matrix Helper Functions --
 Mat3x3F32 Mat3x3_Identity() { return Mat3x3_MakeValue(1.0f); }
 

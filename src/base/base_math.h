@@ -74,6 +74,23 @@ Vec3S32 Vec2S32_ToVec3S32(Vec2S32 vec2s);
 Vec2F32 Vec3F32_ToVec2F32(Vec3F32 vec3f);
 Vec2S32 Vec3S32_ToVec2S32(Vec3S32 vec3s);
 
+// NOTE(calco): -- Rect Type --
+typedef struct RectF32
+{
+  F32 x;
+  F32 y;
+  F32 w;
+  F32 h;
+} RectF32;
+
+typedef struct RectS32
+{
+  S32 x;
+  S32 y;
+  S32 w;
+  S32 h;
+} RectS32;
+
 // NOTE(calco): -- Matrix Types --
 
 /**
@@ -106,9 +123,6 @@ typedef struct QuatF32
 } QuatF32;
 
 // NOTE(calco): -- Vector2 Helper Functions --
-// yes yes, wrong naming convention, should be Vec2F32Add(), but for usability
-// and readabilitys sake it will be AddVec2F32_Make();
-
 Vec2F32 Vec2F32_Make(F32 a, F32 b);
 Vec2F32 Vec2F32_Add(Vec2F32 a, Vec2F32 b);
 Vec2F32 Vec2F32_Sub(Vec2F32 a, Vec2F32 b);
@@ -171,6 +185,16 @@ F32 Vec3S32_Magnitude(Vec3S32 a);
 F32 Vec3S32_SqrMagnitude(Vec3S32 a);
 Vec3S32 Vec3S32_Normalize(Vec3S32 a);
 Vec3S32 Vec3S32_Lerp(Vec3S32 a, Vec3S32 b, F32 t);
+
+// NOTE(calco): -- Rect Helper Functions --
+RectF32 RectF32_Make(F32 x, F32 y, F32 w, F32 h);
+
+B8 RectF32_ContainsPoint(RectF32 rect, Vec2F32 point);
+B8 RectF32_Overlaps(RectF32 a, RectF32 b);
+B8 RectF32_ContainsRect(RectF32 a, RectF32 b);
+RectF32 RectF32_GetOverlap(RectF32 a, RectF32 b);
+
+RectF32 RectF32_CullUV(RectF32 quad, RectF32 uv, RectF32 cull_quad);
 
 // NOTE(calco): -- Matrix Helper Functions --
 Mat3x3F32 Mat3x3_Identity();

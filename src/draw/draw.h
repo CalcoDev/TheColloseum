@@ -36,6 +36,8 @@ typedef struct D_Renderer
 
   U32 vertex_count;
   U32 index_count;
+
+  // TODO(calco): Maybe make this not a pointer, and free on end?
   R_Texture* texture;
 } D_Renderer;
 
@@ -45,6 +47,10 @@ void D_RendererFree(D_Renderer* renderer);
 void D_DrawBegin(D_Renderer* renderer);
 
 void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale);
+void D_DrawTexturedQuad(
+    D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale,
+    R_Texture* texture, RectF32 uv
+);
 
 void D_DrawEnd(D_Renderer* renderer, R_Camera* camera);
 
