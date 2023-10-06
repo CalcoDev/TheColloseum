@@ -214,15 +214,16 @@ int main()
         D_DrawBegin(&renderer);
 
         D_DrawQuad(
-            &renderer, Vec3F32_Zero, 0.f, Vec2F32_MultScalar(Vec2F32_One, 0.5f)
+            &renderer, Vec3F32_Zero, F32_DegToRad(45),
+            Vec2F32_MultScalar(Vec2F32_One, 0.5f)
         );
 
         D_DrawQuad(
-            &renderer, Vec3F32_Make(2.f, 0.f, 0.f), 0.f,
+            &renderer, Vec3F32_Make(2.f, 0.f, 0.f), F32_DegToRad(67),
             Vec2F32_MultScalar(Vec2F32_One, 0.5f)
         );
         D_DrawQuad(
-            &renderer, Vec3F32_Make(0.f, 2.f, 0.f), 0.f,
+            &renderer, Vec3F32_Make(0.f, 2.f, 0.f), F32_DegToRad(123),
             Vec2F32_MultScalar(Vec2F32_One, 0.5f)
         );
 

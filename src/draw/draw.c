@@ -75,26 +75,50 @@ void D_DrawBegin(D_Renderer* renderer)
   renderer->index_count  = 0;
 }
 
+/**
+ * @brief Draw a quad of scale, rotated and centered around pos.
+ */
 void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale)
 {
-  // TODO(calco): Add rotation
-
-  // Create vertices
   D_Vertex2D tl, tr, bl, br;
-  tl.position            = Vec2F32_Make(pos.x, pos.y);
-  tl.texture_coordinates = Vec2F32_Make(0.f, 0.f);
+  F32 x, y;
+
+  F32 cos = F32_Cos(rotation);
+  F32 sin = F32_Sin(rotation);
+
+  F32 half_x = scale.x * 0.5f;
+  F32 half_y = scale.y * 0.5f;
+
+  //
+  x = (-half_x) * cos - (+half_y) * sin;
+  y = (-half_x) * sin + (+half_y) * cos;
+
+  tl.position            = Vec2F32_Make(x + pos.x, y + pos.y);
+  tl.texture_coordinates = Vec2F32_Make(0.f, 1.f);
   tl.texture_index       = 1.f;
 
-  tr.position            = Vec2F32_Make(pos.x + scale.x, pos.y);
-  tr.texture_coordinates = Vec2F32_Make(1.f, 0.f);
+  //
+  x = (+half_x) * cos - (+half_y) * sin;
+  y = (+half_x) * sin + (+half_y) * cos;
+
+  tr.position            = Vec2F32_Make(x + pos.x, y + pos.y);
+  tr.texture_coordinates = Vec2F32_Make(1.f, 1.f);
   tr.texture_index       = 1.f;
 
-  bl.position            = Vec2F32_Make(pos.x, pos.y - scale.y);
-  bl.texture_coordinates = Vec2F32_Make(0.f, 1.f);
+  //
+  x = (-half_x) * cos - (-half_y) * sin;
+  y = (-half_x) * sin + (-half_y) * cos;
+
+  bl.position            = Vec2F32_Make(x + pos.x, y + pos.y);
+  bl.texture_coordinates = Vec2F32_Make(0.f, 0.f);
   bl.texture_index       = 1.f;
 
-  br.position            = Vec2F32_Make(pos.x + scale.x, pos.y - scale.y);
-  br.texture_coordinates = Vec2F32_Make(1.f, 1.f);
+  //
+  x = (+half_x) * cos - (-half_y) * sin;
+  y = (+half_x) * sin + (-half_y) * cos;
+
+  br.position            = Vec2F32_Make(x + pos.x, y + pos.y);
+  br.texture_coordinates = Vec2F32_Make(1.f, 0.f);
   br.texture_index       = 1.f;
 
   // Add them to the vertex buffer
