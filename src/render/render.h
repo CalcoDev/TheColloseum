@@ -162,6 +162,8 @@ void R_TextureData(R_Texture* texture, void* data);
 void R_TextureBind(R_Texture* texture, U32 slot);
 void R_TextureFree(R_Texture* texture);
 
+void R_TextureLoad(R_Texture* texture, String8 path);
+
 // NOTE(calco): -- Framebuffers --
 R_Framebuffer R_FramebufferMake(
     U32 width, U32 height, R_TextureWrap wrap, R_TextureFilter filter,

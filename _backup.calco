@@ -1,3 +1,9 @@
+
+
+
+
+
+
 String8 texture_path =
       OS_PathRelative(&arena, exe_path, Str8Lit("./assets/sprites/player.jpg"));
   S32 x, y, channels;

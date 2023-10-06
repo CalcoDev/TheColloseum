@@ -3,9 +3,6 @@
 #include <glfw/glfw3.h>
 #include <stdio.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-
 #include "base/base_include.h"
 #include "os/os.h"
 
@@ -60,7 +57,7 @@ B32 str_elem_eq(
   return strcmp(e1->key, e2->key) == 0;
 }
 
-static F32 MoveSp      = 0.25f;
+static F32 MoveSp      = 0.1f;
 static F32 Sensitivity = 0.15f;
 static F32 Yaw         = -90.f;
 static F32 Pitch       = 0.f;
@@ -114,50 +111,51 @@ int main()
   OS_WindowRegisterScrollCallback(&window, ScrollCallback);
   OS_WindowSetMouseVisibility(&window, WindowMouseVisibility_Disabled);
 
-  String8 path = OS_PathRelative(
+  // ***************************************************************************
+  // ** Resource Loading                                                      **
+  // ***************************************************************************
+  String8 input_path = OS_PathRelative(
       &arena, OS_PathExecutableDir(&arena), Str8Lit("./assets/data/input.toml")
   );
 
   I_InputMap input_map = {0};
-  I_InputMapInit(&input_map, &arena, path);
+  I_InputMapInit(&input_map, &arena, input_path);
   if (!I_InputMapSchemeSetActive(&input_map, "mouse_keyboard"))
     Log("Failed setting active input scheme!", "");
   if (!I_InputMapContextActivate(&input_map, "ingame"))
     Log("Failed setting active input context!", "");
 
+  String8 atlas_path = OS_PathRelative(
+      &arena, OS_PathExecutableDir(&arena),
+      Str8Lit("./assets/sprites/atlas.png")
+  );
+
   R_RenderInit(&window);
+  D_Renderer renderer;
+  D_RendererInit(&renderer, &arena);
   R_Camera camera = R_CameraMakeOrthographic(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      10.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   );
   // R_Camera camera = R_CameraMakePerspective(
   //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
   //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   // );
-
   R_Framebuffer framebuffer = R_FramebufferMake(
-      320, 180, TextureWrap_ClampToEdge, TextureFilter_Nearest,
+      160, 90, TextureWrap_ClampToEdge, TextureFilter_Nearest,
       TextureFormat_RGB, 1
   );
 
-  // Do some shaders real quick.
-  D_Renderer renderer;
-  D_RendererInit(&renderer, &arena);
+  R_Texture atlas;
+  R_TextureLoad(&atlas, atlas_path);
 
+  // ***************************************************************************
+  // ** Game Loop                                                             **
+  // ***************************************************************************
   PrecisionTime elapsed_time      = 0;
   PrecisionTime prev_loop_time    = 0;
   PrecisionTime current_loop_time = 0;
   PrecisionTime delta_time        = 0;
-
-  // TODO(calco): PLACEHOLDER WHILE TEXTURE
-  U8 white_data[] = {12, 163, 86};
-  R_Texture white;
-  R_TextureInit(
-      &white, 1, 1, TextureWrap_Repeat, TextureWrap_Repeat,
-      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGB,
-      white_data
-  );
-  renderer.texture = &white;
 
   Log("Starting game loop.", "");
   while (OS_WindowIsOpen(&window))
@@ -208,25 +206,19 @@ int main()
 
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+
         R_ClearDepthBuffer();
         R_ClearColourBuffer(0.2f, 0.1f, 0.3f);
 
         D_DrawBegin(&renderer);
 
         D_DrawTexturedQuad(
-            &renderer, Vec3F32_Zero, F32_DegToRad(45),
-            Vec2F32_MultScalar(Vec2F32_One, 0.5f), &white,
-            RectF32_Make(0.f, 0.f, 1.f, 1.f)
+            &renderer, Vec3F32_Zero, 0.f,
+            Vec2F32_DivScalar(Vec2F32_Make(160.f, 90.f), 1.f), &atlas,
+            RectF32_Make(0.f, 16.f, 32.f, 18.f)
         );
-
-        // D_DrawQuad(
-        //     &renderer, Vec3F32_Make(2.f, 0.f, 0.f), F32_DegToRad(67),
-        //     Vec2F32_MultScalar(Vec2F32_One, 0.5f)
-        // );
-        // D_DrawQuad(
-        //     &renderer, Vec3F32_Make(0.f, 2.f, 0.f), F32_DegToRad(123),
-        //     Vec2F32_MultScalar(Vec2F32_One, 0.5f)
-        // );
 
         D_DrawEnd(&renderer, &camera);
       }
@@ -237,7 +229,9 @@ int main()
     }
   }
 
-  // Clean up after OpenGL
+  // ***************************************************************************
+  // ** Cleanup                                                               **
+  // ***************************************************************************
   D_RendererFree(&renderer);
 
   R_FramebufferFreeGPU(&framebuffer);

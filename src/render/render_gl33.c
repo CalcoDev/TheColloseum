@@ -3,6 +3,9 @@
 #include <glfw/glfw3.h>
 #include <stdio.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 #include "base/base_log.h"
 #include "os/os.h"
 #include "os/os_window.h"
@@ -640,6 +643,18 @@ void R_TextureBind(R_Texture* texture, U32 slot)
 void R_TextureFree(R_Texture* texture)
 {
   glDeleteTextures(1, &texture->handle);
+}
+
+void R_TextureLoad(R_Texture* texture, String8 path)
+{
+  S32 x, y, channels;
+  stbi_set_flip_vertically_on_load(0);
+  char* data = stbi_load((const char*)path.data, &x, &y, &channels, 0);
+  R_TextureInit(
+      texture, x, y, TextureWrap_ClampToBorder, TextureWrap_ClampToBorder,
+      TextureFilter_Nearest, TextureFilter_Nearest, TextureFormat_RGBA, data
+  );
+  stbi_image_free(data);
 }
 
 // NOTE(calco): -- Framebuffers --

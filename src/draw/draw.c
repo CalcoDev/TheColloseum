@@ -160,13 +160,15 @@ void D_DrawTexturedQuad(
   renderer->vertices[vc - 2].texture_index = 0.f;
   renderer->vertices[vc - 1].texture_index = 0.f;
 
-  renderer->vertices[vc - 4].texture_coordinates = Vec2F32_Make(uv.x, uv.y);
+  Vec2F32 d = Vec2F32_Make(texture->width, texture->height);
+  renderer->vertices[vc - 4].texture_coordinates =
+      Vec2F32_Div(Vec2F32_Make(uv.x, uv.y), d);
   renderer->vertices[vc - 3].texture_coordinates =
-      Vec2F32_Make(uv.x + uv.w, uv.y);
+      Vec2F32_Div(Vec2F32_Make(uv.x + uv.w, uv.y), d);
   renderer->vertices[vc - 2].texture_coordinates =
-      Vec2F32_Make(uv.x, uv.y + uv.h);
+      Vec2F32_Div(Vec2F32_Make(uv.x, uv.y + uv.h), d);
   renderer->vertices[vc - 1].texture_coordinates =
-      Vec2F32_Make(uv.x + uv.w, uv.y + uv.h);
+      Vec2F32_Div(Vec2F32_Make(uv.x + uv.w, uv.y + uv.h), d);
 }
 
 void D_DrawEnd(D_Renderer* renderer, R_Camera* camera)
