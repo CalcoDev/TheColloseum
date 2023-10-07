@@ -129,6 +129,10 @@ int main()
       &arena, OS_PathExecutableDir(&arena),
       Str8Lit("./assets/sprites/atlas.png")
   );
+  String8 atlas2_path = OS_PathRelative(
+      &arena, OS_PathExecutableDir(&arena),
+      Str8Lit("./assets/sprites/atlas2.png")
+  );
 
   R_RenderInit(&window);
   D_Renderer renderer;
@@ -146,8 +150,9 @@ int main()
       TextureFormat_RGB, 1
   );
 
-  R_Texture atlas;
+  R_Texture atlas, atlas2;
   R_TextureLoad(&atlas, atlas_path);
+  R_TextureLoad(&atlas2, atlas2_path);
 
   // ***************************************************************************
   // ** Game Loop                                                             **
@@ -224,7 +229,7 @@ int main()
 
         D_DrawTexturedQuad(
             &renderer, Vec3F32_Make(0.f, 0.f, -10.f), F32_DegToRad(rot),
-            Vec2F32_Make(16.f, 16.f), &atlas,
+            Vec2F32_Make(16.f, 16.f), &atlas2,
             RectF32_Make(16.f, 0.f, 16.f, 16.f)
         );
 

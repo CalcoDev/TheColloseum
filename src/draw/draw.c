@@ -5,6 +5,7 @@
 //
 #include <glfw/glfw3.h>
 
+#include "base/base_log.h"
 #include "os/os.h"
 
 void D_RendererInit(D_Renderer* renderer, Arena* arena)
@@ -49,6 +50,9 @@ void D_RendererInit(D_Renderer* renderer, Arena* arena)
   R_PipelineAddBuffer(&renderer->pipeline, &renderer->index_buffer);
 
   renderer->vertex_count = 0;
+
+  for (S32 i = 0; i < 9; ++i)
+    renderer->textures[i] = NULL;
 }
 
 void D_RendererFree(D_Renderer* renderer)
@@ -73,6 +77,9 @@ void D_DrawBegin(D_Renderer* renderer)
 
   renderer->vertex_count = 0;
   renderer->index_count  = 0;
+
+  for (S32 i = 0; i < 9; ++i)
+    renderer->textures[i] = NULL;
 }
 
 /**
@@ -151,14 +158,37 @@ void D_DrawTexturedQuad(
 {
   D_DrawQuad(renderer, pos, rotation, scale);
 
-  // TODO(calco): Check if texture should be added to an array, etc etc.
-  renderer->texture = texture;
+  S32 texture_index = -1;
+
+  // TODO(calco): SCUFFED. Remove this loop and make it a hashmap.
+  S32 i;
+  for (i = 0; i < renderer->texture_count; ++i)
+  {
+    if (renderer->textures[i]->handle == texture->handle)
+    {
+      texture_index = i;
+      break;
+    }
+  }
+  if (texture_index == -1 && renderer->texture_count < 9)
+  {
+    texture_index         = i;
+    renderer->textures[i] = texture;
+  }
+  if (texture_index == -1)
+  {
+    LogError(
+        "D_DrawTexturedQuad did not find a valid texture index. Something went "
+        "wrong. Using default purple texture.",
+        ""
+    );
+  }
 
   U32 vc                                   = renderer->vertex_count;
-  renderer->vertices[vc - 4].texture_index = 0.f;
-  renderer->vertices[vc - 3].texture_index = 0.f;
-  renderer->vertices[vc - 2].texture_index = 0.f;
-  renderer->vertices[vc - 1].texture_index = 0.f;
+  renderer->vertices[vc - 4].texture_index = (F32)texture_index;
+  renderer->vertices[vc - 3].texture_index = (F32)texture_index;
+  renderer->vertices[vc - 2].texture_index = (F32)texture_index;
+  renderer->vertices[vc - 1].texture_index = (F32)texture_index;
 
   Vec2F32 d = Vec2F32_Make(texture->width, texture->height);
   renderer->vertices[vc - 4].texture_coordinates =
@@ -186,7 +216,8 @@ void D_DrawEnd(D_Renderer* renderer, R_Camera* camera)
       camera->projection_matrix.elements[0]
   );
 
-  R_TextureBind(renderer->texture, 0);
+  for (U32 i = 0; i < renderer->texture_count; ++i)
+    R_TextureBind(renderer->textures[i], i);
 
   // Move the D_Vertex array to vertex buffer
   R_BufferData(

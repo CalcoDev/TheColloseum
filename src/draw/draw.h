@@ -21,7 +21,6 @@ typedef struct D_Vertex2D
 typedef struct D_Renderer
 {
   Arena* arena;
-
   R_Pipeline pipeline;
 
   // TODO(calco): handle 3rd shader in free and add
@@ -33,12 +32,11 @@ typedef struct D_Renderer
 
   D_Vertex2D vertices[D_RENDERER_MAX_VERTICES_COUNT];
   U32 indices[D_RENDERER_MAX_INDICES_COUNT];
-
   U32 vertex_count;
   U32 index_count;
 
-  // TODO(calco): Maybe make this not a pointer, and free on end?
-  R_Texture* texture;
+  R_Texture* textures[8];
+  U32 texture_count;
 } D_Renderer;
 
 void D_RendererInit(D_Renderer* renderer, Arena* arena);
