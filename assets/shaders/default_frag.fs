@@ -1,11 +1,12 @@
 #version 330 core
 
-in float v_tex_idx;
+flat in float v_tex_idx;
 in vec2 v_tex_coords;
 
 out vec4 FragColor;
 
 uniform sampler2D u_tex[8];
+// uniform sampler2DArray u_texs;
 
 void main()
 {
@@ -20,4 +21,5 @@ void main()
     case 7: FragColor = texture(u_tex[7], v_tex_coords); break;
     default: discard;
   }
+  // FragColor = texture(u_texs, vec3(v_tex_coords.xy, v_tex_idx));
 }

@@ -7,7 +7,7 @@ layout (location = 2) in float tex_idx;
 uniform mat4 view;
 uniform mat4 projection;
 
-out float v_tex_idx;
+flat out float v_tex_idx;
 out vec2 v_tex_coords;
 
 void main()

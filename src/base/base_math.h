@@ -269,6 +269,10 @@ Vec3F32 Vec3F32_ApplyMatrix(Mat4x4F32 mat, Vec3F32 vec);
 #define Vec3S32_Left    Vec3S32_Make(-1, 0, 0)
 #define Vec3S32_Down    Vec3S32_Make(0, -1, 0)
 
+// NOTE(calco): -- Static Rects --
+#define RectF32_Zero RectF32_Make(0.f, 0.f, 0.f, 0.f)
+#define RectF32_One  RectF32_Make(0.f, 0.f, 1.f, 1.f)
+
 // NOTE(calco): -- Quaternion Helper Functions --
 QuatF32 QuatF32_Identity();
 

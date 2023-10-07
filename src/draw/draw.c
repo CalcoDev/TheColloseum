@@ -51,7 +51,15 @@ void D_RendererInit(D_Renderer* renderer, Arena* arena)
 
   renderer->vertex_count = 0;
 
-  for (S32 i = 0; i < 9; ++i)
+  U8 texture_not_found_data[] = {217, 60, 240, 0, 0, 0, 0, 0, 0, 217, 60, 240};
+  R_TextureInit(
+      &renderer->texture_not_found, 2, 2, TextureWrap_ClampToEdge,
+      TextureWrap_ClampToEdge, TextureFilter_Nearest, TextureFilter_Nearest,
+      TextureFormat_RGB, texture_not_found_data
+  );
+
+  renderer->texture_count = 0;
+  for (S32 i = 0; i < D_RENDERER_MAX_TEXTURE_COUNT; ++i)
     renderer->textures[i] = NULL;
 }
 
@@ -59,6 +67,8 @@ void D_RendererFree(D_Renderer* renderer)
 {
   R_BufferFreeGPU(&renderer->vertex_buffer);
   R_BufferFreeGPU(&renderer->index_buffer);
+
+  R_TextureFree(&renderer->texture_not_found);
 
   R_ShaderFreeGPU(&renderer->shaders[0]);
   R_ShaderFreeGPU(&renderer->shaders[1]);
@@ -78,7 +88,8 @@ void D_DrawBegin(D_Renderer* renderer)
   renderer->vertex_count = 0;
   renderer->index_count  = 0;
 
-  for (S32 i = 0; i < 9; ++i)
+  renderer->texture_count = 0;
+  for (S32 i = 0; i < D_RENDERER_MAX_TEXTURE_COUNT; ++i)
     renderer->textures[i] = NULL;
 }
 
@@ -159,29 +170,41 @@ void D_DrawTexturedQuad(
   D_DrawQuad(renderer, pos, rotation, scale);
 
   S32 texture_index = -1;
-
-  // TODO(calco): SCUFFED. Remove this loop and make it a hashmap.
-  S32 i;
-  for (i = 0; i < renderer->texture_count; ++i)
+  if (texture == NULL)
   {
-    if (renderer->textures[i]->handle == texture->handle)
+    texture_index = 0;
+    uv.x          = 0.f;
+    uv.y          = 0.f;
+    uv.w          = 2.f;
+    uv.h          = 2.f;
+  }
+  else
+  {
+    S32 i;
+    for (i = 0; i < renderer->texture_count; ++i)
     {
-      texture_index = i;
-      break;
+      if (renderer->textures[i]->handle == texture->handle)
+      {
+        texture_index = i + 1; // offset by 1 for texture_not_found
+        break;
+      }
     }
-  }
-  if (texture_index == -1 && renderer->texture_count < 9)
-  {
-    texture_index         = i;
-    renderer->textures[i] = texture;
-  }
-  if (texture_index == -1)
-  {
-    LogError(
-        "D_DrawTexturedQuad did not find a valid texture index. Something went "
-        "wrong. Using default purple texture.",
-        ""
-    );
+    if (texture_index == -1 && renderer->texture_count < 9)
+    {
+      renderer->texture_count += 1;
+      texture_index         = i + 1; // offset by 1 for texture_not_found
+      renderer->textures[i] = texture;
+    }
+    if (texture_index == -1)
+    {
+      texture_index = 0;
+      LogError(
+          "D_DrawTexturedQuad did not find a valid texture index. Something "
+          "went "
+          "wrong. Using renderer->texture_not_found texture.",
+          ""
+      );
+    }
   }
 
   U32 vc                                   = renderer->vertex_count;
@@ -216,8 +239,19 @@ void D_DrawEnd(D_Renderer* renderer, R_Camera* camera)
       camera->projection_matrix.elements[0]
   );
 
+  char name[] = "u_tex[0]";
+  R_TextureBind(&renderer->texture_not_found, 0);
+  GLuint loc = glGetUniformLocation(renderer->shader_pack.handle, name);
+  glUniform1i(loc, 0);
+
   for (U32 i = 0; i < renderer->texture_count; ++i)
-    R_TextureBind(renderer->textures[i], i);
+  {
+    R_TextureBind(renderer->textures[i], i + 1);
+
+    name[6]    = '0' + i + 1;
+    GLuint loc = glGetUniformLocation(renderer->shader_pack.handle, name);
+    glUniform1i(loc, i + 1);
+  }
 
   // Move the D_Vertex array to vertex buffer
   R_BufferData(

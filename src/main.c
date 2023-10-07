@@ -233,6 +233,11 @@ int main()
             RectF32_Make(16.f, 0.f, 16.f, 16.f)
         );
 
+        // D_DrawTexturedQuad(
+        //     &renderer, Vec3F32_Make(0.f, 0.f, 10.f), 0.f,
+        //     Vec2F32_Make(64.f, 64.f), &atlas, RectF32_Zero
+        // );
+
         D_DrawEnd(&renderer, &camera);
       }
 
