@@ -124,7 +124,7 @@ void R_RenderSwapchain(OS_Window* window) { glfwSwapBuffers(window->handle); }
 void R_ClearColourBuffer(F32 r, F32 g, F32 b)
 {
   glClear(GL_COLOR_BUFFER_BIT);
-  glClearColor(r, g, b, 1.0f);
+  glClearColor(r, g, b, 0.0f);
 }
 
 void R_ClearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT); }

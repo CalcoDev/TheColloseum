@@ -11,6 +11,40 @@
 #define D_RENDERER_MAX_VERTICES_COUNT 1024
 #define D_RENDERER_MAX_INDICES_COUNT  1024
 
+// TODO(calco): READ THIS LOL
+/*
+by the way, you should use the Z buffer for your 2D depth testing only for
+opaque objects, and you should still submit the draw calls for your sprites in
+front-to-back order (as opposed to the intuitive back-to-front.) The reason is
+that one sprite might be covering another sprite, and the GPU can often detect
+this case using its Z buffer acceleration structures. In this way, you will
+roughly only have to pay the pixel shading cost for sprites that are ultimately
+visible.
+
+On the other hand, if your objects are transparent, then you must draw them from
+back to front, otherwise alpha blending will not give you the correct result.
+This suggests that you should split your scene between opaque objects and
+alpha-blended objects. Furthermore, on the topic of alpha blending, you should
+be careful to correctly consider pre-multiplied alpha and SRGB conversion to
+your sprites, otherwise your alpha blending and lighting computations will be
+wrong.
+
+With issues like the ones I mentioned, there is a considerable amount of
+pre-processing on the sprites you want to render each frame. For example, you
+should cull any sprites outside the camera's view, you should sort them by
+opaque and transparent, sort them by front-to-back or back-to-front, sort them
+based on the texture atlas they use, and so on. For these reasons, I suggest
+refactoring your code to draw a batch of sprites, rather than drawing individual
+quads. Sort your sprites into big batches, upload all their data up front, then
+draw ranges of sprites data with their appropriate textures bound. That will
+also greatly reduce the amount of OpenGL code in your project, since the GL code
+only concerns itself with uploading the data and drawing it at render time,
+rather than being spread around your codebase in the form of loosely coupled
+draw calls and buffer bindings.
+
+tl;dr: The devil is in the details.
+*/
+
 /**
  * @brief Used internally for handling the texture arrays.
  * @warning Should never exceed 7.

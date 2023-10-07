@@ -143,7 +143,7 @@ int main()
   // );
   R_Camera camera = R_CameraMakePerspective(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
+      90.f, (F32)window.width / (F32)window.height, 0.1f, 1000.f
   );
   R_Framebuffer framebuffer = R_FramebufferMake(
       160.f, 90.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
@@ -212,10 +212,15 @@ int main()
         R_FramebufferBind(&framebuffer);
         R_FramebufferSetViewport(&framebuffer);
 
+        // i'll have to play around with depth buffers and alpha blending
+        // atm it works but a bit scuffed and I'll abstract it.
+        // as 2d requires different than 3d?
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthFunc(GL_LEQUAL);
+
         glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         R_ClearDepthBuffer();
         R_ClearColourBuffer(0.2f, 0.1f, 0.3f);
@@ -223,7 +228,13 @@ int main()
         D_DrawBegin(&renderer);
 
         D_DrawTexturedQuad(
-            &renderer, Vec3F32_Zero, 0.f, Vec2F32_Make(32.f, 18.f), &atlas,
+            &renderer, Vec3F32_Make(0.f, 0.f, 10.f), 0.f,
+            Vec2F32_Make(64.f, 64.f), NULL, RectF32_Zero
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
+            Vec2F32_Make(32.f, 18.f), &atlas,
             RectF32_Make(0.f, 16.f, 32.f, 18.f)
         );
 
@@ -232,11 +243,6 @@ int main()
             Vec2F32_Make(16.f, 16.f), &atlas2,
             RectF32_Make(16.f, 0.f, 16.f, 16.f)
         );
-
-        // D_DrawTexturedQuad(
-        //     &renderer, Vec3F32_Make(0.f, 0.f, 10.f), 0.f,
-        //     Vec2F32_Make(64.f, 64.f), &atlas, RectF32_Zero
-        // );
 
         D_DrawEnd(&renderer, &camera);
       }

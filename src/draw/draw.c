@@ -51,11 +51,12 @@ void D_RendererInit(D_Renderer* renderer, Arena* arena)
 
   renderer->vertex_count = 0;
 
-  U8 texture_not_found_data[] = {217, 60, 240, 0, 0, 0, 0, 0, 0, 217, 60, 240};
+  U8 texture_not_found_data[] = {217, 60, 240, 255, 0,   0,  0,   255,
+                                 0,   0,  0,   255, 217, 60, 240, 255};
   R_TextureInit(
       &renderer->texture_not_found, 2, 2, TextureWrap_ClampToEdge,
       TextureWrap_ClampToEdge, TextureFilter_Nearest, TextureFilter_Nearest,
-      TextureFormat_RGB, texture_not_found_data
+      TextureFormat_RGBA, texture_not_found_data
   );
 
   renderer->texture_count = 0;
@@ -213,7 +214,8 @@ void D_DrawTexturedQuad(
   renderer->vertices[vc - 2].texture_index = (F32)texture_index;
   renderer->vertices[vc - 1].texture_index = (F32)texture_index;
 
-  Vec2F32 d = Vec2F32_Make(texture->width, texture->height);
+  Vec2F32 d = texture == NULL ? Vec2F32_Make(2.f, 2.f)
+                              : Vec2F32_Make(texture->width, texture->height);
   renderer->vertices[vc - 4].texture_coordinates =
       Vec2F32_Div(Vec2F32_Make(uv.x, uv.y), d);
   renderer->vertices[vc - 3].texture_coordinates =
@@ -241,16 +243,12 @@ void D_DrawEnd(D_Renderer* renderer, R_Camera* camera)
 
   char name[] = "u_tex[0]";
   R_TextureBind(&renderer->texture_not_found, 0);
-  GLuint loc = glGetUniformLocation(renderer->shader_pack.handle, name);
-  glUniform1i(loc, 0);
-
+  R_ShaderPackUploadInt1(&renderer->shader_pack, Str8Init(name, 8), 0);
   for (U32 i = 0; i < renderer->texture_count; ++i)
   {
     R_TextureBind(renderer->textures[i], i + 1);
-
-    name[6]    = '0' + i + 1;
-    GLuint loc = glGetUniformLocation(renderer->shader_pack.handle, name);
-    glUniform1i(loc, i + 1);
+    name[6] = '0' + i + 1;
+    R_ShaderPackUploadInt1(&renderer->shader_pack, Str8Init(name, 8), i + 1);
   }
 
   // Move the D_Vertex array to vertex buffer
