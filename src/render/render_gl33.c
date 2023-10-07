@@ -108,6 +108,8 @@ void R_RenderInit(OS_Window* window)
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // Mac
 
+  glfwWindowHint(GLFW_DEPTH_BITS, 24);
+
   glfwMakeContextCurrent(window->handle);
 
   // Init glad

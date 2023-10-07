@@ -137,16 +137,24 @@ int main()
   R_RenderInit(&window);
   D_Renderer renderer;
   D_RendererInit(&renderer, &arena);
-  // R_Camera camera = R_CameraMakeOrthographic(
-  //     Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward,
-  //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
-  // );
-  R_Camera camera = R_CameraMakePerspective(
+
+  /*
+  camera innacuracies come from mouse movement stuff.
+  If camera is just looking straight ahead everything works fine.
+  As such I don't know if this shuold / can even be fixed
+  without some questionable movements when sending stuff to be rendererd
+  */
+
+  R_Camera camera = R_CameraMakeOrthographic(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      90.f, (F32)window.width / (F32)window.height, 1.f, 1000.f
+      90.f, (F32)window.width / (F32)window.height, 0.1f, 100.f
   );
+  // R_Camera camera = R_CameraMakePerspective(
+  //     Vec3F32_MultScalar(Vec3F32_Left, -10.f), Vec3F32_Right,
+  //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 1.f, 320.f
+  // );
   R_Framebuffer framebuffer = R_FramebufferMake(
-      160.f, 90.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
+      1600.f, 900.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
       TextureFormat_RGB, 1
   );
 
@@ -198,11 +206,12 @@ int main()
         Vec3F32 movement = Vec3F32_Add(Vec3F32_Add(x_axis, y_axis), z_axis);
         camera.position  = Vec3F32_Add(camera.position, movement);
 
-        Vec3F32 direction;
-        direction.x = F32_Cos(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
-        direction.y = F32_Sin(F32_DegToRad(Pitch));
-        direction.z = F32_Sin(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
-        camera.forward = Vec3F32_Normalize(direction);
+        // Vec3F32 direction;
+        // direction.x = F32_Cos(F32_DegToRad(Yaw)) *
+        // F32_Cos(F32_DegToRad(Pitch)); direction.y =
+        // F32_Sin(F32_DegToRad(Pitch)); direction.z =
+        // F32_Sin(F32_DegToRad(Yaw)) * F32_Cos(F32_DegToRad(Pitch));
+        // camera.forward = Vec3F32_Normalize(direction);
 
         R_CameraUpdateMatrices(&camera);
       }
@@ -219,8 +228,8 @@ int main()
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
 
-        // glEnable(GL_BLEND);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         R_ClearDepthBuffer();
         R_ClearColourBuffer(0.2f, 0.1f, 0.3f);
@@ -238,11 +247,17 @@ int main()
             RectF32_Make(0.f, 16.f, 32.f, 18.f)
         );
 
-        // D_DrawTexturedQuad(
-        //     &renderer, Vec3F32_Make(0.f, 0.f, 0.f), F32_DegToRad(rot),
-        //     Vec2F32_Make(16.f, 16.f), &atlas2,
-        //     RectF32_Make(16.f, 0.f, 16.f, 16.f)
-        // );
+        D_DrawTexturedQuad(
+            &renderer, Vec3F32_Make(4.f, 0.f, -5.f), F32_DegToRad(rot * 1.285),
+            Vec2F32_Make(16.f, 16.f), &atlas2,
+            RectF32_Make(16.f, 0.f, 16.f, 16.f)
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, Vec3F32_Make(0.f, 0.f, -5.0f), F32_DegToRad(rot),
+            Vec2F32_Make(16.f, 16.f), &atlas,
+            RectF32_Make(16.f, 0.f, 16.f, 16.f)
+        );
 
         D_DrawEnd(&renderer, &camera);
       }
