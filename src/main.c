@@ -143,7 +143,7 @@ int main()
   // );
   R_Camera camera = R_CameraMakePerspective(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
-      90.f, (F32)window.width / (F32)window.height, 0.1f, 1000.f
+      90.f, (F32)window.width / (F32)window.height, 1.f, 1000.f
   );
   R_Framebuffer framebuffer = R_FramebufferMake(
       160.f, 90.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
@@ -219,8 +219,8 @@ int main()
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // glEnable(GL_BLEND);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         R_ClearDepthBuffer();
         R_ClearColourBuffer(0.2f, 0.1f, 0.3f);
@@ -228,7 +228,7 @@ int main()
         D_DrawBegin(&renderer);
 
         D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(0.f, 0.f, 10.f), 0.f,
+            &renderer, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
             Vec2F32_Make(64.f, 64.f), NULL, RectF32_Zero
         );
 
@@ -238,11 +238,11 @@ int main()
             RectF32_Make(0.f, 16.f, 32.f, 18.f)
         );
 
-        D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(0.f, 0.f, -10.f), F32_DegToRad(rot),
-            Vec2F32_Make(16.f, 16.f), &atlas2,
-            RectF32_Make(16.f, 0.f, 16.f, 16.f)
-        );
+        // D_DrawTexturedQuad(
+        //     &renderer, Vec3F32_Make(0.f, 0.f, 0.f), F32_DegToRad(rot),
+        //     Vec2F32_Make(16.f, 16.f), &atlas2,
+        //     RectF32_Make(16.f, 0.f, 16.f, 16.f)
+        // );
 
         D_DrawEnd(&renderer, &camera);
       }
