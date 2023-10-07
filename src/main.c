@@ -158,6 +158,8 @@ int main()
   PrecisionTime delta_time        = 0;
 
   Log("Starting game loop.", "");
+
+  F32 rot = 0.f;
   while (OS_WindowIsOpen(&window))
   {
     current_loop_time = OS_TimeMicroseconds();
@@ -172,6 +174,8 @@ int main()
 
       // Update
       {
+        rot += 5.f;
+
         I_InputMapContextAction* m;
         if (I_InputMapActionTryGet(&input_map, "ingame", "move_x", &m))
           Input.x = m->value.range_1d.value;
@@ -219,7 +223,7 @@ int main()
         );
 
         D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(0.f, 0.f, -10.f), 0.f,
+            &renderer, Vec3F32_Make(0.f, 0.f, -10.f), F32_DegToRad(rot),
             Vec2F32_Make(16.f, 16.f), &atlas,
             RectF32_Make(16.f, 0.f, 16.f, 16.f)
         );
