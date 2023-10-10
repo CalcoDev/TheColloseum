@@ -123,6 +123,8 @@ void R_ShaderPackInit(
 );
 void R_ShaderPackFreeGPU(R_ShaderPack* pack);
 
+void R_ShaderPackBind(R_ShaderPack* pack);
+
 void R_ShaderPackUploadInt1(R_ShaderPack* pack, String8 name, S32 s1);
 void R_ShaderPackUploadInt2(R_ShaderPack* pack, String8 name, S32 s1, S32 s2);
 void R_ShaderPackUploadInt3(
@@ -145,8 +147,7 @@ void R_ShaderPackUploadMat4(R_ShaderPack* pack, String8 name, F32** elements);
 
 // NOTE(calco): -- Pipeline Functions --
 void R_PipelineInit(
-    R_Pipeline* pipeline, R_ShaderPack* shader_pack, R_Attribute* attributes,
-    U64 attribute_count
+    R_Pipeline* pipeline, R_Attribute* attributes, U64 attribute_count
 );
 void R_PipelineAddBuffer(R_Pipeline* pipeline, R_Buffer* buffer);
 void R_PipelineBind(R_Pipeline* pipeline);

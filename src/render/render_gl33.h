@@ -29,10 +29,6 @@ typedef struct R_ShaderPack
 // NOTE(calco): Generic name pipeline, refers to a VAO in opengl?
 typedef struct R_Pipeline
 {
-  // Shader
-  R_ShaderPack* shader_pack;
-
-  // VAO stuff
   R_Attribute* attributes;
   U64 attribute_count;
   U32 handle;

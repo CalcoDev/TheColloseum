@@ -350,6 +350,8 @@ void R_ShaderData(R_Shader* shader, String8 data)
 
 void R_ShaderFreeGPU(R_Shader* shader) { glDeleteShader(shader->handle); }
 
+void R_ShaderPackBind(R_ShaderPack* pack) { glUseProgram(pack->handle); }
+
 U64 string8_hash(String8 key, U64 table_size)
 {
   uint64_t h  = 0x100;
@@ -393,7 +395,6 @@ void R_ShaderPackInit(
 )
 {
   // TODO(calco): uniform count should be a prime number, but enforced.
-
   // TODO(calco) IMPORTANT: Currently pasing uniform_count as exp. If it high,
   // it bad. Fix this to get the closest / nearest value.
   HashmapInit(
@@ -518,11 +519,10 @@ void R_ShaderPackUploadMat4(R_ShaderPack* pack, String8 name, F32** elements)
  * @param attributes An array of attributes.
  */
 void R_PipelineInit(
-    R_Pipeline* pipeline, R_ShaderPack* shader_pack, R_Attribute* attributes,
-    U64 attribute_count
+    R_Pipeline* pipeline, R_Attribute* attributes, U64 attribute_count
 )
 {
-  pipeline->shader_pack     = shader_pack;
+  // pipeline->shader_pack     = shader_pack;
   pipeline->attributes      = attributes;
   pipeline->attribute_count = attribute_count;
   pipeline->_attrib         = 0;
@@ -565,13 +565,10 @@ void R_PipelineAddBuffer(R_Pipeline* pipeline, R_Buffer* buffer)
   {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->handle);
   }
-
-  // TODO(calco): Why do we use pipeline->_attrib ??????
 }
 
 void R_PipelineBind(R_Pipeline* pipeline)
 {
-  glUseProgram(pipeline->shader_pack->handle);
   glBindVertexArray(pipeline->handle);
 }
 

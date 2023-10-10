@@ -129,21 +129,10 @@ int main()
       &arena, OS_PathExecutableDir(&arena),
       Str8Lit("./assets/sprites/atlas.png")
   );
-  String8 atlas2_path = OS_PathRelative(
-      &arena, OS_PathExecutableDir(&arena),
-      Str8Lit("./assets/sprites/atlas2.png")
-  );
 
   R_RenderInit(&window);
   D_Renderer renderer;
   D_RendererInit(&renderer, &arena);
-
-  /*
-  camera innacuracies come from mouse movement stuff.
-  If camera is just looking straight ahead everything works fine.
-  As such I don't know if this shuold / can even be fixed
-  without some questionable movements when sending stuff to be rendererd
-  */
 
   R_Camera camera = R_CameraMakeOrthographic(
       Vec3F32_MultScalar(Vec3F32_Forward, -10.f), Vec3F32_Forward, Vec3F32_Up,
@@ -153,17 +142,42 @@ int main()
   //     Vec3F32_MultScalar(Vec3F32_Left, -10.f), Vec3F32_Right,
   //     Vec3F32_Up, 90.f, (F32)window.width / (F32)window.height, 1.f, 320.f
   // );
+
   R_Framebuffer framebuffer = R_FramebufferMake(
-      1600.f, 900.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
+      160.f, 90.f, TextureWrap_ClampToEdge, TextureFilter_Nearest,
       TextureFormat_RGB, 1
   );
 
-  R_Texture atlas, atlas2;
+  R_Texture atlas;
   R_TextureLoad(&atlas, atlas_path);
-  R_TextureLoad(&atlas2, atlas2_path);
+
+  // initlize shader
+  R_ShaderPack shader;
+
+  String8 exe_path = OS_PathExecutableDir(&arena);
+  String8 vs_path  = OS_PathRelative(
+      &arena, exe_path, Str8Lit("./assets/shaders/default_vert.vs")
+  );
+  String8 fs_path = OS_PathRelative(
+      &arena, exe_path, Str8Lit("./assets/shaders/default_frag.fs")
+  );
+
+  R_Shader vs              = R_ShaderMake(&arena, vs_path, ShaderType_Vertex);
+  R_Shader fs              = R_ShaderMake(&arena, fs_path, ShaderType_Fragment);
+  R_Shader* shader_ptrs[2] = {&vs, &fs};
+  R_ShaderPackInit(&shader, shader_ptrs, 2, &arena, 4);
+
+  // TODO(calco): Initialize the material
+  D_Material mat_opaque;
+  mat_opaque.opaque = 1;
+  mat_opaque.shader = &shader;
+
+  D_Material mat_translucent;
+  mat_translucent.opaque = 0;
+  mat_translucent.shader = &shader;
 
   // ***************************************************************************
-  // ** Game Loop                                                             **
+  // ** Game Loop **
   // ***************************************************************************
   PrecisionTime elapsed_time      = 0;
   PrecisionTime prev_loop_time    = 0;
@@ -237,26 +251,31 @@ int main()
         D_DrawBegin(&renderer);
 
         D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
-            Vec2F32_Make(64.f, 64.f), NULL, RectF32_Zero
-        );
-
-        D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
-            Vec2F32_Make(32.f, 18.f), &atlas,
-            RectF32_Make(0.f, 16.f, 32.f, 18.f)
-        );
-
-        D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(4.f, 0.f, -5.f), F32_DegToRad(rot * 1.285),
-            Vec2F32_Make(16.f, 16.f), &atlas2,
-            RectF32_Make(16.f, 0.f, 16.f, 16.f)
-        );
-
-        D_DrawTexturedQuad(
-            &renderer, Vec3F32_Make(0.f, 0.f, -5.0f), F32_DegToRad(rot),
+            &renderer, &mat_translucent, Vec3F32_Make(62.f, 0.f, 0.f), 0.f,
             Vec2F32_Make(16.f, 16.f), &atlas,
             RectF32_Make(16.f, 0.f, 16.f, 16.f)
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, &mat_opaque, Vec3F32_Make(0.f, 0.f, -5.f), 0.f,
+            Vec2F32_Make(16.f, 16.f), &atlas, RectF32_Make(0.f, 0.f, 16.f, 16.f)
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, &mat_opaque, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
+            Vec2F32_Make(32.f, 32.f), NULL, RectF32_Zero
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, &mat_translucent, Vec3F32_Make(68.f, 0.f, 0.f),
+            F32_Pi * 0.5f, Vec2F32_Make(16.f, 16.f), &atlas,
+            RectF32_Make(32.f, 32.f, 16.f, 16.f)
+        );
+
+        D_DrawTexturedQuad(
+            &renderer, &mat_translucent, Vec3F32_Make(0.f, 0.f, -5.f),
+            F32_Pi * 0.5f, Vec2F32_Make(16.f, 16.f), &atlas,
+            RectF32_Make(48.f, 48.f, 16.f, 16.f)
         );
 
         D_DrawEnd(&renderer, &camera);
@@ -272,6 +291,8 @@ int main()
   // ** Cleanup                                                               **
   // ***************************************************************************
   D_RendererFree(&renderer);
+
+  R_ShaderPackFreeGPU(&shader);
 
   R_FramebufferFreeGPU(&framebuffer);
   OS_WindowFree(&window);

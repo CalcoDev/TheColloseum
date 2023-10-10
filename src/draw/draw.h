@@ -50,6 +50,7 @@ tl;dr: The devil is in the details.
  * @warning Should never exceed 7.
  */
 #define D_RENDERER_MAX_TEXTURE_COUNT 7
+#define D_RENDERER_MAX_BUCKET_COUNT  1024
 
 typedef struct D_Vertex2D
 {
@@ -58,14 +59,33 @@ typedef struct D_Vertex2D
   F32 texture_index;
 } D_Vertex2D;
 
+/**
+ * @brief Basic for now. Will refactor to more advanced setup
+ * when necessary
+ */
+typedef struct D_Material
+{
+  R_ShaderPack* shader;
+  B8 opaque;
+} D_Material;
+
+typedef struct __D_SortMapPair
+{
+  // translucent = 2 bits, depth = 24 bits, material_id = 32 bits, padding = 10b
+  // U64 key;
+
+  B8 translucent;
+  F32 depth;
+  S32 material_id;
+
+  U32 offset;
+  U8 size;
+} __D_SortMapPair;
+
 typedef struct D_Renderer
 {
   Arena* arena;
   R_Pipeline pipeline;
-
-  // TODO(calco): handle 3rd shader in free and add
-  R_Shader shaders[3];
-  R_ShaderPack shader_pack;
 
   R_Buffer vertex_buffer;
   R_Buffer index_buffer;
@@ -78,6 +98,16 @@ typedef struct D_Renderer
   R_Texture texture_not_found;
   R_Texture* textures[D_RENDERER_MAX_TEXTURE_COUNT];
   U32 texture_count;
+
+  // TODO(calco): Create a default material lmao.
+
+  // TODO(calco): Refactor these textures and materials into some other thing
+  D_Material* materials[10];
+  U32 material_count;
+
+  // TODO(calco): Make this a dynamic array
+  __D_SortMapPair __buckets[D_RENDERER_MAX_BUCKET_COUNT];
+  U32 __buckets_count;
 } D_Renderer;
 
 void D_RendererInit(D_Renderer* renderer, Arena* arena);
@@ -85,7 +115,10 @@ void D_RendererFree(D_Renderer* renderer);
 
 void D_DrawBegin(D_Renderer* renderer);
 
-void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale);
+void D_DrawQuad(
+    D_Renderer* renderer, D_Material* material, Vec3F32 pos, F32 rotation,
+    Vec2F32 scale
+);
 
 /**
  * @brief Draws a textured quad to at specified world transform
@@ -100,8 +133,8 @@ void D_DrawQuad(D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale);
  * texture and reset the UVs accordingly.
  */
 void D_DrawTexturedQuad(
-    D_Renderer* renderer, Vec3F32 pos, F32 rotation, Vec2F32 scale,
-    R_Texture* texture, RectF32 uv
+    D_Renderer* renderer, D_Material* material, Vec3F32 pos, F32 rotation,
+    Vec2F32 scale, R_Texture* texture, RectF32 uv
 );
 
 void D_DrawEnd(D_Renderer* renderer, R_Camera* camera);
