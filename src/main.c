@@ -152,29 +152,28 @@ int main()
   R_TextureLoad(&atlas, atlas_path);
 
   // initlize shader
-  R_ShaderPack shader;
-
-  String8 exe_path = OS_PathExecutableDir(&arena);
-  String8 vs_path  = OS_PathRelative(
-      &arena, exe_path, Str8Lit("./assets/shaders/default_vert.vs")
+  String8 exe_path     = OS_PathExecutableDir(&arena);
+  String8 shader1_path = OS_PathRelative(
+      &arena, exe_path, Str8Lit("./assets/shaders/default/default")
   );
-  String8 fs_path = OS_PathRelative(
-      &arena, exe_path, Str8Lit("./assets/shaders/default_frag.fs")
+  String8 shader2_path = OS_PathRelative(
+      &arena, exe_path, Str8Lit("./assets/shaders/perlin/perlin")
   );
 
-  R_Shader vs              = R_ShaderMake(&arena, vs_path, ShaderType_Vertex);
-  R_Shader fs              = R_ShaderMake(&arena, fs_path, ShaderType_Fragment);
-  R_Shader* shader_ptrs[2] = {&vs, &fs};
-  R_ShaderPackInit(&shader, shader_ptrs, 2, &arena, 4);
+  R_Shader v1, f1, v2, f2;
+  R_ShaderPack shader1 =
+      R_ShaderPackMake(&arena, shader1_path, &v1, &f1, NULL, 4);
+  R_ShaderPack shader2 =
+      R_ShaderPackMake(&arena, shader2_path, &v2, &f2, NULL, 4);
 
   // TODO(calco): Initialize the material
-  D_Material mat_opaque;
-  mat_opaque.opaque = 1;
-  mat_opaque.shader = &shader;
+  D_Material material1;
+  material1.opaque = 1;
+  material1.shader = &shader1;
 
-  D_Material mat_translucent;
-  mat_translucent.opaque = 0;
-  mat_translucent.shader = &shader;
+  D_Material material2;
+  material2.opaque = 0;
+  material2.shader = &shader2;
 
   // ***************************************************************************
   // ** Game Loop **
@@ -235,9 +234,6 @@ int main()
         R_FramebufferBind(&framebuffer);
         R_FramebufferSetViewport(&framebuffer);
 
-        // i'll have to play around with depth buffers and alpha blending
-        // atm it works but a bit scuffed and I'll abstract it.
-        // as 2d requires different than 3d?
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
@@ -251,30 +247,30 @@ int main()
         D_DrawBegin(&renderer);
 
         D_DrawTexturedQuad(
-            &renderer, &mat_translucent, Vec3F32_Make(62.f, 0.f, 0.f), 0.f,
+            &renderer, &material2, Vec3F32_Make(62.f, 0.f, 0.f), 0.f,
             Vec2F32_Make(16.f, 16.f), &atlas,
             RectF32_Make(16.f, 0.f, 16.f, 16.f)
         );
 
         D_DrawTexturedQuad(
-            &renderer, &mat_opaque, Vec3F32_Make(0.f, 0.f, -5.f), 0.f,
+            &renderer, &material1, Vec3F32_Make(0.f, 0.f, -5.f), 0.f,
             Vec2F32_Make(16.f, 16.f), &atlas, RectF32_Make(0.f, 0.f, 16.f, 16.f)
         );
 
         D_DrawTexturedQuad(
-            &renderer, &mat_opaque, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
+            &renderer, &material1, Vec3F32_Make(0.f, 0.f, 0.f), 0.f,
             Vec2F32_Make(32.f, 32.f), NULL, RectF32_Zero
         );
 
         D_DrawTexturedQuad(
-            &renderer, &mat_translucent, Vec3F32_Make(68.f, 0.f, 0.f),
-            F32_Pi * 0.5f, Vec2F32_Make(16.f, 16.f), &atlas,
+            &renderer, &material2, Vec3F32_Make(68.f, 0.f, 0.f), F32_Pi * 0.5f,
+            Vec2F32_Make(16.f, 16.f), &atlas,
             RectF32_Make(32.f, 32.f, 16.f, 16.f)
         );
 
         D_DrawTexturedQuad(
-            &renderer, &mat_translucent, Vec3F32_Make(0.f, 0.f, -5.f),
-            F32_Pi * 0.5f, Vec2F32_Make(16.f, 16.f), &atlas,
+            &renderer, &material2, Vec3F32_Make(0.f, 0.f, -5.f), F32_Pi * 0.5f,
+            Vec2F32_Make(16.f, 16.f), &atlas,
             RectF32_Make(48.f, 48.f, 16.f, 16.f)
         );
 
@@ -292,7 +288,13 @@ int main()
   // ***************************************************************************
   D_RendererFree(&renderer);
 
-  R_ShaderPackFreeGPU(&shader);
+  R_ShaderFreeGPU(&v1);
+  R_ShaderFreeGPU(&f1);
+  R_ShaderFreeGPU(&v2);
+  R_ShaderFreeGPU(&f2);
+
+  R_ShaderPackFreeGPU(&shader1);
+  R_ShaderPackFreeGPU(&shader2);
 
   R_FramebufferFreeGPU(&framebuffer);
   OS_WindowFree(&window);

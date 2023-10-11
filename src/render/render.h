@@ -121,6 +121,10 @@ void R_ShaderPackInit(
     R_ShaderPack* pack, R_Shader** shaders, U64 shader_count, Arena* arena,
     U64 uniform_count
 );
+R_ShaderPack R_ShaderPackMake(
+    Arena* arena, String8 path, R_Shader* vs, R_Shader* fs, R_Shader* gs,
+    U64 uniform_count
+);
 void R_ShaderPackFreeGPU(R_ShaderPack* pack);
 
 void R_ShaderPackBind(R_ShaderPack* pack);

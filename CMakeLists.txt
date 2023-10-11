@@ -77,6 +77,9 @@ endif()
 
 # TODO(calco): Figure out debug and release builds.
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+
 # configure libraries
 # glad
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/glad")

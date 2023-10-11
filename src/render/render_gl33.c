@@ -423,6 +423,58 @@ void R_ShaderPackInit(
   }
 }
 
+// TODO(calco): Horrible memory management.
+R_ShaderPack R_ShaderPackMake(
+    Arena* arena, String8 path, R_Shader* vs, R_Shader* fs, R_Shader* gs,
+    U64 uniform_count
+)
+{
+  // TempArena tmp = ArenaBeginTemp(arena);
+
+  path = Str8InitArena(arena, path.data, path.size + 3);
+  R_Shader* shaders[3];
+  U8 shader_cnt            = 0;
+  path.data[path.size - 3] = '.';
+  if (vs != NULL)
+  {
+    path.data[path.size - 2] = 'v';
+    path.data[path.size - 1] = 's';
+
+    *vs = R_ShaderMake(arena, path, ShaderType_Vertex);
+
+    shaders[0] = vs;
+    shader_cnt += 1;
+  }
+
+  if (fs != NULL)
+  {
+    path.data[path.size - 2] = 'f';
+    path.data[path.size - 1] = 's';
+
+    *fs = R_ShaderMake(arena, path, ShaderType_Fragment);
+
+    shaders[1] = fs;
+    shader_cnt += 1;
+  }
+
+  if (gs != NULL)
+  {
+    path.data[path.size - 2] = 'g';
+    path.data[path.size - 1] = 's';
+
+    *gs = R_ShaderMake(arena, path, ShaderType_Geometry);
+
+    shaders[2] = gs;
+    shader_cnt += 1;
+  }
+
+  // ArenaEndTemp(&tmp);
+
+  R_ShaderPack pack;
+  R_ShaderPackInit(&pack, shaders, shader_cnt, arena, uniform_count);
+  return pack;
+}
+
 // TODO(calco): Figure out if attached shaders should be deleted too.
 void R_ShaderPackFreeGPU(R_ShaderPack* pack) { glDeleteProgram(pack->handle); }
 
